@@ -1,0 +1,17 @@
+/* site wide styles for desktop */
+
+body {
+	padding-left: 25%;
+}
+nav {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 25%;
+	height: 100%;
+	overflow: hidden;
+}
+nav .nav-social-bar {
+	position: absolute;
+	bottom: var(--small-gap); /* specifying a distance from the bottom keeps the bar at the bottom */
+}

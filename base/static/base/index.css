@@ -1,0 +1,70 @@
+/*==========================================*/
+
+.statement {
+	text-align: justify;
+	margin-top: -50px; /* overrides section bottom margin */
+	padding: 0px 2% 50px;
+	border-bottom: solid 1px var(--color-hr);
+}
+
+
+/*   EDUCATION
+/*=========================================================================== */
+
+.education {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-gap: var(--horizontal-gap);
+}
+/* following is the best way I can think of making this responsive (could not do with grid alone although there might be a way. It will help to keep responsiveness anchored at 720px */
+@media screen and (max-width: 720px) {
+	.education {
+		grid-template-columns: 1fr;
+	}
+}
+	.education-block img {
+		/* specific scenario */
+		border-radius: var(--medium-radius) var(--medium-radius) 0 0;
+	}
+		.education-block img:hover, .education-block img:active {
+			transition: var(--transition-time);
+			filter: none;
+		}
+	.education-text {
+		/* specific scenario */
+		border-radius: 0 0 var(--medium-radius) var(--medium-radius); 
+	}
+
+
+/*   PROJECTS
+/*=========================================================================== */
+
+/* needs OVERHAULING */
+
+.featured .grid-container {
+	/* assuming there will always be at most 6 featured items */
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-gap: var(--vertical-gap);
+}
+@media screen and (max-width: 1000px) {
+	.featured .grid-container {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+@media screen and (max-width: 500px) {
+	.featured .grid-container {
+		grid-template-columns: 1fr;
+	}
+}
+
+
+/*   SKILLSETS
+/*=========================================================================== */
+
+.skillsets h4 {
+	margin-bottom: 0px; /* specific scenario */
+}
+.skillsets .grid-container {
+	grid-template-columns: 1fr;
+	grid-gap: var(--vertical-gap);
+}

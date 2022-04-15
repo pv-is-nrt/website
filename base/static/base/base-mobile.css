@@ -1,0 +1,7 @@
+/* site wide styles for mobile devices */
+
+.header h1 {
+    /* attempts to fix huge gap if h1 breaks into multi-lines in mobile view */
+    line-height: 1.2em;
+    padding: 0.6em 0;
+}

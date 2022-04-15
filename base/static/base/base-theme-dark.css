@@ -1,0 +1,20 @@
+/* overrides the colors in base.css to give a dark theme */
+
+:root {
+    /* include only the ones that need to be overridden */
+	--color: #ddd;
+	--color-subtle: #aaa;
+	--bg-color: #222;
+	--bg-color-subtle: #333;
+	--color-accent: #fb1;
+	--color-accent2: #696;
+	--color-accent3: #c43;
+	--color-link: #1ac;
+	--color-hr: #666;
+	--shadow-very-dark: rgba(0, 0, 0, 0.5);
+	--shadow-dark: rgba(0, 0, 0, 0.3);
+	--color-selection: #000;
+	--color-bg-selection: #960;
+	--color-progress-bar: #364;
+	--thin-font-weight: 100;
+}

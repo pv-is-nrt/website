@@ -1,0 +1,32 @@
+/*   EXPERIENCE
+/*=========================================================================== */
+
+.experience .grid-container {
+	grid-template-columns: 1fr;
+	grid-gap: var(--vertical-gap);
+}
+.experience h4 {
+	margin-bottom: 0px;
+}
+.experience ul {
+	padding-left: 20px; /* because ul, li come from database */
+}
+
+/*   RESEARCH (publications/presentations)
+/*=========================================================================== */
+
+.research h3 {
+	margin-top: 40px; /* specific scenario for "Publications" and "Presentations" headings */
+}
+.research h4 {
+	margin-top: 30px; /* specific scenario */
+}
+	.research-summary {
+		grid-template-columns: 1fr 1fr;
+	}
+	@media screen and (max-width: 720px) {
+		.research-summary {
+			grid-template-columns: 1fr;
+		}
+	}
+

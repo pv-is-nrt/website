@@ -1,0 +1,17 @@
+/* CSS for BLOG app only */
+
+.post h2 {
+	line-height: 1.6em;
+}
+.post a {
+	color: var(--color-link);
+}
+
+.recent-posts .grid-container {
+  	grid-template-columns: 1fr;
+  	grid-gap: 0;
+}
+	.recent-posts .item.grid-container {
+		grid-template-columns: auto max-content;
+		grid-gap: var(--tiny-gap);
+	}

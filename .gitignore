@@ -6,10 +6,11 @@
 
 _*/
 ~*/
-media/
+# having leading foward slash before media and static will only exclude these folders that are in the root directory and will not ignore the ones that are in subdirectories.
+/media/
+/static/
 *env/
 .vscode/
-static/
 
 #    Specific
 # -------------------------------------------------------------------- #
