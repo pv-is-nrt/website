@@ -9,7 +9,7 @@ nav {
 	left: 0;
 	width: 25%;
 	height: 100%;
-	overflow: scroll; /* just to be safe */
+	overflow: auto; /* scrollbar, when height not enough */
 }
 nav .nav-social-bar {
 	position: absolute;
@@ -54,8 +54,8 @@ nav .nav-social-bar {
 	}
 }
 
-/* Just hide the social bar if screen height is less than 400 px (God!) */
-@media screen and (max-height: 400px) {
+/* Just hide the social bar if screen height is less than 430 px (God!) */
+@media screen and (max-height: 430px) {
 	nav .nav-social-bar {
 		display: none;
 	}
