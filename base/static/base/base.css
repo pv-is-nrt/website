@@ -259,11 +259,6 @@ img {
 	border-radius: var(--small-radius) !important; /* be consistent for rounded corners */
 	cursor: pointer !important;
 }
-	.button:active {
-		background-color: var(--color-link) !important;
-		color: var(--bg-color) !important;
-		border: solid 1px var(--color-link) !important; /* not none, so that the button size does not change */
-	}
 
 .nav-button {
 	/* create a transparent border so that it doesn't change size on hover */
@@ -441,7 +436,7 @@ input:focus, textarea:focus {
 		height: auto;
 		border-radius: var(--infinite-radius);
 	}
-	nav img.profile-photo:hover, nav img.profile-photo:active {
+	nav img.profile-photo:hover {
 		transition: var(--transition-time);
 		filter: none;
 	}
@@ -464,7 +459,7 @@ input:focus, textarea:focus {
 		display: block;
 		text-align: center;
 	}
-	nav ul li:hover, nav ul li:active {
+	nav ul li:hover {
 		/* TODO: check why this isn't working */
 		/* NOTE: apparently if the #link has been visited, it is not being colored on hover */
 		color: var(--color-link);
@@ -491,7 +486,7 @@ input:focus, textarea:focus {
 		font-size: 1.3em;
 		line-height: 2em; /* in case they move to a new line */
 	}
-	nav .nav-social-bar i:hover, nav .nav-social-bar i:active {
+	nav .nav-social-bar i:hover {
 		color: var(--color-link);
 	}
 	nav .nav-social-bar p {

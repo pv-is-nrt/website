@@ -25,7 +25,7 @@
 		/* specific scenario */
 		border-radius: var(--medium-radius) var(--medium-radius) 0 0;
 	}
-		.education-block img:hover, .education-block img:active {
+		.education-block img:hover {
 			transition: var(--transition-time);
 			filter: none;
 		}
