@@ -15,6 +15,16 @@
 /*   RESEARCH (publications/presentations)
 /*=========================================================================== */
 
+.cv-resume.grid-container {
+	grid-template-columns: 1fr 1fr;
+}
+	@media screen and (max-width: 720px) {
+		.cv-resume.grid-container {
+			grid-template-columns: 1fr;
+			gap: var(--vertical-gap);
+		}
+	}
+
 .research h3 {
 	margin-top: 40px; /* specific scenario for "Publications" and "Presentations" headings */
 }
@@ -29,6 +39,10 @@
 			grid-template-columns: 1fr;
 		}
 	}
+
+/*   FOR SMALL HEIGHT SCREENS
+/*=========================================================================== */
+
 /* hide professional sub nav links if height of screen is less than 800px */
 @media screen and (max-height: 800px) {
 	.nav-sub-link {

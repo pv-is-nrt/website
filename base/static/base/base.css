@@ -179,6 +179,10 @@ img {
 	display: inline-block;
 }
 
+.dotted {
+	border-bottom: dotted 1px var(--color-subtle);
+}
+
 .grid-container {
 	display: grid;
 	gap: var(--horizontal-gap); /* override with --vertical-gap when necessary, because --horizontal-gap is in % and maybe too much when the grid is expected to contain multiple rows */
@@ -218,6 +222,9 @@ img {
 }
 .right {
 	text-align: right;
+}
+.mono {
+	font-family: 'Fira Mono', monospace;
 }
 
 .card {
