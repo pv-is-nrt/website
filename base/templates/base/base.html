@@ -43,7 +43,7 @@
                 <span class="material-icons" id="dark_mode_icon" onclick="toggleStyleSheet();">dark_mode</span>
                 <span class="material-icons" id="dark_mode_icon" onclick="toggleStyleSheet();">light_mode</span>
             </div> -->
-            <a href="{% url 'base:index' %}"><img src="{% static 'base/images/profile-photo.jpg' %}" class="profile-photo card"></a>
+            <a href="{% url 'base:index' %}"><img src="{% static 'base/images/profile-photo.jpg' %}" alt="profile photo" class="profile-photo card"></a>
             <p class="tagline">{{ basic_info.resume_tagline }}</p>
             <ul>
                 <!-- Home link will always be present in navbar -->

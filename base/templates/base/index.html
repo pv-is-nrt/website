@@ -44,7 +44,7 @@
 	<section class="education" id="education">
 		{% for education in educations %}
 		<div class="education-block card-very-thin rounded-medium">
-			<img src="/static/base/images/education-img-{{ education.pk }}.jpg" class="education-img-{{ education.pk }} grayscale">
+			<img src="/static/base/images/education-img-{{ education.pk }}.jpg" alt="institution photo for {{ education.organization.full_name }}" class="education-img-{{ education.pk }} grayscale">
 			<div class="education-text padded">
 				<h4>{{ education.organization.full_name }}</h4>
 				<p class="subheading-small">
@@ -70,7 +70,7 @@
 		<div class="grid-container">
 			{% for post in posts_featured %}
 			<div class="centered card-very-thin padded">
-				<img src="{{ post.image_1.url }}" class="logo150">
+				<img src="{{ post.image_1.url }}" alt="featured photo for {{ post.title }}" class="logo150">
 				<div class="spacer30"></div>
 				<h6>{{ post.title|truncatechars:100|ljust:"100" }}</h6>
 				<div class="spacer20"></div>
