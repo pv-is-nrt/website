@@ -9,9 +9,46 @@ nav {
 	left: 0;
 	width: 25%;
 	height: 100%;
-	overflow: hidden;
+	overflow: scroll; /* just to be safe */
 }
 nav .nav-social-bar {
 	position: absolute;
 	bottom: var(--small-gap); /* specifying a distance from the bottom keeps the bar at the bottom */
+}
+
+/*   FOR LOW HEIGHT SCREENS
+/*=========================================================================== */
+
+@media screen and (max-height: 800px) {
+	.nav-container {
+		font-size: 90%;
+	}
+	.tagline {
+		font-size: 70%;
+		margin-bottom: var(--small-gap);
+	}
+	nav li {
+		font-size: 90%;
+		line-height: 1.3em;
+	}
+	/* hide the professional sub headings */
+	/* this is done in professional.css, because that is loaded after desktop.css */
+	nav .nav-social-bar {
+		margin-top: 2vh;
+	}
+	nav .nav-social-bar i {
+		font-size: 1.0em;
+		line-height: 1.3em;
+	}
+	nav .nav-social-bar p {
+		font-size: 0.6em;
+		line-height: 0.85em;
+	}
+}
+
+/* Just hide the social bar if screen height is less than 400 px (God!) */
+@media screen and (max-height: 400px) {
+	nav .nav-social-bar {
+		display: none;
+	}
 }

@@ -438,8 +438,8 @@ input:focus, textarea:focus {
         /* center */
         display: block;
         margin: 0 auto 5vh;
-		width: 150px;
-		height: 150px;
+		width: min(30%, 150px);
+		height: auto;
 		border-radius: var(--infinite-radius);
 	}
 	nav img.profile-photo:hover, nav img.profile-photo:active {
@@ -455,6 +455,7 @@ input:focus, textarea:focus {
 		letter-spacing: 0.2em;
 		color: var(--color-subtle);
 		margin-bottom: var(--gap);
+		padding: 0 var(--tiny-gap);
 	}
 	nav ul li {
 		border-bottom: solid 1px var(--color-hr);
@@ -495,7 +496,9 @@ input:focus, textarea:focus {
 		color: var(--color-link);
 	}
 	nav .nav-social-bar p {
+		color: var(--color-subtle);
 		font-size: 0.7em;
+		line-height: 1.0em;
 		margin-top: var(--tiny-gap);
 	}
 

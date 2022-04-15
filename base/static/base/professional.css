@@ -29,4 +29,10 @@
 			grid-template-columns: 1fr;
 		}
 	}
+/* hide professional sub nav links if height of screen is less than 800px */
+@media screen and (max-height: 800px) {
+	.nav-sub-link {
+		display: none;
+	}
+}
 
