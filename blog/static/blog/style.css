@@ -9,9 +9,9 @@
 
 .recent-posts .grid-container {
   	grid-template-columns: 1fr;
-  	grid-gap: 0;
+  	gap: 0;
 }
 	.recent-posts .item.grid-container {
 		grid-template-columns: auto max-content;
-		grid-gap: var(--tiny-gap);
+		gap: var(--tiny-gap);
 	}

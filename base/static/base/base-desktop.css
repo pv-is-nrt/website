@@ -15,6 +15,14 @@ nav .nav-social-bar {
 	position: absolute;
 	bottom: var(--small-gap); /* specifying a distance from the bottom keeps the bar at the bottom */
 }
+/* make blog post body text justified only on desktops */
+.post .body {
+	text-align: justify;
+}
+/* do the same for statement */
+.statement {
+	text-align: justify;
+}
 
 /*   FOR LOW HEIGHT SCREENS
 /*=========================================================================== */

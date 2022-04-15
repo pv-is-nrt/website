@@ -181,7 +181,7 @@ img {
 
 .grid-container {
 	display: grid;
-	grid-gap: var(--horizontal-gap); /* override with --vertical-gap when necessary, because --horizontal-gap is in % and maybe too much when the grid is expected to contain multiple rows */
+	gap: var(--horizontal-gap); /* override with --vertical-gap when necessary, because --horizontal-gap is in % and maybe too much when the grid is expected to contain multiple rows */
 }
 
 .double-spaced {
@@ -347,7 +347,6 @@ img {
 	margin-bottom: 20px;
 }
 .progress-bar-container {
-    max-width: 800px;
     background-color: var(--bg-color-subtle);
     border-radius: var(--tiny-radius);
     height: 10px;

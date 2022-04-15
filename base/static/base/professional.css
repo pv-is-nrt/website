@@ -3,7 +3,7 @@
 
 .experience .grid-container {
 	grid-template-columns: 1fr;
-	grid-gap: var(--vertical-gap);
+	gap: var(--vertical-gap);
 }
 .experience h4 {
 	margin-bottom: 0px;
@@ -18,7 +18,7 @@
 .research h3 {
 	margin-top: 40px; /* specific scenario for "Publications" and "Presentations" headings */
 }
-.research h4 {
+.publications h4, .presentations h4 {
 	margin-top: 30px; /* specific scenario */
 }
 	.research-summary {
