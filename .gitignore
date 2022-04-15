@@ -28,8 +28,7 @@ _*/
 *.bak
 *.code-workspace
 .history
-*resume*
-*cv*
+TODO.md
 
 #    Specific
 # -------------------------------------------------------------------- #
