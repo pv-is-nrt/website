@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- this file is not directly called by the backend -->
+<html lang="en">
+
+<head>
+    
+    {% include "./head-css.html" %}
+    {% include "./head-meta.html" %}
+    {% include "./head-favicon.html" %}
+
+    {% block additional_head_content %}
+    {% endblock %}
+
+    <title>
+        {% block title %}
+            Prateek Verma | Website
+        {% endblock %}
+    </title>
+
+</head>
+
+<!-- TODO FOR BLOGS -->
+<!-- 
+    Different kinds of articles may require different features.
+    For example,
+        - portfolio articles require DATE FROM, DATE TO, ORGANIZATION, FUNDING
+        - Coding type articles/guides... CODE COLORING, CODE FONTS, CODE BLOCKS
+        - what other types of articles?
+    Can some of these information go in as the subheading?
+ -->
+
+<body>
+
+    <nav class="card">
+
+        <!-- NAVBAR
+	    # --------------------------------------------------------------------->
+
+        <div class="nav-container">
+            <!-- Theme toggle -->
+            <!-- TODO: currently disabled -->
+            <!-- <div class="theme-toggle clickable">
+                <span class="material-icons" id="dark_mode_icon" onclick="toggleStyleSheet();">dark_mode</span>
+                <span class="material-icons" id="dark_mode_icon" onclick="toggleStyleSheet();">light_mode</span>
+            </div> -->
+            <a href="{% url 'base:index' %}"><img src="{% static 'base/images/profile-photo.jpg' %}" class="profile-photo card"></a>
+            <p class="tagline">{{ basic_info.resume_tagline }}</p>
+            <ul>
+                <!-- Home link will always be present in navbar -->
+                <!-- and it will reload the page even if already on base -->
+                <!-- color Home icon only if path is exactly /base/ otherwise it will also be highlighted for /base/professional etc. -->
+                <li>
+                    <a href="{% url 'base:index' %}#header">
+                    <span class="material-icons-outlined space-span-left {% if request.path == '/base/' %}color-accent{% endif %}">home</span>Home</a>
+                </li>
+                {% block nav_links_li %}
+                <li><a href="#featured">
+                    <span class="material-icons-outlined space-span-left">dashboard</span>Featured</a>
+                </li>
+                <li><a href="{% url 'base:professional' %}#header">
+                    <span class="material-icons space-span-left">attach_money</span>Professional</a>
+                </li>
+                <li><a href="{% url 'blog:index' %}#header">
+                    <span class="material-icons-outlined space-span-left">edit_note</span>Blog</a>
+                </li>
+                <li><a href="{% url 'base:contact' %}#header">
+                    <span class="material-icons-outlined space-span-left">drafts</span>Contact</a>
+                </li>
+                {% endblock %}
+            </ul>
+            <div class="nav-social-bar">
+                <a href="{{ basic_info.instagram_url }}" target="blank"><i class="fa-brands fa-instagram"></i></a>
+                <a href="{{ basic_info.linkedin_url }}" target="blank"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="{{ basic_info.github_url }}" target="blank"><i class="fa-brands fa-github"></i></a>
+                <a href="{{ basic_info.medium_url }}" target="blank"><i class="fa-brands fa-medium"></i></a>
+                <a href="{{ basic_info.scholar_url }}" target="blank"><i class="fa-solid fa-graduation-cap"></i></a>
+                <a href="{{ basic_info.twitter_url }}" target="blank"><i class="fa-brands fa-twitter"></i></a>
+                <a href="{{ basic_info.youtube_url }}" target="blank"><i class="fa-brands fa-youtube"></i></a>
+                <p>this website is hand-crafted by &copy; prateek</p>
+            </div>
+        </div>
+
+    </nav>
+    
+    <div class="except-nav">
+        {% block except-nav %}
+
+        {% endblock %}
+    </div>
+
+    <!-- SCRIPTS
+    # --------------------------------------------------------------------->
+    
+    <script src="{% static 'base/script.js' %}"></script>
+
+	<!-- CREDITS
+    # --------------------------------------------------------------------
+        1. 
+    -->
+    
+
+</body>
+</html>

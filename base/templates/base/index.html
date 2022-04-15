@@ -1,0 +1,109 @@
+{% extends "./base.html" %}
+
+
+{% block additional_head_content %}
+	<link rel="stylesheet" type="text/css" href="{% static 'base/index.css' %}">
+{% endblock %}
+
+
+{% block title %}
+	{{ first_name }} {{ last_name }} | Homepage
+{% endblock %}
+
+
+{% block except-nav %}
+
+	<!-- Planning sections on home page: statement, education, select projects, experience, skillsets, research (publications, presentations), awards and honors, extracurriculars -->
+
+	<!-- HEADER
+	# --------------------------------------------------------------------->
+        
+	<!-- This helps to quickly display something on the homepage while trying to debug the site. Just pass debug_info from the views.py -->
+	{% if debug_info %}
+	<p>{{ debug_info }}</p>
+	{% endif %}
+
+	<section class="header" id="header">
+		<h1><span class="fname">{{ add }}{{ first_name }}</span>
+			<span class="lname">{{ last_name }}</span>
+		</h1>
+	</section>
+
+
+	<!-- WEBSITE STATEMENT
+	# --------------------------------------------------------------------->
+	
+	<section class="statement" id="statement">
+		<p class="double-spaced">{{ basic_info.website_statement }}</p>
+	</section>
+
+
+	<!-- EDUCATION
+	# --------------------------------------------------------------------->
+	
+	<section class="education" id="education">
+		{% for education in educations %}
+		<div class="education-block card-very-thin rounded-medium">
+			<img src="/static/base/images/education-img-{{ education.pk }}.jpg" class="education-img-{{ education.pk }} grayscale">
+			<div class="education-text padded">
+				<h4>{{ education.organization.full_name }}</h4>
+				<p class="subheading-small">
+					<span>{{ education.organization.city }} ({{ education.organization.country }})</span>
+					<a href="{{ education.organization.google_maps_url }}" target="_blank"><span class="material-icons-outlined">map</span></a>
+					<a href="{{ education.organization.website }}" target="_blank"><span class="material-icons-outlined">web</span></a>
+				</p>
+				<hr>
+				<p class="double-spaced">{{ education.description|safe }}</p>
+			</div>
+		</div>
+		{% endfor %}
+	</section>
+
+
+	<!-- FEATURED
+	# --------------------------------------------------------------------->
+
+	<section class="featured" id="featured">
+		<h2>Featured</h2>
+		<hr>
+		<div class="spacer30"></div>
+		<div class="grid-container">
+			{% for post in posts_featured %}
+			<div class="centered card-very-thin padded">
+				<img src="{{ post.image_1.url }}" class="logo150">
+				<div class="spacer30"></div>
+				<h6>{{ post.title|truncatechars:100|ljust:"100" }}</h6>
+				<div class="spacer20"></div>
+				<p class="smaller-text left color-subtle">{{ post.body|safe|truncatewords_html:20 }}<a href="{% url 'blog:post' post.id %}#header" class="color-link">read more</a></p>
+			</div>
+			{% endfor %}
+		</div>
+	</section>
+
+
+	<!-- SKILLSETS
+	# --------------------------------------------------------------------->
+	
+	<section class="skillsets" id="skillsets">
+		<h2>Skillsets</h2>
+		<div class="grid-container">
+			{% for skillset in skillsets %}
+			<div class="padded clickable card-very-thin" onClick="showdiv('skillset-{{ skillset.category }}');">
+				<h4>{{ skillset.category_full|default:skillset.category }}</h4>
+				<div class="skillset hidden-at-first" id="skillset-{{ skillset.category }}">
+					<hr>
+					{% for skill in skillset.skills_list_with_score %}
+					<div class="progress-item">
+						<h5>{{ skill.0 }}</h5>
+						<div class="progress-bar-container">
+							<div class="progress-bar" style="width: {{ skill.1 }}%"></div>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</section>
+
+{% endblock except-nav %}

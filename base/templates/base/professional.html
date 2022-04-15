@@ -1,0 +1,178 @@
+{% extends "./base.html" %}
+
+
+{% block additional_head_content %}
+	<link rel="stylesheet" type="text/css" href="{% static 'base/professional.css' %}">
+{% endblock %}
+
+
+{% block title %}
+	Professional | {{ first_name }} {{ last_name }}
+{% endblock %}
+
+
+<!-- NAV LINKS OVERRIDE
+# ===================================================================-->
+
+	{% block nav_links_li %}
+	<li>
+		<!-- color this link icon because it's the current page -->
+		<a href="{% url 'base:professional' %}#header">
+		<span class="material-icons-outlined space-span-left color-accent">attach_money</span>Professional</a>
+		<!-- sub navigation items -->
+		<li class="smaller-text">
+			<a href="{% url 'base:professional' %}#research">
+			<span class="material-icons space-narrow-span-left space-span-right">subdirectory_arrow_right</span>Research</a>
+		</li>
+		<li class="smaller-text">
+			<a href="{% url 'base:professional' %}#experience">
+			<span class="material-icons space-narrow-span-left space-span-right">subdirectory_arrow_right</span>Experience</a>
+		</li>
+		<li class="smaller-text">
+			<a href="{% url 'base:professional' %}#awards">
+			<span class="material-icons space-narrow-span-left space-span-right">subdirectory_arrow_right</span>Awards</a>
+		</li>
+	</li>
+	<li>
+		<a href="{% url 'blog:index' %}#header">
+		<span class="material-icons-outlined space-span-left">edit_note</span>Blog</a>
+	</li>
+	<li><a href="{% url 'base:contact' %}#header">
+		<span class="material-icons-outlined space-span-left">drafts</span>Contact</a>
+	</li>
+	{% endblock %}
+
+
+<!-- CONTENT OUTSIDE OF NAV
+# ===================================================================-->
+{% block except-nav %}
+
+
+	<!-- HEADER
+	# --------------------------------------------------------------------->
+	
+	<section class="header" id="header">
+		<h1><span class="fname">{{ first_name }}</span>
+			<span class="lname">{{ last_name }}</span>
+		</h1>
+	</section>
+
+
+	<!-- RESEARCH
+	# --------------------------------------------------------------------->
+
+	<section class="research" id="research">
+
+		<h2>Research</h2>
+		
+		<div class="research-summary grid-container">
+			<div class="padded card-very-thin">
+				<a href="{{ basic_info.scholar_url }}" target="blank">
+					<i class="fa-brands fa-google space-span-left color-link"></i>Google Scholar
+				</a>
+				<hr class="narrow">
+				<a href="{{ basic_info.github_url }}" target="blank">
+					<i class="fa-brands fa-github space-span-left color-link"></i>Github
+				</a>
+				<hr class="narrow">
+				<a href="{{ basic_info.researchgate_url }}" target="blank">
+					<i class="fa-brands fa-researchgate space-span-left color-link"></i>ResearchGate
+				</a>
+				<hr class="narrow">
+				<a href="{{ basic_info.orcid_url }}" target="blank">
+					<i class="fa-brands fa-orcid space-span-left color-link"></i>ORCID
+				</a>
+				<hr class="narrow">
+				<a href="{{ basic_info.publons_url }}" target="blank">
+					<i class="fa-solid fa-p space-span-left color-link"></i>Publons
+				</a>
+				<hr class="narrow">
+			</div>
+			<div class="padded card-very-thin double-spaced">
+				<p><span class="fancy-text space-narrow-span-left">{{ publications|length }}</span> papers published, submitted or submitting soon</p>
+				<p><span class="fancy-text space-narrow-span-left">{{ presentations|length }}</span> presentations</p>
+				<p><span class="fancy-text space-narrow-span-left">{{ publications_published_or_submitted|length }}</span> papers published or submitted</p>
+				<p><span class="fancy-text space-narrow-span-left">{{ publications_first_author|length }}</span> first-author papers</p>
+			</div>
+		</div>
+
+		<div class="publications">
+			<h3>Publications</h3>
+			<hr>
+			{% regroup publications by status as publications_status_groups %}
+			{% for group in publications_status_groups %}
+			{% if group.grouper == 'published' or group.grouper == 'under review / submitted' %}
+			<h4 class="color-accent3">{{ group.grouper|capfirst }}</h4>
+			<div>
+				{% for publication in group.list %}
+				<div class="smaller-text">
+					<p>
+						<span class="color-accent material-icons-outlined space-narrow-span-left">edit_note</span>{% for author in publication.authors_list %}{% if author == "P Verma" %}<span class="color-accent">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list|last %}, {% endif %}{% endfor %}
+					</p>
+					<p>
+						{{ publication.title }}
+					</p>
+					<p class="color-subtle">
+						<span class="uppercase color-accent2">{{ publication.publisher }}</span>{% if publication.issue_etc %} / <span>{{ publication.issue_etc }}</span>{% endif %} / <span class="bold">{{ publication.date|date:"Y" }}</span>{% if publication.comment %} / <span class="italic">({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} class="color-link" target="blank"><span class="material-icons">open_in_new</span></a>{% endif %}
+					</p>
+				</div>
+				<hr class="narrow">
+				{% endfor %}
+			</div>
+			{% endif %}
+			{% endfor %}
+		</div>							
+
+		<div class="presentatios">
+			<h3>Presentations</h3>
+			<hr>
+			{% for presentation in presentations %}
+			<div class="smaller-text">
+				<p class="color-subtle">{% for author in presentation.authors_list %}{% if forloop.counter == presentation.speaker_index %}<span class="color-accent"><span class="material-icons-outlined space-narrow-span-left">mic_none</span>{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list|last %}, {% endif %}{% endfor %} / <span>{{ presentation.city }} (<span class="uppercase color-accent2">{{ presentation.country }}</span>)</span> <span class="bold color-subtle">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %} / <span class="italic">{{ presentation.comment }}</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank" class="color-link"><span class="material-icons">open_in_new</span></a>{% endif %}</p>
+				<p>{{ presentation.title }}</p>
+			</div>
+			<hr class="narrow">
+			{% endfor %}
+		</div>
+
+	</section>
+
+
+	<!-- EXPERIENCE
+	# --------------------------------------------------------------------->
+
+	<section class="experience" id="experience">
+		<h2>Work experience</h2>
+		<div class="grid-container">
+			{% for experience in experiences %}
+			<div class="padded clickable card-very-thin" onClick="showdiv('experience-description-{{ forloop.counter }}');">
+				<h4>{{ experience.position }} at <a href="{{ experience.organization.website }}" target="_blank" class="color-link">{{ experience.organization.full_name }}</a></h4>
+				<p class="subheading-small">
+					{{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}
+					{% if experience.supervisor %} / {{ experience.supervisor }} {% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}{% endif %}
+				</p>
+				<div class="experience-description hidden-at-first double-spaced" id="experience-description-{{ forloop.counter }}">
+					<hr>
+					<p>{{ experience.description|safe }}</p>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</section>
+
+
+	<!-- HONORS AND AWARDS
+	# --------------------------------------------------------------------->
+	
+	<section class="awards" id="awards">
+		<h2>Honors and awards</h2>
+		<div>
+		{% for awards in honor_and_awards %}
+			<p class="smaller-text">
+				<span>{{ awards.title }}</span> / <span class="uppercase color-accent">{{ awards.organization.short_name }}</span> / <span class="bold color-subtle">{{ awards.start_date|date:"Y" }}{% if awards.end_date %} &ndash; {{ awards.end_date|date:"Y" }}{% endif %}</span>
+			</p>
+			<hr class="narrow">
+		{% endfor %}
+	</section>
+
+{% endblock except-nav %}

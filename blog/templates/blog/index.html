@@ -1,0 +1,128 @@
+{% extends "base/base.html" %}
+
+
+{% block additional_head_content %}
+	<link rel="stylesheet" href="{% static 'blog/style.css' %}">
+{% endblock %}
+
+
+{% block title %}
+    Blog | {{ first_name }} {{ last_name }}
+{% endblock %}
+
+
+<!-- NAV LINKS OVERRIDE
+# ===================================================================-->
+
+	{% block nav_links_li %}
+    <li><a href="{% url 'base:professional' %}#header">
+        <span class="material-icons space-span-left">attach_money</span>Professional</a>
+    </li>
+	<li>
+        <!-- color this link icon because it's the current page -->
+		<a href="{% url 'blog:index' %}#header">
+		<span class="material-icons-outlined space-span-left color-accent">edit_note</span>Blog</a>
+	</li>
+	<li><a href="{% url 'base:contact' %}#header">
+		<span class="material-icons-outlined space-span-left">drafts</span>Contact</a>
+	</li>
+	{% endblock %}
+
+
+<!-- CONTENT OUTSIDE OF NAV
+# ===================================================================-->
+{% block except-nav %}
+
+
+	<!-- HEADER
+	# --------------------------------------------------------------------->
+	
+	<!-- Let's have no header in blog, just put some space above the categories bar -->
+	<!-- Add id header so that scroll position on mobile devices can be asked to move to header -->
+	<div class="spacer50" id="header"></div>
+
+
+	<!-- BLOG CATEGORIES BAR
+	# --------------------------------------------------------------------->
+
+	<section class="categories-bar">
+		<div class="navbar card-very-thin rounded-small centered">
+			{% for category in category_list %}
+			<div class="centered inline padded-tiny smaller-text clickable nav-button" id="nav-button-{{ category }}" onClick="showdiv('recent-posts-{{ category }}'); addClass(this, 'nav-button-', 'nav-button-active');">
+				<p>{{ category|capfirst }}</p>
+			</div>
+			{% endfor %}
+		</div>
+	</section>
+
+
+	<!-- POST LISTS
+	# --------------------------------------------------------------------->
+	
+	<!-- create a listing section for each blog category -->
+	<!-- then show/hide them on the frontend based on what nav button is clicked -->
+	{% for category in category_list %}
+	<section class="recent-posts hidden-at-first" id="recent-posts-{{ category }}">
+		<h2>{{ category|capfirst }}</h2>
+		<hr>
+		<div class="grid-container">
+			<!-- because Category does not have a posts field, posts can be relationally accessed via the _set suffix -->
+			<!-- dictsort and dictsortreversed can be used on an attribute of the QuerySet -->
+			{% for item in category.post_set.all|dictsortreversed:"publication_date" %}
+			<div class="item grid-container">
+				<div>
+					<a class="clickable" href="{% url 'blog:post' item.id %}#header">{{ item.title }}</a>
+				</div>
+				<div class="right uppercase color-subtle">
+					{{ item.publication_date|date:"M Y" }}
+				</div>
+			</div>
+			<hr class="narrow">
+			{% empty %}
+			<!-- clause to run if no posts were found in the given category -->
+			<p class="color-subtle">No posts in this category yet.</p>
+			{% endfor %}
+		</div>
+	</section>
+	{% endfor %}
+
+
+	<!-- POST
+	# --------------------------------------------------------------------->
+	<!-- this block is placed here so that the content can be added into it from the post.html template -->
+	{% block post %}
+
+	{% endblock %}
+
+
+	
+	<!-- RECENT POSTS (from any/all categories)
+	# --------------------------------------------------------------------->
+
+	<section class="recent-posts">
+		<h2>Recent Posts</h2>
+		<hr>
+		<div class="grid-container">
+			{% for item in recent_posts %}
+			<div class="item grid-container">
+				<div>
+					<a href="{% url 'blog:post' item.id %}#header"><p class="clickable">{{ item.title }}</p></a>
+					<p>
+						<!-- because Post has a categories field, it can be relationally accessed via the field_name.all and we don't need to use _set here I think -->
+						{% for cat in item.categories.all %}
+						{% if not cat.hidden %}
+						<span class="tag">{{ cat.name }}</span>
+						{% endif %}
+						{% endfor %}
+					</p>
+				</div>
+				<div class="right uppercase color-subtle">
+					{{ item.publication_date|date:"M Y" }}
+				</div>
+			</div>
+			<hr class="narrow">
+			{% endfor %}
+		</div>
+	</section>
+
+{% endblock except-nav %}

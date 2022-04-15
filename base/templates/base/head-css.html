@@ -1,0 +1,22 @@
+<!-- these go first so that my css files can override foreign css -->
+
+<!-- NORMALIZE CSS -->
+<link rel="stylesheet" href="{% static 'base/normalize.css' %}">
+
+<!-- FONT CSS -->
+
+<link href='http://fonts.googleapis.com/css?family=Roboto:100,400,700,900|Roboto+Condensed:300,400,700|Roboto+Serif:100,400,700,900' rel='stylesheet'>
+<!-- FontAwesome -->
+<script src="https://kit.fontawesome.com/1be30f6812.js" crossorigin="anonymous"></script>
+<!-- Google Icons -->
+<!-- note the you'll need to add two-tone, rounded and sharp icon fonts to the following link if you wish to use them -->
+<link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
+
+<!-- CSS -->
+<link rel="stylesheet" href="{% static 'base/base.css' %}">
+<link rel="stylesheet" href="{% static 'base/base-theme-dark.css' %}">
+
+<!-- MEDIA CSS -->
+
+<link rel="stylesheet" media="(max-width: 720px)" href="{% static 'base/base-mobile.css' %}">
+<link rel="stylesheet" media="(min-width: 721px)" href="{% static 'base/base-desktop.css' %}">
