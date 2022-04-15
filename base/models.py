@@ -331,6 +331,11 @@ class Advising(models.Model):
             string = item[0] + (" (" + item[1] + ")" if item[1] != '*' else '')
             journey.append(string)
         return ' > '.join(journey)
+    def get_first_name(self):
+        if self.name[-1] == '*':
+            return self.name.split(' ')[0] + '*'
+        else:
+            return self.name.split(' ')[0]
 
 
 #    Mentoring
@@ -365,6 +370,8 @@ class Mentoring(models.Model):
             string = item[0] + (" (" + item[1] + ")" if item[1] != '*' else '')
             journey.append(string)
         return ' > '.join(journey)
+    def get_first_name(self):
+        return self.name.split(' ')[0]
 
 
 #    Teaching
