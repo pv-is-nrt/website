@@ -28,7 +28,8 @@ _*/
 *.bak
 *.code-workspace
 .history
+*resume*
+*cv*
 
 #    Specific
 # -------------------------------------------------------------------- #
-local_settings.py
