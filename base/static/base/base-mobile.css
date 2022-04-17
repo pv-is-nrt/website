@@ -5,3 +5,9 @@
     line-height: 1.2em;
     padding: 0.6em 0;
 }
+
+h2 {
+    /* attempts to fix huge gap if h2 breaks into multi-lines in mobile view */
+    line-height: 1.6em;
+    padding: 0.6em 0;
+}

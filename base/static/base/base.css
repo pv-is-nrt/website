@@ -103,7 +103,7 @@ h1 {
 }
 h2 {
 	font-size: 2.4em;
-	line-height: 3.0em; /* so that they'll be okay when multi-line, although rare  */
+	line-height: 3.0em; /* multi-line styling has been handled in mobile.css */
 	font-weight: 700;
 	margin-bottom: 40px;
 }

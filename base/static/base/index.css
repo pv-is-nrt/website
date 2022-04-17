@@ -19,6 +19,7 @@
 @media screen and (max-width: 720px) {
 	.education {
 		grid-template-columns: 1fr;
+		gap: var(--vertical-gap);
 	}
 }
 	.education-block img {

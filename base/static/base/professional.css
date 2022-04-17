@@ -37,6 +37,7 @@
 	@media screen and (max-width: 720px) {
 		.research-summary {
 			grid-template-columns: 1fr;
+			gap: var(--vertical-gap);
 		}
 	}
 
