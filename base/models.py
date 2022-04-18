@@ -125,6 +125,7 @@ class Experience(models.Model):
 class Message(models.Model):
 
     # define the fields
+    hidden_field = models.CharField(max_length=200, blank=True) # anti-spam measure
     senders_name = models.CharField(max_length=200)
     senders_email = models.EmailField()
     message = models.TextField()

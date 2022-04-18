@@ -23,7 +23,7 @@ class BasicInformationAdmin(admin.ModelAdmin):
     )
 
 class MessageAdmin(admin.ModelAdmin):
-    list_display = ('senders_name', 'senders_email', 'message', 'timestamp')
+    list_display = ('senders_name', 'senders_email', 'message', 'timestamp', 'hidden_field')
     list_filter = ['timestamp', 'senders_name']
     search_fields = ['senders_name', 'senders_email', 'message']
 

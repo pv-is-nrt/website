@@ -171,6 +171,7 @@ def contact(request):
     if request.method == 'POST':
 
         # create constants for posting message to email and forms
+        HIDDEN_FIELD = request.POST['country'] # anti-spam hidden field
         SENDERS_NAME = request.POST['senders_name']
         SENDERS_EMAIL = request.POST['senders_email']
         SENDERS_MESSAGE = request.POST['message']
@@ -178,14 +179,20 @@ def contact(request):
         MY_EMAIL = basic_info.contact_email
 
         # add posted data to the database
+        messages_object.hidden_field = HIDDEN_FIELD
         messages_object.senders_name = SENDERS_NAME
         messages_object.senders_email = SENDERS_EMAIL
         messages_object.message = SENDERS_MESSAGE
         messages_object.save()
 
+        # has a spam been detected?
+        SPAM_DETECTED = True
+        if HIDDEN_FIELD == '' or HIDDEN_FIELD == None:
+            SPAM_DETECTED = False
+
         # create email related constants >>>
         # subject and message for email that will be sent to me, when someone sends me a message
-        SUBJECT_IN = 'Message from ' + SENDERS_NAME + ' (via prateekverma.com)'
+        SUBJECT_IN = 'Message from ' + SENDERS_NAME + ' (via prateekverma.com)' + (' [spam detected]' if SPAM_DETECTED else '')
         MESSAGE_IN = 'You received a message from\n' + 'Name: ' + SENDERS_NAME + '\n' + 'Email: ' + SENDERS_EMAIL + '\n' + 'Message: ' + SENDERS_MESSAGE
         # subject and message for email that will be sent to user, as a confirmation that I have received their message
         SUBJECT_OUT = 'Message sent to ' + MY_NAME
@@ -195,7 +202,12 @@ def contact(request):
         # Has been set to throw an error on email send failure only if the requester is not localhost
         email_in_success = send_mail(SUBJECT_IN, MESSAGE_IN, SENDERS_NAME + ' <' + SENDERS_EMAIL + '>', [MY_NAME + ' <' + MY_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
         # send email to user
-        email_out_success = send_mail(SUBJECT_OUT, MESSAGE_OUT, MY_NAME + ' <' + MY_EMAIL + '>', [SENDERS_NAME + ' <' + SENDERS_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
+        # only if it's not a spam
+        if SPAM_DETECTED == False:
+            email_out_success = send_mail(SUBJECT_OUT, MESSAGE_OUT, MY_NAME + ' <' + MY_EMAIL + '>', [SENDERS_NAME + ' <' + SENDERS_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
+        else:
+            # if spam was detected, email out wasn't sent
+            email_out_success = None # although the return of send_mail is an integer, the field in database allows None. 0 would mean that there was a problem sending the email, which is not true. Hence we set it to None.
 
         # add the email success/failure log to the database
         messages_object.email_in_success = email_in_success
