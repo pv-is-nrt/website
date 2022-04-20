@@ -192,7 +192,7 @@ def contact(request):
 
         # create email related constants >>>
         # subject and message for email that will be sent to me, when someone sends me a message
-        SUBJECT_IN = 'Message from ' + SENDERS_NAME + ' (via prateekverma.com)' + (' [spam detected]' if SPAM_DETECTED else '')
+        SUBJECT_IN = 'Message from ' + SENDERS_NAME + ' (via prateekverma.com)'
         MESSAGE_IN = 'You received a message from\n' + 'Name: ' + SENDERS_NAME + '\n' + 'Email: ' + SENDERS_EMAIL + '\n' + 'Message: ' + SENDERS_MESSAGE
         # subject and message for email that will be sent to user, as a confirmation that I have received their message
         SUBJECT_OUT = 'Message sent to ' + MY_NAME
