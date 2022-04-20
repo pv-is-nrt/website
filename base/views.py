@@ -198,16 +198,17 @@ def contact(request):
         SUBJECT_OUT = 'Message sent to ' + MY_NAME
         MESSAGE_OUT = 'Hi, ' + SENDERS_NAME + '!\n\n' + 'Thank you for contacting me. I have received your message and will get back to you as soon as possible!\n\nSincerely,\n' + MY_NAME + '\n\n' + '--------------------------------------------------------\nThe message you sent was:\n' + SENDERS_MESSAGE
 
-        # send email to me (NOTE that gmail will rewrite sender's email address to my email/server's address to disallow spoofing)
-        # Has been set to throw an error on email send failure only if the requester is not localhost
-        email_in_success = send_mail(SUBJECT_IN, MESSAGE_IN, SENDERS_NAME + ' <' + SENDERS_EMAIL + '>', [MY_NAME + ' <' + MY_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
-        # send email to user
-        # only if it's not a spam
+        # send email to user only if it's not a spam
         if SPAM_DETECTED == False:
+            # send email to me (NOTE that gmail will rewrite sender's email address to my email/server's address to disallow spoofing)
+            # Has been set to throw an error on email send failure only if the requester is not localhost
+            email_in_success = send_mail(SUBJECT_IN, MESSAGE_IN, SENDERS_NAME + ' <' + SENDERS_EMAIL + '>', [MY_NAME + ' <' + MY_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
             email_out_success = send_mail(SUBJECT_OUT, MESSAGE_OUT, MY_NAME + ' <' + MY_EMAIL + '>', [SENDERS_NAME + ' <' + SENDERS_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
         else:
             # if spam was detected, email out wasn't sent
-            email_out_success = None # although the return of send_mail is an integer, the field in database allows None. 0 would mean that there was a problem sending the email, which is not true. Hence we set it to None.
+            email_in_success = None
+            email_out_success = None
+            # although the return of send_mail is an integer, the field in database allows None. 0 would mean that there was a problem sending the email, which is not true. Hence we set it to None.
 
         # add the email success/failure log to the database
         messages_object.email_in_success = email_in_success
