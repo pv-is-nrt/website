@@ -247,11 +247,13 @@
 					<h2>Publications</h2>
 				</div>
 				<p class="module-description">In the list of <span class="fancy-number">{{ publications|length }}</span> total, <span class="fancy-number">{{ publications_published_or_submitted|length }}</span> are published or submitted and <span class="fancy-number">{{ publications_first_author|length }}</span> are first-author papers (<a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank" class="scholar-link">Google Scholar link</a>)</p>
+
+				<!-- Listing 9 publications on this page -->
 				<ul>
 					{% regroup publications by status as publications_status_groups %}
 					{% for group in publications_status_groups %}
 					{% if group.grouper == 'published' %}
-					{% for publication in group.list %}
+					{% for publication in group.list|slice:":9" %}
 					<li>
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 						<span class="authors">
@@ -293,6 +295,23 @@
 			<!-- Publications (continued)
 			# ------------------------------------------------------------->
 			<div class="publications module">
+
+				<!-- remaining published pubs -->
+				<ul>
+					{% regroup publications by status as publications_status_groups %}
+					{% for group in publications_status_groups %}
+					{% if group.grouper == 'published' %}
+					{% for publication in group.list|slice:"9:" %}
+					<li>
+						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
+						<span class="authors">
+						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">open_in_new</span></a>{% endif %}
+					</li>
+					{% endfor %}
+					{% endif %}
+					{% endfor %}
+				</ul>
+
 				<!-- continued publications, hence no heading -->
 				<ul>
 					{% regroup publications by status as publications_status_groups %}
