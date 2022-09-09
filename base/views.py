@@ -5,9 +5,10 @@ from .models import BasicInformation, Education, Experience, Publication, Presen
 from blog.models import Post
 # Email
 from django.core.mail import send_mail
-import core.core_website_functions as core
 
 # non-django imports
+from os import path
+import core.core_website_functions as core
 import math
 
 
@@ -126,6 +127,10 @@ def professional(request):
     # -------------------------------------------#
     core.add_user_info_to_database(Analytic(), request, '/professional')
 
+    # get the modified time of the CV and resume files
+    cv_mod = 'for download 2'
+    resume_mod = 'for download 1'
+
     # Gather information from the database here
 
     # create a context here
@@ -141,6 +146,8 @@ def professional(request):
         'publications_published_or_submitted': publications_published_or_submitted,
         'presentations': presentations,
         'honor_and_awards': honor_and_awards,
+        'cv_mod': cv_mod,
+        'resume_mod': resume_mod,
     }
 
     # return the rendered page here
