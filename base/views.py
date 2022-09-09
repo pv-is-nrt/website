@@ -128,8 +128,8 @@ def professional(request):
     core.add_user_info_to_database(Analytic(), request, '/professional')
 
     # get the modified time of the CV and resume files
-    cv_mod = 'for download 2'
-    resume_mod = 'for download 1'
+    cv_mod = 'for download'
+    resume_mod = 'for download'
 
     # Gather information from the database here
 
