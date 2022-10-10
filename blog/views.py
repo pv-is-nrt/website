@@ -3,7 +3,7 @@ from django.shortcuts import render
 from .models import Category, Post
 from base.models import BasicInformation, Analytic
 
-import core.core_website_functions as core
+import library.core_website_functions as core
 
 
 #    Common straightforward database imports
