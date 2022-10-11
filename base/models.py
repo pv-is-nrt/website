@@ -166,7 +166,10 @@ class Publication(models.Model):
         return self.authors.split(", ")
     def authors_list_short(self):
         if len(self.authors_list()) > 5:
-            return self.authors_list()[0:5] + ["et al."]
+            if 'P Verma' in self.authors_list()[0:5]:
+                return self.authors_list()[0:5] + ["et al."]
+            else:
+                return self.authors_list()[0:3] + ["...", "P Verma", "et al."]
         else:
             return self.authors_list()
 
