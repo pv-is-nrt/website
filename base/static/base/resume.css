@@ -72,8 +72,9 @@ ul {
     padding-left: 0.15in;
 }
 li {
+    font-size: 8.6pt; /* fine tuning */
     padding-left: 0.1in;
-    line-height: 1.3em; /* less than p */
+    line-height: 1.4em; /* less than p */
 }
 a {
     color: inherit;
@@ -250,7 +251,7 @@ a {
         }
             .page-1 .highlight-item div {
                 display: inline-block;
-                font-size: 0.9em;
+                font-size: 0.96em; /* fine tuning */
             }
 
     /* ---------------------------------------------------------- */
@@ -292,6 +293,7 @@ a {
 
     .skills {
         grid-area: skills;
+        margin-top: 0.2in; /* fine tuning */
     }
         .skill-item {
             padding: 0 0.03in 0 0.05in; /* right and left padding */
@@ -427,7 +429,7 @@ a {
             }
             .leadership .leadership-item p {
                 line-height: 1.3em;
-                font-size: 0.85em;
+                font-size: 0.9em;
             }
 
     /* ---------------------------------------------------------- */
@@ -517,9 +519,8 @@ a {
             }
             .page-3 .skillset-group .skill-item {
                 line-height: 0.13in; /* keeps it centered when border is given to the container having a height of 0.15in */
-                color: #333;
-                font-size: 0.6em;
-                font-weight: 400;
+                font-size: 0.55em;
+                font-weight: 700;
                 margin-bottom: 0.015in;
                 text-transform: uppercase;
                 letter-spacing: 0.5pt;
@@ -547,6 +548,10 @@ a {
     }
     .page-3 .right-column {
         grid-area: right-column;
+    }
+    
+    .page-3 .extracurriculars li {
+        font-size: 9pt; /* override to li */
     }
 
     
