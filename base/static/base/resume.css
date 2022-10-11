@@ -484,9 +484,8 @@ a {
         padding: 0 0.2in 0.2in;
     }
         .page-3 .skillsets-full h5 {
-            padding-left: 0.05in;
-            margin-bottom: 0.05in;
-            border-bottom: solid 1px #000;
+            font-weight: 700;
+            margin-bottom: 0.1in;
         }
         .page-3 .skillsets-full p {
             font-size: 0.8em;
@@ -500,13 +499,31 @@ a {
             vertical-align: top;
         }
             .page-3 .skillset-group .skillset {
-                margin-bottom: 0.1in;
+                margin-bottom: 0.15in;
             }
             .page-3 .skillset-group .progress-bar {
-                background-color: #999;
+                background-color: #ddd; /* #E1A814 nice orange */
+                width: 100%; /* set dynamically in html */
+                /* so that the text (if any) can overflow outside */
+                white-space: nowrap;
+                padding-left: 0.03in;
             }
             .page-3 .skillset-group .progress-bar-container {
-                background-color: #eee;
+                width:100%;
+                background-color: #f3f3f3;
+                border: solid 1px #ddd;
+                border-radius: 0.2em;
+                height: 0.15in;
+            }
+            .page-3 .skillset-group .skill-item {
+                line-height: 0.13in; /* keeps it centered when border is given to the container having a height of 0.15in */
+                color: #333;
+                font-size: 0.6em;
+                font-weight: 400;
+                margin-bottom: 0.015in;
+                text-transform: uppercase;
+                letter-spacing: 0.5pt;
+                padding: 0; /* to override the default padding of skill-item */
             }
     
     .page-3 .teaching {

@@ -530,6 +530,7 @@ footer {
             line-height: 0.13in; /* keeps it centered when border is given to the container having a height of 0.15in */
             color: #333;
             font-size: 0.6em;
+            font-weight: 400;
             margin-bottom: 0.015in;
             text-transform: uppercase;
             letter-spacing: 0.5pt;

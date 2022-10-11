@@ -368,9 +368,8 @@
 					<h5>{{ skillset.category_full|default:skillset.category }}</h5>
 					{% for skill in skillset.skills_list_abbr_with_score %}
 					<div class="skill-item">
-						<p>{{ skill.0 }}</p>
 						<div class="progress-bar-container">
-							<div class="progress-bar" style="width: {{ skill.1 }}%"></div>
+							<div class="progress-bar" style="width: {{ skill.1 }}%">{{ skill.0 }}</div>
 						</div>
 					</div>
 					{% endfor %}	

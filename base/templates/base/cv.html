@@ -253,7 +253,7 @@
 					{% regroup publications by status as publications_status_groups %}
 					{% for group in publications_status_groups %}
 					{% if group.grouper == 'published' %}
-					{% for publication in group.list|slice:":9" %}
+					{% for publication in group.list|slice:":8" %}
 					<li>
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 						<span class="authors">
@@ -301,7 +301,7 @@
 					{% regroup publications by status as publications_status_groups %}
 					{% for group in publications_status_groups %}
 					{% if group.grouper == 'published' %}
-					{% for publication in group.list|slice:"9:" %}
+					{% for publication in group.list|slice:"8:" %}
 					<li>
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 						<span class="authors">
