@@ -7,6 +7,27 @@
 #
 # ==================================================================== #
 
+from os import path
+from datetime import datetime
+
+
+# ============================================================================ #
+#    FILESYSTEM RELATED
+# ============================================================================ #
+
+# find the last modified date of a file
+def get_last_modified_date(file_path:str):
+    """
+    This function returns the last modified date of a file. The input file path should be of a form that os.path can understand, which means that a complete generated path is ideal, so that this can work on both local and remote.
+
+    RETURNS:
+    A string containing the last modified date of the file in the %Y-%m-%d format as a string.
+    """
+    # get the last modified date of the file as a float
+    last_modified_date = path.getmtime(file_path)
+    # convert the float to a a django friendly string %Y-%m-%d
+    last_modified_date = datetime.fromtimestamp(last_modified_date).strftime('%b %d, %Y')
+    return last_modified_date
 
 # ============================================================================ #
 #    DATABASE RELATED
@@ -78,4 +99,3 @@ def add_user_info_to_database(model:object, request:object, visitedPage:str):
     # Ony if the visit is not by the 127.0.0.1
     if request.META.get('REMOTE_ADDR') != '127.0.0.1':
         insert_dict_to_model(user_info, model)
-    

@@ -1,4 +1,5 @@
 # django related imports
+from django.conf import settings
 from django.shortcuts import render
 from .models import BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, Analytic
 # import models from other apps
@@ -127,9 +128,17 @@ def professional(request):
     # -------------------------------------------#
     core.add_user_info_to_database(Analytic(), request, '/professional')
 
-    # get the modified time of the CV and resume files
-    cv_mod = 'for download'
-    resume_mod = 'for download'
+    # get the complete file path of CV and resume depending on whether the requester is localhost (testing) or not (server)
+    if request.META['REMOTE_ADDR'] == '127.0.0.1':
+        cv_path = settings.BASE_DIR / 'base/static/base/docs/Prateek Verma - CV.pdf'
+        resume_path = settings.BASE_DIR / 'base/static/base/docs/Prateek Verma - Resume.pdf'
+    else:
+        cv_path = settings.STATIC_ROOT / 'base/docs/Prateek Verma - CV.pdf'
+        resume_path = settings.STATIC_ROOT / 'base/docs/Prateek Verma - Resume.pdf'
+
+    # get the modified date of the CV and resume files
+    cv_mod = core.get_last_modified_date(cv_path)
+    resume_mod = core.get_last_modified_date(resume_path)
 
     # Gather information from the database here
 
