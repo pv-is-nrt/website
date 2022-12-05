@@ -191,10 +191,6 @@ footer {
     grid-area: right-area;
     margin-left: 0.1in; /* for the center gap of 0.2in */
 }
-    .right-area p {
-        /* makes sidebar text smaller than body */
-        font-size: 0.95em;
-    }
     .right-area .item {
         margin-bottom: 0.1in;
     }
@@ -316,8 +312,8 @@ footer {
     margin-bottom: 0.05in;
     line-height: 1.5em;
 }
-.education p {
-    line-height: 1.4em; /* keeps the vertically tight */
+.education .gpa, .education .date {
+    font-size: 0.95em; /* fine tuning */
 }
 
 /* ---------------------------------------------------------- */
@@ -345,6 +341,12 @@ footer {
     margin-right: 0.1in;
     font-weight: bold;
     font-size: 0.95em; /* numbers look too big otherwise */
+}
+
+/* ---------------------------------------------------------- */
+
+.leadership .item {
+    margin-bottom: 0.07in;
 }
 
 /* ---------------------------------------------------------- */

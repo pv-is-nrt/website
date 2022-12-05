@@ -96,7 +96,7 @@
 					</div>
 					<div>
 						<span class="fancy-number">{{ publications_published_or_submitted|length }}</span>
-						<span>papers published/submitted</span>
+						<span>papers published or submitted</span>
 					</div>
 					<div>
 						<span class="fancy-number">{{ presentations|length }}</span>
@@ -141,17 +141,14 @@
 					{% endfor %}
 				</div>
 
-				<!-- LEADERSHIP
+				<!-- Awards
 				# ------------------------------------------------------------->
-				<div class="leadership module">
+				<div class="awards module">
 					<div class="module-heading">
-						<h2>Leadership</h2>
+						<h2>Select Honors</h2>
 					</div>
-					{% for leadership in leaderships|slice:":2" %}
-					<div class="item">
-						<h4>{{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }} / {{ leadership.organization.short_name }}</h4>
-						<p>{{ leadership.title }}</p>
-					</div>
+					{% for item in honor_and_awards_featured|slice:":8" %}
+						<p class="item"><span class="year">{{ item.start_date|date:"Y" }}</span>{{ item.short_title|safe }}</p>
 					{% endfor %}
 				</div>
 
@@ -211,18 +208,13 @@
 						<h2>Select Publications</h2>
 					</div>
 					<ul>
-						{% regroup publications by status as publications_status_groups %}
-						{% for group in publications_status_groups %}
-						{% if group.grouper == 'published' %}
-						{% for publication in group.list|slice:":8" %}
+						{% for publication in publications_featured|slice:":8" %}
 						<li>
 							<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 							<!-- some classes are not styled, but I'll let them stay for future -->
 							<span class="authors">
-							{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title }}</span><span class="publisher">; {{ publication.publisher }}</span>; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+							{% for author in publication.authors_list_very_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last and author != "et al." %}, {% endif %}{% endfor %}</span><span class="title">; {% if publication.title|length > 150 %}{{ publication.title|truncatechars:"100" }}{% else %}{{ publication.title }}{% endif %}</span><span class="publisher">; {{ publication.publisher }}</span>; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.status != "published" %}<span>; ({{ publication.status }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 						</li>
-						{% endfor %}
-						{% endif %}
 						{% endfor %}
 					</ul>
 				</div>
@@ -234,7 +226,7 @@
 						<h2>Select Presentations</h2>
 					</div>
 					<ul>
-					{% for presentation in presentations_featured|slice:":7" %}
+					{% for presentation in presentations_featured|slice:":8" %}
 						<li>
 							<span class="title">{{ presentation.title }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; {{ presentation.comment }}</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 						</li>
@@ -246,14 +238,17 @@
 
 			<div class="right-area">
 
-				<!-- Awards
+				<!-- LEADERSHIP
 				# ------------------------------------------------------------->
-				<div class="awards module">
+				<div class="leadership module">
 					<div class="module-heading">
-						<h2>Honors & Awards</h2>
+						<h2>Select Leadership</h2>
 					</div>
-					{% for item in featured_honor_and_awards|slice:":6" %}
-						<p class="item"><span class="year">{{ item.start_date|date:"Y" }}</span>{{ item.short_title|safe }}</p>
+					{% for leadership in leaderships_featured|slice:":5" %}
+					<div class="item">
+						<h4>{{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }} / {{ leadership.organization.short_name }}</h4>
+						<p>{{ leadership.short_title }}</p>
+					</div>
 					{% endfor %}
 				</div>
 
@@ -285,7 +280,7 @@
 					<div class="item">
 						<p><span class="material-icons md-normal">escalator_warning</span>supervised & unsupervised learning</p>
 						<p><span class="material-icons md-normal">calendar_view_day</span>convolutional neural networks</p>
-						<p><span class="material-icons md-normal">route</span>molecular machine learning</p>
+						<p><span class="material-icons md-normal">route</span>machine learning for molecules</p>
 						<p><span class="material-icons md-normal">view_in_ar</span>auxetics and metamaterials</p>
 						<p><span class="material-icons md-normal">hdr_weak</span>structure-property relationships</p>
 					</div>
@@ -379,7 +374,7 @@
 						Reviewed manuscripts for <span class="fancy-number">{{ reviews|length }}</span> journals including: 
 					</div>
 					<ul>
-					{% for review in reviews|slice:":5" %}
+					{% for review in reviews_featured|slice:":6" %}
 						<li>{{ review.publication }}</li>
 					{% endfor %}
 					</ul>
