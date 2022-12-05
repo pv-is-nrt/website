@@ -152,8 +152,9 @@ class Publication(models.Model):
     date = models.DateField()
     doi = models.CharField(max_length=200, blank=True)
     link = models.URLField(blank=True)
+    featured = models.BooleanField(default=False)
     citations = models.CharField(max_length=10, blank=True)
-    status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published"), ("in progress", "in progress")], default="in progress")
+    status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published"), ("in progress", "in progress"), ("preprint", "preprint")], default="in progress")
     comment = models.CharField(max_length=200, blank=True)
     tags = models.ManyToManyField(PublicationTag, blank=True)
 
@@ -170,6 +171,14 @@ class Publication(models.Model):
                 return self.authors_list()[0:5] + ["et al."]
             else:
                 return self.authors_list()[0:3] + ["...", "P Verma", "et al."]
+        else:
+            return self.authors_list()
+    def authors_list_very_short(self):
+        if len(self.authors_list()) > 3:
+            if 'P Verma' in self.authors_list()[0:3]:
+                return self.authors_list()[0:3] + ["et al."]
+            else:
+                return self.authors_list()[0:2] + ["...", "P Verma", "et al."]
         else:
             return self.authors_list()
 
@@ -190,7 +199,7 @@ class Presentation(models.Model):
     link = models.URLField(blank=True)
     featured = models.BooleanField(default=False)
     citations = models.CharField(max_length=10, blank=True)
-    extra_info = models.CharField(max_length=200, blank=True)
+    issue_etc = models.CharField(max_length=200, blank=True)
     comment = models.CharField(max_length=200, blank=True)
     tags = models.ManyToManyField(PublicationTag, blank=True)
 
@@ -204,6 +213,14 @@ class Presentation(models.Model):
     def authors_list_short(self):
         if len(self.authors_list()) > 5:
             return self.authors_list()[0:5] + ["et al."]
+        else:
+            return self.authors_list()
+    def authors_list_very_short(self):
+        if len(self.authors_list()) > 3:
+            if 'P Verma' in self.authors_list()[0:3]:
+                return self.authors_list()[0:3] + ["et al."]
+            else:
+                return self.authors_list()[0:2] + ["...", "P Verma", "et al."]
         else:
             return self.authors_list()
 
@@ -277,6 +294,8 @@ class Leadership(models.Model):
 
     # define the fields
     title = models.CharField(max_length=500)
+    short_title = models.CharField(max_length=200)
+    featured = models.BooleanField(default=False)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
@@ -304,7 +323,7 @@ class HonorAndAward(models.Model):
         return self.title
 
 
-#    Reseach advising
+#    Research advising
 # ---------------------------------------------------------------------------- #
 
 class Advising(models.Model):
@@ -445,6 +464,7 @@ class Review(models.Model):
     
         # define the fields
         publication = models.CharField(max_length=200)
+        featured = models.BooleanField(default=False)
     
         # return a string representation of the object
         def __str__(self):

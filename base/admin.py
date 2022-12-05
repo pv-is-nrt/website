@@ -28,11 +28,11 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ['senders_name', 'senders_email', 'message']
 
 class PublicationsAdmin(admin.ModelAdmin):
-    list_display = ('date', 'title', 'status', 'publisher')
+    list_display = ('date', 'featured', 'title', 'status', 'publisher')
     search_fields = ['title', 'authors', 'publisher']
 
 class PresentationAdmin(admin.ModelAdmin):
-    list_display = ('date', 'title', 'extra_info', 'city')
+    list_display = ('date', 'featured', 'title', 'city')
     search_fields = ['title', 'presenter', 'city']
 
 class ProposalAdmin(admin.ModelAdmin):
@@ -43,7 +43,7 @@ class SkillsetAdmin(admin.ModelAdmin):
     list_display = ('category', 'group', 'order')
 
 class HonorAndAwardAdmin(admin.ModelAdmin):
-    list_display = ('title', 'organization', 'start_date')
+    list_display = ('title', 'featured', 'organization', 'start_date')
 
 class TeachingAdmin(admin.ModelAdmin):
     list_display = ('year', 'semester', 'course_code', 'topic')
@@ -56,6 +56,12 @@ class AnalyticAdmin(admin.ModelAdmin):
     # sort by timestamp
     ordering = ('-timestamp',)
     search_fields = ['http_user_agent', 'page']
+
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ('featured', 'publication')
+    search_fields = ['publication']
+    # sort by timestamp
+    ordering = ('publication',)
 
 
 # registrations should be on separate lines for each object or passed as a list
@@ -77,5 +83,5 @@ admin.site.register(Mentoring)
 admin.site.register(Teaching, TeachingAdmin)
 admin.site.register(WorkHighlight, WorkHighlightAdmin)
 admin.site.register(Reference)
-admin.site.register(Review)
+admin.site.register(Review, ReviewAdmin)
 admin.site.register(Analytic, AnalyticAdmin)

@@ -41,11 +41,15 @@ posts_featured = Post.objects.filter(featured=True).order_by('-publication_date'
 # ---------------------------------------------------------------------------- #
 
 publications_published = Publication.objects.filter(status='published').order_by('-date')
+publications_featured = Publication.objects.filter(featured=True).order_by('-date')
 # query database to find publications where author starts with Verma
 publications_first_author = Publication.objects.filter(authors__startswith='P Verma')
 publications_published_or_submitted = Publication.objects.filter(status='published').order_by('-date') | Publication.objects.filter(status='under review / submitted').order_by('-date')
+
 presentations_featured = Presentation.objects.filter(featured=True).order_by('-date')
-featured_honor_and_awards = HonorAndAward.objects.filter(featured=True).order_by('-start_date')
+honor_and_awards_featured = HonorAndAward.objects.filter(featured=True).order_by('-start_date')
+leaderships_featured = Leadership.objects.filter(featured=True).order_by('-start_date')
+reviews_featured = Review.objects.filter(featured=True).order_by('publication')
 # calculate the number of advisings where the name field ends in a certain string
 count_direct_advising = len(Advising.objects.filter(name__endswith='*'))
 # get the distinct program values from the mentorings table
@@ -243,6 +247,36 @@ def contact(request):
     return render(request, 'base/contact.html', context)
 
 
+resume_cv_context = {
+        'basic_info': basic_info,
+        'educations': educations,
+        'experiences': experiences,
+        'publications': publications,
+        'publications_featured': publications_featured,
+        'publications_published': publications_published,
+        'publications_first_author': publications_first_author,
+        'publications_published_or_submitted': publications_published_or_submitted,
+        'presentations': presentations,
+        'presentations_featured': presentations_featured,
+        'proposals': proposals,
+        'skillsets': skillsets,
+        'leaderships': leaderships,
+        'leaderships_featured': leaderships_featured,
+        'honor_and_awards': honor_and_awards,
+        'honor_and_awards_featured': honor_and_awards_featured,
+        'advisings': advisings,
+        'count_direct_advising': count_direct_advising,
+        'mentorings': mentorings,
+        'mentorings_programs': mentorings_programs,
+        'total_advisings_mentorings': total_advisings_mentorings,
+        'teachings': teachings,
+        'diversity_index': diversity_index,
+        'references': references,
+        'reviews': reviews,
+        'reviews_featured': reviews_featured,
+    }
+
+
 #    CV page
 # ---------------------------------------------------------------------------- #
 
@@ -252,82 +286,11 @@ def cv(request):
     # -------------------------------------------#
     core.add_user_info_to_database(Analytic(), request, '/cv')
 
-    # Gather information from the database here
-
-    # process incoming data
-
-    # create a context here
-    context = {
-        # whole objects
-        'basic_info': basic_info,
-        'educations': educations,
-        'experiences': experiences,
-        'publications': publications,
-        'publications_published': publications_published,
-        'publications_first_author': publications_first_author,
-        'publications_published_or_submitted': publications_published_or_submitted,
-        'presentations': presentations,
-        'presentations_featured': presentations_featured,
-        'proposals': proposals,
-        'skillsets': skillsets,
-        'leaderships': leaderships,
-        'honor_and_awards': honor_and_awards,
-        'featured_honor_and_awards': featured_honor_and_awards,
-        'advisings': advisings,
-        'count_direct_advising': count_direct_advising,
-        'mentorings': mentorings,
-        'mentorings_programs': mentorings_programs,
-        'total_advisings_mentorings': total_advisings_mentorings,
-        'teachings': teachings,
-        'diversity_index': diversity_index,
-        'references': references,
-        'reviews': reviews,
-    }
-
-    # return the rendered page here
+    context = resume_cv_context
     return render(request, 'base/cv.html', context)
 
 
 #    Resume page
-# ---------------------------------------------------------------------------- #
-
-def resume_old(request):
-
-    # ADD USER VISIT INFO TO DATABASE
-    # -------------------------------------------#
-    core.add_user_info_to_database(Analytic(), request, '/resume-old')
-
-    # create a context here
-    context = {
-        # whole objects
-        'basic_info': basic_info,
-        'educations': educations,
-        'experiences': experiences,
-        'publications': publications,
-        'publications_published': publications_published,
-        'publications_published_or_submitted': publications_published_or_submitted,
-        'presentations': presentations,
-        'presentations_featured': presentations_featured,
-        'proposals': proposals,
-        'skillsets': skillsets,
-        'leaderships': leaderships,
-        'honor_and_awards': honor_and_awards,
-        'featured_honor_and_awards': featured_honor_and_awards,
-        'advisings': advisings,
-        'count_direct_advising': count_direct_advising,
-        'mentorings': mentorings,
-        'mentorings_programs': mentorings_programs,
-        'total_advisings_mentorings': total_advisings_mentorings,
-        'teachings': teachings,
-        'diversity_index': diversity_index,
-        'references': references,
-    }
-
-    # return the rendered page here
-    return render(request, 'base/resume-old.html', context)
-
-
-#    Resume-new page
 # ---------------------------------------------------------------------------- #
 
 def resume(request):
@@ -336,33 +299,5 @@ def resume(request):
     # -------------------------------------------#
     core.add_user_info_to_database(Analytic(), request, '/resume')
 
-    # create a context here
-    context = {
-        # whole objects
-        'basic_info': basic_info,
-        'educations': educations,
-        'experiences': experiences,
-        'publications': publications,
-        'publications_published': publications_published,
-        'publications_first_author': publications_first_author,
-        'publications_published_or_submitted': publications_published_or_submitted,
-        'presentations': presentations,
-        'presentations_featured': presentations_featured,
-        'proposals': proposals,
-        'skillsets': skillsets,
-        'leaderships': leaderships,
-        'honor_and_awards': honor_and_awards,
-        'featured_honor_and_awards': featured_honor_and_awards,
-        'advisings': advisings,
-        'count_direct_advising': count_direct_advising,
-        'mentorings': mentorings,
-        'mentorings_programs': mentorings_programs,
-        'total_advisings_mentorings': total_advisings_mentorings,
-        'teachings': teachings,
-        'diversity_index': diversity_index,
-        'references': references,
-        'reviews': reviews,
-    }
-
-    # return the rendered page here
+    context = resume_cv_context
     return render(request, 'base/resume.html', context)
