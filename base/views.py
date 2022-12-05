@@ -8,7 +8,6 @@ from blog.models import Post
 from django.core.mail import send_mail
 
 # non-django imports
-from os import path
 import library.core_website_functions as core
 import math
 

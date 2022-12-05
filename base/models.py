@@ -354,6 +354,15 @@ class Advising(models.Model):
             string = item[0] + (" (" + item[1] + ")" if item[1] != '*' else '')
             journey.append(string)
         return ' > '.join(journey)
+    def journey_short(self):
+        journey = []
+        for item in zip(self.positions.split(", "), self.organizations.split(", ")):
+            string = item[0] + (" (" + item[1] + ")" if item[1] != '*' else '')
+            journey.append(string)
+        if len(journey) < 3:
+            return ' > '.join(journey)
+        else:
+            return journey[0] + " >>> " + journey[-1]
     def get_first_name(self):
         if self.name[-1] == '*':
             return self.name.split(' ')[0] + '*'
@@ -393,6 +402,15 @@ class Mentoring(models.Model):
             string = item[0] + (" (" + item[1] + ")" if item[1] != '*' else '')
             journey.append(string)
         return ' > '.join(journey)
+    def journey_short(self):
+        journey = []
+        for item in zip(self.positions.split(", "), self.organizations.split(", ")):
+            string = item[0] + (" (" + item[1] + ")" if item[1] != '*' else '')
+            journey.append(string)
+        if len(journey) < 3:
+            return ' > '.join(journey)
+        else:
+            return journey[0] + " >>> " + journey[-1]
     def get_first_name(self):
         return self.name.split(' ')[0]
 

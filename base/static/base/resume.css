@@ -73,7 +73,7 @@ h5 {
 }
 
 ol {
-    padding-left: 0.18in; /* this aligns it with the 0.05 left padding */
+    padding-left: 0.2in; /* 0.18in aligns it with the 0.05 left padding */
 }
 ul {
     list-style-type: '—';
@@ -334,10 +334,10 @@ footer {
 
 /* ---------------------------------------------------------- */
 
-.awards .item {
+.sidebar-awards .item {
     margin-bottom: 0.0in;
 }
-.awards .year {
+.sidebar-awards .year {
     margin-right: 0.1in;
     font-weight: bold;
     font-size: 0.95em; /* numbers look too big otherwise */
@@ -378,6 +378,9 @@ footer {
 .presentations li {
     font-size: 0.9em;
     list-style: '\1F4E3';
+}
+.speaker-author {
+    font-style: italic;
 }
 
 /* ---------------------------------------------------------- */
@@ -420,3 +423,79 @@ footer {
 }
 
 /* ---------------------------------------------------------- */
+
+/*   Tables (Advising, Mentoring, Teaching)
+/*=========================================================================== */
+
+/* unused in resume, but used in CV */
+
+.heading-row {
+    /* I think this is better than using heading tags distributed across the html */
+    font-family: 'Roboto Serif', serif;
+	font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.85em;
+    letter-spacing: 1pt;
+	padding: 0 0.1in 0.02in;
+	border-bottom: solid 1px #666;
+	margin-bottom: 0.07in;
+}
+    .heading-row div {
+        display: inline-block;
+        padding: 0.02in 0 0.02in 0.02in; /* top bottom left */
+    }
+.row {
+	font-size: 0.9em;
+    line-height: 1.4em;
+	margin: 0 0.1in;
+	border-bottom: dotted 1px #ccc;
+}
+    .advising .row:last-child {
+        border-bottom: none;
+    }
+    .teaching .row:last-child {
+        border-bottom: none;
+    }
+.group-row {
+    font-family: 'Roboto Serif', serif;
+	font-weight: 900;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    letter-spacing: 1pt;
+    padding: 0.07in 0 0.03in;
+}
+/* .row:last-child {
+	border-bottom: none;
+} */
+    .row div {
+        display: inline-block;
+        vertical-align: top;
+        padding: 0.02in 0 0.02in 0.02in; /* top bottom left */
+    }
+.col-name {
+	width: 1.0in;
+}
+.col-topic {
+	width: 2.5in;
+}
+    .teaching .col-topic {
+        width: 4in;
+    }
+.col-year {
+	width: 1in;
+}
+    .teaching .col-year {
+        width: 0.5in;
+    }
+.col-journey {
+	width: 2.5in;
+}
+    .mentoring .col-journey {
+        width: 5in;
+    }
+.col-school {
+	width: 1in;
+}
+.col-course {
+	width: 1in;
+}
