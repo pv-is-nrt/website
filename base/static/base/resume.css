@@ -3,88 +3,251 @@
 FONTS AVAILABLE
 Roboto: 100, 100italic, 300, 300italic, 400, 400italic, 500, 500italic, 700, 700italic, 900, 900italic
 Roboto Condensed: 300, 300italic, 400, 400italic, 700, 700italic
+Roboto Serif: 100, 200, 300, 400, 500, 600, 700, 800, 900
 
 */
 
-
-/*   TAGS
-/* ------------------------------------------------------------------ */
-
-body {
-    font-family: 'Roboto', sans-serif;;
-    font-size: 9pt;
-    width: 8.5in;
-    margin: 0 auto;
-    box-shadow: 0 0 0.1in 0.05in rgba(0, 0, 0, 0.3);
+/* set an accent color variable */
+:root {
+    --accent-color: #e55;
+    --page-width: 8.5in;
+    --page-height: 11in;
+    --page-side-margin: 0.6in;
+    --module-gap: 0.25in;
+    --item-vgap: 0.2in;
+    --item-lgap: 0.05in;
 }
+
+
+/*   TAGS APPLICABLE TO ENTIRE (MAJORITY) OF DOCUMENT
+/*=========================================================================== */
+
 ::selection {
 	color: inherit;
-	background: #c90;
+	background: var(--accent-color);
 }
-::-moz-selection {
-	color: inherit;
-	background: #c90;
+
+body {
+    width: var(--page-width); /* setting this property to page class hides the shadow and centering etc., so it's better here */
+    margin: 0 auto;
+    font-family: 'Roboto', sans-serif;
+    font-size: 9pt;
+    line-height: 1.5em;
+    box-shadow: 0 0 0.1in 0.05in rgba(0, 0, 0, 0.3);
 }
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Roboto Serif', serif;
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    font-weight: 900;
+    margin: 0;
+    padding: 0;
+}
+
 h1 { 
     /* used for the name */
-    font-size: 1.6em;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 4pt;
+    color: var(--accent-color);
+    font-size: 1.5em;
     margin-bottom: 0.1in;
-    margin-top: 0;
 }
 h2 {
-    /* used for section headings */
-    font-size: 1.1em;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 3pt;
-    padding: 0.1in 0;
-    /* box-shadow: rgba(0, 0, 0, 0.2) 0px 2px 3px -1px; */
+    /* used for module headings */
+    font-size: 0.95em;
+    letter-spacing: 0.25em;
     grid-area: h2;
+    margin-bottom: 0.0in; /* h2 only appears inside a grid so the space is better controlled using grids */
 }
 h3 {
     font-size: 0.85em;
-    line-height: 1.8em;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 2pt;
-    margin-bottom: 0.07in;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.04in;
 }
 h4 {
-    font-weight: 400;
-    margin: 0.07in 0 0.07in;
+    letter-spacing: 0.1em;
+    font-size: 0.8em;
 }
 h5 {
-    text-transform: uppercase;
-    font-size: 0.8em;
-    font-weight: 300;
-    letter-spacing: 0.8pt;
-    margin-bottom: 0.0in;
-    line-height: 1.5em; /* matches p */
+    letter-spacing: 0.1em;
+    font-size: 0.75em;
 }
-p {
-    line-height: 1.5em;
+
+ol {
+    padding-left: 0.18in; /* this aligns it with the 0.05 left padding */
 }
 ul {
     list-style-type: '—';
-    padding-left: 0.15in;
+    padding-left: 0.18in;
 }
 li {
-    font-size: 8.6pt; /* fine tuning */
     padding-left: 0.1in;
-    line-height: 1.4em; /* less than p */
+    margin-bottom: 0.2em; /* better than line height, because this keeps multi-lines in a list together */
 }
+
 a {
     color: inherit;
     text-decoration: dotted;
 }
 
+header {
+    grid-area: header;
+    margin-bottom: 0.3in; /* slightly larger than gap between modules */
+}
 
-/*    MATERIAL ICONS
+footer {
+    color: #666;
+    background-color: #eee;
+    display: grid; /* 3 children inside */
+    grid-area: footer;
+    grid-template-columns: calc(var(--page-width) / 3) auto calc(var(--page-width) / 3); /* roughly divide the page in thirds */
+    grid-template-rows: 0.6in 0.09in; /* 0.092 instead of 0.1 helps with no extra page during printing */
+    grid-template-areas: 
+    "footer-left footer-center footer-right"
+    "footer-border footer-border footer-border";
+    align-items: center; /* aligns the text in the middle of the row */
+    border-top: solid 1px #ddd;
+}
+
+
+/*   COMMONLY USED CLASSES
+/*=========================================================================== */
+
+/*    PAGE RELATED
 /* ------------------------------------------------------------------ */
+.page {
+    display: grid;
+    /* it will be better to have left-right margins within sections */
+    grid-template-rows: 0.7in calc(var(--page-height) - 1.4in) 0.7in;
+    grid-template-areas:
+        "header"
+        "page-body"
+        "footer";
+    }
+.page-body {
+    margin: 0 var(--page-side-margin); /* 0.6in or something like that */
+    grid-area: page-body;
+}
+.page-1 {
+    /* make the header taller than on the other pages */
+    grid-template-rows: 1.5in calc(var(--page-height) - (1.5in + 0.7in)) 0.7in;
+}
+    .page-1 header {
+        /* page 1's the only header with content in it */
+        display: grid; /* 2 children inside */
+        grid-template-columns: 0.6in auto 2in 0.6in;
+        align-items: center; /* aligns the text in the middle of the row */
+        grid-template-areas:
+            ". header-left header-right .";
+        border-bottom: solid 1px var(--accent-color);
+    }
+        .page-1 .header-left {
+            grid-area: header-left;
+        }
+            .page-1 .header-left p {
+                /* applies to the tagline */
+                font-family: 'Roboto Serif', serif;
+                text-transform: uppercase;
+                font-weight: 900;
+                font-size: 0.8em;
+                line-height: 0.8em;
+                letter-spacing: 2pt;
+            }
+        .page-1 .header-right {
+            grid-area: header-right;
+        }
+            .page-1 .header-right p {
+                /* applies to the contact section */
+                font-family: 'Roboto Serif', serif;
+                text-transform: uppercase;
+                font-weight: bold;
+                font-size: 0.65em;
+                line-height: 2em;
+                letter-spacing: 2pt;
+            }
+.page-two-columns .page-body {
+    display: grid;
+    /* margin on 0.6in on each side has already been set in page-body class */
+    grid-template-columns: auto 2.6in; /* right-side is 2.6in */
+    grid-template-areas:
+        "left-area right-area";
+}
+.page-hybrid-columns .left-area { 
+    /* margin already set */
+    width: 4.6in; /* trial and error */
+    display: inline-block;
+    vertical-align: top;
+}
+.page-hybrid-columns .right-area {
+    /* margin already set */
+    width: 2.4in; /* matches 1st page */
+    display: inline-block;
+    vertical-align: top;
+}
+.left-area {
+    grid-area: left-area;
+    margin-right: 0.1in; /* for the center gap of 0.2in */
+}
+.right-area {
+    grid-area: right-area;
+    margin-left: 0.1in; /* for the center gap of 0.2in */
+}
+    .right-area p {
+        /* makes sidebar text smaller than body */
+        font-size: 0.95em;
+    }
+    .right-area .item {
+        margin-bottom: 0.1in;
+    }
 
+/* ---------------------------------------------------------- */
+.module {
+    margin-bottom: var(--module-gap);
+}
+    .module-heading {
+        display: grid;
+        grid-template-columns: auto 0.3in;
+        grid-template-areas: 
+        "h2 h2-right";
+        margin-bottom: var(--item-vgap);
+        padding: 0 var(--item-lgap) 0.07in; /* bottom margin assigned here instead of to h element */
+        border-bottom: solid 1px var(--accent-color);
+        align-items: center; /* aligns the icon with the text */
+    }
+
+.item {
+    /* items within modules */
+    margin-bottom: var(--item-vgap);
+    padding-left: var(--item-lgap);
+}
+
+.fancy-number {
+    font-weight: bold; /* bold is better than 700 */
+    border-bottom: solid 1px var(--accent-color);
+    /* border-radius: 0.3em; */
+    padding: 0 0.03in;
+}
+
+/* FOOTER */
+.footer-left {
+    grid-area: footer-left;
+    padding-left: 0.5in; /* note that this is slightly less than page side margin */
+}
+.footer-center {
+    grid-area: footer-center;
+    text-align: center;
+}
+.footer-right {
+    grid-area: footer-right;
+    padding-right: 0.5in; /* note that this is slightly less than page side margin */
+    text-align: right;
+}
+.footer-border {
+    height: 100%; /* note that the grid row height is about 0.09in instead of 0.1in, which prevents an extra blank page created during printing */
+    background-color: #555;
+    grid-area: footer-border;
+}
+
+/* MATERIAL ICONS */
 .material-icons.md-normal {
     font-size: 1.4em;
     line-height: inherit;
@@ -93,465 +256,165 @@ a {
     vertical-align: middle;
 }
 .material-icons.md-small-right {
-    font-size: 1.0em;
+    font-size: 1.2em;
     line-height: inherit;
     color: inherit;
-    margin-left: 0.05in;
+    margin-left: 0.02in;
     vertical-align: middle;
 }
 .material-icons.md-small-left {
     font-size: 1.0em;
     line-height: inherit;
     color: inherit;
-    margin-right: 0.05in;
+    margin-right: 0.02in;
     vertical-align: middle;
 }
-
-/*    CLASSES
-/* ------------------------------------------------------------------ */
-
-.page {
-    height: 11in;
-}
-    .page footer {
-        grid-area: footer;
-        background-color: #eee;
-    }
-    .page .left-column {
-        padding: 0 0.2in 0.2in;
-    }
-    .page .right-column {
-        padding: 0 0.2in 0.2in;
-        background-color: rgba(0, 0, 0, 0);
-    }
-
-.section-heading {
-    display: grid;
-    grid-template-columns: auto 0.5in;
-    grid-template-rows: 1fr;
-    grid-template-areas: 
-    "h2 h2-right";
-    margin-bottom: 0.2in;
-    padding: 0 0.05in;
-    border-top: solid 1px #000;
-    border-bottom: solid 1px #000;
-    align-items: center;
+.material-icons.h2-right {
+    grid-area: h2-right;
+    font-size: 1.4em;
+    line-height: inherit;
+    justify-self: right;
 }
 
-.fancy-number {
-    font-weight: 900;
-    min-width: 1.5em;
-    height: 1.5em;
-    line-height: 1.5em;
-    background-color: #eee;
-    border-bottom: solid 1px #ccc;
-    border-radius: 0.2em;
-    margin-right: 0.05in;
-    margin-left: 0.05in;
-    padding: 0 0.05in;
-    text-align: center;
-}
+    
+/*   SPECIFIC CLASSES (roughly in order of appearance)
+/*=========================================================================== */
 
-.progress-bar-container {
-    width:100%;
-    background-color: #ccc;
+/* skillsets sidebar */
+.sidebar-skills .item {
+    padding-right: 0.05in; /* bring it in a lil bit */
+    margin-bottom: 0.05in;
+}
+.sidebar-progress-bar-container {
     height: 1px;
+    background-color: #ccc;
 }
-.progress-bar {
-    background-color: #555; /* #E1A814 nice orange */
-    width: 100%;
+.sidebar-progress-bar {
     height: 100%;
+    background-color: #555;
 }
-.progress-bar-dot {
+.sidebar-progress-bar-dot {
     width: 5px;
     height: 5px;
     border-radius: 5px;
-    background-color: #555; /* #E1A814 nice orange */
+    background-color: #555;
     position: relative;
     top: -2px;
-    left: 100%;
+    left: calc(100% - 4px); /* so that the dot does not go beyond the bar by much, but enough to completely cover it */
 }
-.material-icons.h2-right {
-    font-size: 1.4em;
-    line-height: 1.4em;
-    grid-area: h2-right;
-    justify-self: right;
+
+/* ---------------------------------------------------------- */
+
+.statement p {
+    padding-left: var(--item-lgap);
 }
-.h2-right {
-    padding-left: 0.1in;
-    border-left: solid 1px #000;
+
+/* ---------------------------------------------------------- */
+
+.education h4 {
+    /* fine tuning */
+    margin-bottom: 0.05in;
+    line-height: 1.5em;
+}
+.education p {
+    line-height: 1.4em; /* keeps the vertically tight */
+}
+
+/* ---------------------------------------------------------- */
+
+.experience h3 .organization {
+    font-size: 0.9em; /* just subdues the organization a bit */
+}
+    .experience .supervisor_and_date {
+        font-weight: 500; /* does not really look different */
+        margin-bottom: 0.03in;
+    }
+
+/* ---------------------------------------------------------- */
+
+.highlights {
+    padding-left: var(--item-lgap);
+}
+
+/* ---------------------------------------------------------- */
+
+.awards .item {
+    margin-bottom: 0.0in;
+}
+.awards .year {
+    margin-right: 0.1in;
+    font-weight: bold;
+    font-size: 0.95em; /* numbers look too big otherwise */
+}
+
+/* ---------------------------------------------------------- */
+
+.publications .prateek-author {
+    font-weight: bold;
+}
+.publications .publisher {
+    font-style: italic;
+}
+.publications .date {
+    font-weight: bold;
+}
+.publications li {
+    font-size: 0.9em;
+    list-style: '\2712';
+}
+
+/* ---------------------------------------------------------- */
+    
+.presentations .date {
+    font-weight: bold;
+}
+.presentations .country {
     font-size: 0.8em;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.presentations li {
+    font-size: 0.9em;
+    list-style: '\1F4E3';
 }
 
+/* ---------------------------------------------------------- */
 
-/*    SPECIFIC TO PAGE 1
-/* ------------------------------------------------------------------ */
-
-.page-1 {
-    display: grid;
-    grid-template-columns: 0.35in 2.4in 2.4in 3in 0.35in;
-    grid-template-rows: 1.6in 1in 2.35in 1.8in 3.55in 0.7in;
-    grid-template-areas: 
-    "header header header header header"
-    ". statement statement highlights ."
-    ". experience experience education ."
-    ". experience experience awards ."
-    ". experience experience skills ."
-    "footer footer footer footer footer";
+.skillset-group {
+    display: inline-block;
+    padding: 0 0.05in;
+    width: 1.8in;
+    vertical-align: top;
 }
-    .page-1 header {
-        margin-bottom: 0.3in;
-        padding: 0 0.35in; /* need to match the page margin grid */
-        display: grid; /* 2 children inside */
-        grid-template-columns: auto 2.6in;
-        grid-area: header;
-        background-color: #eee;
-        border-bottom: solid 1px #ddd;
-    }
-        .page-1 .header-left {
-            display: grid;
-            align-items: center; /* to put wrapper in middle */
-            padding-bottom: 0; /* to override left-column margin */
-        } 
-            .page-1 .header-left h4 {
-                font-size: 1em;
-                text-transform: uppercase;
-                letter-spacing: 2pt;
-                margin: 0;
-            }
-        .page-1 .header-right {
-            display: grid;
-            align-items: center; /* to put wrapper in middle */
-            padding-bottom: 0; /* to override right-column margin */
-        }
-            .page-1 .header-right p {
-                font-size: 0.8em;
-                line-height: 2em;
-                font-weight: 100;
-                letter-spacing: 2pt;
-                text-transform: uppercase;
-            }
-
-    /* ---------------------------------------------------------- */
-    
-    .statement {
-        grid-area: statement;
-    }
-        .statement p {
-            padding-left: 0.05in; /* matches h2 */
-        }
-
-    /* ---------------------------------------------------------- */
-    
-    .highlights {
-        grid-area: highlights;
-    }
-        .page-1 .highlight-item {
-            display: inline-block;
-        }
-            .page-1 .highlight-item div {
-                display: inline-block;
-                font-size: 0.96em; /* fine tuning */
-            }
-
-    /* ---------------------------------------------------------- */
-    
-    .education {
-        grid-area: education;
-    }
-        .education .education-item {
-            padding-left: 0.05in; /* matches h2 */
-            margin-bottom: 0.1in;
-        }
-            .education .education-item h3 {
-                letter-spacing: 1pt;
-                margin-bottom: 0.0in;
-            }
-
-    /* ---------------------------------------------------------- */
-    
-    .experience { 
-        grid-area: experience;
-    }
-        .experience .experience-item {
-            padding-left: 0.05in; /* matches h2 */
-            margin-top: 0.15in;
-        }
-            .experience .experience-item .organization {
-                text-transform: uppercase;
-                font-size: 0.8em;
-                letter-spacing: 1pt;
-            }
-            .experience .experience-item .date {
-                font-size: 0.85em;
-            }
-            .experience .experience-item .supervisor {
-                font-size: 0.85em;
-            }
-
-    /* ---------------------------------------------------------- */
-
-    .skills {
-        grid-area: skills;
-        margin-top: 0.2in; /* fine tuning */
+    .skillset-group .skillset {
+        margin-bottom: 0.15in;
     }
         .skill-item {
-            padding: 0 0.03in 0 0.05in; /* right and left padding */
-            margin-bottom: 0.06in;
-        }
-            .skills h5 {
-                margin-bottom: 0.03in;
-            }
-
-    /* ---------------------------------------------------------- */
-
-    .awards {
-        grid-area: awards;
-    }
-        .awards p {
-            padding-left: 0.05in; /* matches h2 */
-            line-height: 1.4em; /* fine tuning */
-        }
-        .awards .year {
-            margin-right: 0.1in;
+            line-height: 0.13in; /* keeps it centered when border is given to the container having a height of 0.15in */
+            font-size: 0.55em;
             font-weight: 900;
-            font-size: 0.9em;
+            margin-bottom: 0.015in;
+            text-transform: uppercase;
+            letter-spacing: 0.5pt;
+        }
+        .progress-bar-container {
+            width:100%;
+            background-color: #f3f3f3;
+            border: solid 1px #ddd;
+            border-radius: 0.2em;
+            height: 0.15in;
+        }
+        .progress-bar {
+            background-color: #ddd; /* #E1A814 nice orange */
+            width: 100%; /* set dynamically in html */
+            white-space: nowrap; /* controls overflow? */
+            padding-left: 0.03in;
         }
 
+/* ---------------------------------------------------------- */
 
-    /* ---------------------------------------------------------- */
-    
-    footer {
-        color: #666;
-        background-color: #eee;
-        display: grid; /* 3 children inside */
-        grid-area: footer;
-        grid-template-columns: 2.8in auto 2.8in; /* roughly divide the page in thirds */
-        grid-template-rows: 0.6in 0.1in;
-        grid-template-areas: 
-        "footer-left footer-center footer-right"
-        "footer-border footer-border footer-border";
-        align-items: center;
-    }
-        footer .footer-left {
-            grid-area: footer-left;
-            padding-left: 0.5in;
-            text-align: left;
-        }
-        footer .footer-center {
-            grid-area: footer-center;
-            text-align: center;
-        }
-        footer .footer-right {
-            grid-area: footer-right;
-            padding-right: 0.5in;
-            text-align: right;
-        }
-        footer .footer-border {
-            height: 0.1in;
-            background-color: #555;
-            grid-area: footer-border;
-        }
-
-
-/*    SPECIFIC TO PAGE 2
-/* ------------------------------------------------------------------ */
-
-.page-2 {
-    display: grid;
-    grid-template-columns: 0.35in 4.8in 3in 0.35in;
-    grid-template-rows: 0.7in 9.6in 0.7in;
-    grid-template-areas: 
-    "header header header header"
-    ". left-column right-column ."
-    "footer footer footer footer";
+.reviews .item {
+    margin-bottom: 0.07in; /* fine-tuned */
 }
-    .page-2 header {
-        padding: 0 0.35in; /* need to match the page margin grid */
-        display: grid; /* 2 children inside */
-        grid-template-columns: auto 2.6in;
-        grid-area: header;
-        margin-bottom: 0.3in;
-    }
-    .page-2 .left-column {
-        grid-area: left-column;
-    }
-    .page-2 .right-column {
-        grid-area: right-column;
-    }
-    .experience {
-        grid-area: experience;
-        padding-bottom: 0.2in;
-    }
-    .publications {
-        grid-area: publications;
-        padding-bottom: 0.2in;
-    }
-        .publications .prateek-author {
-            font-weight: 700;
-        }
-        .publications .title {
-            font-style: italic;
-        }
-        .publications .date {
-            font-weight: 700;
-        }
-        .publications a {
-            color: inherit;
-        }
-        .publications li {
-            list-style: '\2712';
-        }
 
-    /* ---------------------------------------------------------- */
-        
-    .presentations {
-        grid-area: presentations;
-        padding-bottom: 0.2in;
-    }
-        .presentations li {
-            list-style: '\260A';
-        }
-    
-    /* ---------------------------------------------------------- */
-        
-    .leadership {
-        grid-area: leadership;
-        padding-bottom: 0.2in;
-    }
-        .leadership .leadership-item {
-            padding-left: 0.05in; /* matches h2 */
-            padding-bottom: 0.03in;
-            margin-bottom: 0.04in;
-        }
-            .leadership .leadership-item h5 {
-                font-weight: 900;
-            }
-            .leadership .leadership-item p {
-                line-height: 1.3em;
-                font-size: 0.9em;
-            }
-
-    /* ---------------------------------------------------------- */
-
-    .advising {
-        grid-area: advising;
-        padding-bottom: 0.2in;
-    }
-        .advising .advising-item {
-            padding-left: 0.05in;
-        }
-
-    /* ---------------------------------------------------------- */
-
-    .mentorship {
-        grid-area: mentorship;
-        padding-bottom: 0.2in;
-    }
-        .mentorship .mentorship-item {
-            padding-left: 0.05in;
-        }
-
-    .diversity {
-        grid-area: diversity;
-    }
-        .diversity .diversity-item {
-            padding: 0 0.03in 0 0.05in; /* right and left padding */
-            margin-bottom: 0.06in;
-        }
-
-
-/*    SPECIFIC TO PAGE 3
-/* ------------------------------------------------------------------ */
-
-.page-3 {
-    display: grid;
-    grid-template-columns: 0.35in 4.8in 3in 0.35in;
-    grid-template-rows: 0.7in 5.3in 4.3in 0.7in;
-    grid-template-areas: 
-    "header header header header"
-    ". skillsets-full skillsets-full ."
-    ". left-column right-column ."
-    "footer footer footer footer";
-}
-    .page-3 header {
-        padding: 0 0.35in; /* need to match the page margin grid */
-        display: grid; /* 2 children inside */
-        grid-template-columns: auto 2.6in;
-        grid-area: header;
-        margin-bottom: 0.3in;
-    }
-    .page-3 .skillsets-full {
-        grid-area: skillsets-full;
-        padding: 0 0.2in 0.2in;
-    }
-        .page-3 .skillsets-full h5 {
-            font-weight: 700;
-            margin-bottom: 0.1in;
-        }
-        .page-3 .skillsets-full p {
-            font-size: 0.8em;
-            line-height: 0.9em;
-            margin-bottom: 0.02in;
-        }
-        .page-3 .skillset-group {
-            display: inline-block;
-            padding: 0 0.05in;
-            width: 1.8in;
-            vertical-align: top;
-        }
-            .page-3 .skillset-group .skillset {
-                margin-bottom: 0.15in;
-            }
-            .page-3 .skillset-group .progress-bar {
-                background-color: #ddd; /* #E1A814 nice orange */
-                width: 100%; /* set dynamically in html */
-                /* so that the text (if any) can overflow outside */
-                white-space: nowrap;
-                padding-left: 0.03in;
-            }
-            .page-3 .skillset-group .progress-bar-container {
-                width:100%;
-                background-color: #f3f3f3;
-                border: solid 1px #ddd;
-                border-radius: 0.2em;
-                height: 0.15in;
-            }
-            .page-3 .skillset-group .skill-item {
-                line-height: 0.13in; /* keeps it centered when border is given to the container having a height of 0.15in */
-                font-size: 0.55em;
-                font-weight: 700;
-                margin-bottom: 0.015in;
-                text-transform: uppercase;
-                letter-spacing: 0.5pt;
-                padding: 0; /* to override the default padding of skill-item */
-            }
-    
-    .page-3 .teaching {
-        padding-bottom: 0.3in;
-    }
-        .page-3 .teaching .teaching-item {
-            padding-left: 0.05in;
-            margin-bottom: 0.05in;
-        }
-
-    .page-3 .references .reference-item {
-        padding-left: 0.05in;
-        margin-bottom: 0.08in;
-    }
-    .page-3 .references .reference-item .name {
-        font-weight: 700;
-    }
-
-    .page-3 .left-column {
-        grid-area: left-column;
-    }
-    .page-3 .right-column {
-        grid-area: right-column;
-    }
-    
-    .page-3 .extracurriculars li {
-        font-size: 9pt; /* override to li */
-    }
-
-    
+/* ---------------------------------------------------------- */

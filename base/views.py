@@ -291,11 +291,11 @@ def cv(request):
 #    Resume page
 # ---------------------------------------------------------------------------- #
 
-def resume(request):
+def resume_old(request):
 
     # ADD USER VISIT INFO TO DATABASE
     # -------------------------------------------#
-    core.add_user_info_to_database(Analytic(), request, '/resume')
+    core.add_user_info_to_database(Analytic(), request, '/resume-old')
 
     # create a context here
     context = {
@@ -321,6 +321,47 @@ def resume(request):
         'teachings': teachings,
         'diversity_index': diversity_index,
         'references': references,
+    }
+
+    # return the rendered page here
+    return render(request, 'base/resume-old.html', context)
+
+
+#    Resume-new page
+# ---------------------------------------------------------------------------- #
+
+def resume(request):
+
+    # ADD USER VISIT INFO TO DATABASE
+    # -------------------------------------------#
+    core.add_user_info_to_database(Analytic(), request, '/resume')
+
+    # create a context here
+    context = {
+        # whole objects
+        'basic_info': basic_info,
+        'educations': educations,
+        'experiences': experiences,
+        'publications': publications,
+        'publications_published': publications_published,
+        'publications_first_author': publications_first_author,
+        'publications_published_or_submitted': publications_published_or_submitted,
+        'presentations': presentations,
+        'presentations_featured': presentations_featured,
+        'proposals': proposals,
+        'skillsets': skillsets,
+        'leaderships': leaderships,
+        'honor_and_awards': honor_and_awards,
+        'featured_honor_and_awards': featured_honor_and_awards,
+        'advisings': advisings,
+        'count_direct_advising': count_direct_advising,
+        'mentorings': mentorings,
+        'mentorings_programs': mentorings_programs,
+        'total_advisings_mentorings': total_advisings_mentorings,
+        'teachings': teachings,
+        'diversity_index': diversity_index,
+        'references': references,
+        'reviews': reviews,
     }
 
     # return the rendered page here
