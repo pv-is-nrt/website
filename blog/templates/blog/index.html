@@ -3,6 +3,8 @@
 
 {% block additional_head_content %}
 	<link rel="stylesheet" href="{% static 'blog/style.css' %}">
+	{% block post_head_content %}
+	{% endblock %}
 {% endblock %}
 
 
@@ -14,6 +16,7 @@
 <!-- NAV LINKS OVERRIDE
 # ===================================================================-->
 
+	<!-- modifies part of the navigation bar -->
 	{% block nav_links_li %}
     <li><a href="{% url 'base:professional' %}#header">
         <span class="material-icons space-span-left">attach_money</span>Professional</a>
