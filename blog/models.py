@@ -77,7 +77,7 @@ class Post(models.Model):
     subtitle = models.CharField(max_length=200, blank=True)
     categories = models.ManyToManyField(Category)
     tags = models.ManyToManyField(Tag)
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     publication_date = models.DateField()
     abstract = models.TextField(blank=True)
     body = models.TextField()
