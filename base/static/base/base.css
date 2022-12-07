@@ -43,6 +43,14 @@ Roboto Serif: 100, 400, 700, 900
 	--horizontal-gap: 5%;
 	--vertical-gap: var(--gap);
 	--transition-time: 300ms;
+	--color-instagram: #e4405f;
+	--color-linkedin: #0077b5;
+	--color-twitter: #1da1f2;
+	--color-facebook: #3b5998;
+	--color-youtube: #ff0000;
+	--color-github: #333;
+	--color-medium: #00ab6c;
+	--color-scholar: #4285f4;
 }
 
 
@@ -512,6 +520,27 @@ input:focus, textarea:focus {
 	nav .nav-social-bar i:hover {
 		color: var(--color-link);
 	}
+		nav .nav-social-bar i.fa-instagram:hover {
+			color: var(--color-instagram);
+		}
+		nav .nav-social-bar i.fa-twitter:hover {
+			color: var(--color-twitter);
+		}
+		nav .nav-social-bar i.fa-linkedin:hover {
+			color: var(--color-linkedin);
+		}
+		nav .nav-social-bar i.fa-github:hover {
+			color: var(--color-github);
+		}
+		nav .nav-social-bar i.fa-medium:hover {
+			color: var(--color-medium);
+		}
+		nav .nav-social-bar i.fa-scholar:hover {
+			color: var(--color-scholar);
+		}
+		nav .nav-social-bar i.fa-youtube:hover {
+			color: var(--color-youtube);
+		}
 	nav .nav-social-bar p {
 		color: var(--color-subtle);
 		font-size: 0.7em;
