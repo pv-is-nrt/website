@@ -49,7 +49,7 @@ h1 {
     /* used for the name */
     color: var(--accent-color);
     font-size: 1.5em;
-    margin-bottom: 0.1in;
+    margin-bottom: 0.15in;
 }
 h2 {
     /* used for module headings */
