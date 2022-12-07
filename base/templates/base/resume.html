@@ -205,7 +205,7 @@
 				# ------------------------------------------------------------->
 				<div class="publications module">
 					<div class="module-heading">
-						<h2>Select Publications</h2>
+						<h2>Select Publications (of {{ publications|length }})</h2>
 					</div>
 					<ul>
 						{% for publication in publications_featured|slice:":8" %}
@@ -223,7 +223,7 @@
 				# ------------------------------------------------------------->
 				<div class="presentations module">
 					<div class="module-heading">
-						<h2>Select Presentations</h2>
+						<h2>Select Presentations (of {{ presentations|length }})</h2>
 					</div>
 					<ul>
 					{% for presentation in presentations_featured|slice:":8" %}
