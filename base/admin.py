@@ -15,7 +15,7 @@ class BasicInformationAdmin(admin.ModelAdmin):
             'fields': ('notification_email', 'contact_email', 'personal_email', 'work_email', 'country_phone_code', 'phone', 'address', 'city', 'zip_code', 'country')
             }),
         ('Statements', {
-            'fields': ('resume_tagline', 'website_statement', 'personal_statement', 'extra_curricular')
+            'fields': ('website_tagline', 'resume_tagline', 'website_statement', 'personal_statement', 'extra_curricular')
             }),
         ('Websites', {
             'fields': ('website_url', 'scholar_url', 'researchgate_url', 'orcid_url', 'publons_url', 'facebook_url', 'twitter_url', 'linkedin_url', 'github_url', 'instagram_url', 'snapchat_url', 'youtube_url', 'medium_url', 'towardsdatascience_url')

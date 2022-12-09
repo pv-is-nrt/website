@@ -55,6 +55,7 @@ class BasicInformation(models.Model):
     city = models.CharField(max_length=200)
     country = models.CharField(max_length=200)
     zip_code = models.CharField(max_length=20)
+    website_tagline = models.CharField(max_length=100, blank=True)
     resume_tagline = models.CharField(max_length=100, blank=True)
     personal_statement = models.TextField(blank=True)
     website_statement = models.TextField(blank=True)
