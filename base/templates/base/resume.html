@@ -148,7 +148,7 @@
 						<h2>Select Honors</h2>
 					</div>
 					{% for item in honor_and_awards_featured|slice:":8" %}
-						<p class="item"><span class="year">{{ item.start_date|date:"Y" }}</span>{{ item.short_title|safe }}</p>
+						<p class="item"><span class="year">{{ item.start_date|date:"Y" }}</span>{{ item.short_title }}</p>
 					{% endfor %}
 				</div>
 

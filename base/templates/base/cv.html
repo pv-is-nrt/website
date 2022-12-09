@@ -176,7 +176,7 @@
 						<div class="material-icons h2-right">read_more</div>
 					</div>
 					{% for item in honor_and_awards_featured|slice:":4" %}
-						<p class="item"><span class="year">{{ item.start_date|date:"Y" }}</span>{{ item.short_title|safe }}</p>
+						<p class="item"><span class="year">{{ item.start_date|date:"Y" }}</span>{{ item.short_title }}</p>
 					{% endfor %}
 				</div>
 
@@ -467,7 +467,7 @@
 				<div class="module-heading">
 					<h2>Research advising</h2>
 				</div>
-				<p class="item">Direct supervisor for members marked with an * {% if request.META.REMOTE_ADDR != '127.0.0.1' %}Last name has been hidden for the sake of privacy online.{% endif %}</p>
+				<p class="item">Direct supervisor for members marked with an * {% if request.META.REMOTE_ADDR != '127.0.0.1' %}. Last name has been hidden for the sake of privacy online.{% endif %}</p>
 				<div class="heading-row">
 					<div class="col-name">Name</div>
 					<div class="col-topic">Topic</div>
