@@ -44,7 +44,7 @@
                 <span class="material-icons" id="dark_mode_icon" onclick="toggleStyleSheet();">light_mode</span>
             </div> -->
             <a href="{% url 'base:index' %}"><img src="{% static 'base/images/profile-photo.jpg' %}" alt="profile photo" class="profile-photo card"></a>
-            <p class="tagline">{{ basic_info.resume_tagline }}</p>
+            <p class="tagline">{{ basic_info.website_tagline }}</p>
             <ul>
                 <!-- Home link will always be present in navbar -->
                 <!-- and it will reload the page even if already on base -->
@@ -72,8 +72,8 @@
                 <a href="{{ basic_info.instagram_url }}" target="blank"><i class="fa-brands fa-instagram"></i></a>
                 <a href="{{ basic_info.linkedin_url }}" target="blank"><i class="fa-brands fa-linkedin"></i></a>
                 <a href="{{ basic_info.github_url }}" target="blank"><i class="fa-brands fa-github"></i></a>
+                <a href="{{ basic_info.scholar_url }}" target="blank"><i class="fa-brands fa-google"></i></a>
                 <a href="{{ basic_info.medium_url }}" target="blank"><i class="fa-brands fa-medium"></i></a>
-                <a href="{{ basic_info.scholar_url }}" target="blank"><i class="fa-solid fa-graduation-cap"></i></a>
                 <a href="{{ basic_info.twitter_url }}" target="blank"><i class="fa-brands fa-twitter"></i></a>
                 <a href="{{ basic_info.youtube_url }}" target="blank"><i class="fa-brands fa-youtube"></i></a>
                 <p>this website is hand-crafted by &copy; prateek</p>
