@@ -115,7 +115,6 @@
 				<a href="{{ basic_info.publons_url }}" target="blank">
 					<i class="fa-solid fa-p space-span-left color-link"></i>Publons
 				</a>
-				<hr class="narrow">
 			</div>
 			<div class="padded card-very-thin double-spaced">
 				<h4>Some research stats</h4>
@@ -147,7 +146,7 @@
 						<span class="uppercase color-accent2">{{ publication.publisher }}</span>{% if publication.issue_etc %} / <span>{{ publication.issue_etc }}</span>{% endif %} / <span class="bold">{{ publication.date|date:"Y" }}</span>{% if publication.comment %} / <span class="italic">({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} class="color-link" target="blank"><span class="material-icons">open_in_new</span> link</a>{% endif %}
 					</p>
 				</div>
-				<hr class="narrow">
+				{% if not forloop.last %}<hr class="narrow">{% endif %}
 				{% endfor %}
 			</div>
 			{% endif %}
@@ -162,7 +161,7 @@
 				<p>{% for author in presentation.authors_list %}{% if forloop.counter == presentation.speaker_index %}<span class="color-accent"><span class="material-icons-outlined space-narrow-span-left">mic_none</span>{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list|last %}, {% endif %}{% endfor %} / <span>{{ presentation.city }} (<span class="uppercase color-accent2">{{ presentation.country }}</span>)</span> <span class="bold color-subtle">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %} / <span class="italic">{{ presentation.comment }}</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank" class="color-link"><span class="material-icons">open_in_new</span> link</a>{% endif %}</p>
 				<p>{{ presentation.title }}</p>
 			</div>
-			<hr class="narrow">
+			{% if not forloop.last %}<hr class="narrow">{% endif %}
 			{% endfor %}
 		</div>
 
@@ -211,7 +210,7 @@
 				<h5>{% if advising.linkedin_url %}<a href="{{ advising.linkedin_url }}" target="blank"><i class="fa-brands fa-linkedin"></i></a> {% endif %}<span class="color-accent">{{ advising.get_first_name }}</span> / {{ advising.start_date|date:"Y" }} &ndash; {{ advising.end_date|date:"Y"|default:"present" }}</h5>
 				<p><span class="color-accent2">Research area</span> {{ advising.title }}</p>
 				<p class="smaller-text"><span class="color-accent2">Journey</span> <span class="color-subtle">{{ advising.journey_short }}</span></p>
-				<hr>
+				{% if not forloop.last %}<hr>{% endif %}
 			</div>
 			{% endfor %}
 		</div>
@@ -229,7 +228,7 @@
 				<p>{{ mentoring.degree_type }} student</p>
 				<p>{{ mentoring.title }}</p>
 				<p class="smaller-text"><span class="color-accent2">Journey</span> <span class="color-subtle">{{ mentoring.journey_short }}</span></p>
-				<hr>
+				{% if not forloop.last %}<hr>{% endif %}
 			</div>
 			{% endfor %}
 		</div>	
@@ -245,7 +244,7 @@
 				<h5>{{ teaching.position }} / {{ teaching.course_code }}</h5>
 				<p>{{ teaching.topic|default:teaching.course_name }}</p>
 				<p class="smaller-text"><span class="color-accent">{{ teaching.organization.short_name }}</span> <span class="">{{ teaching.year }}</span></p>
-				<hr>
+				{% if not forloop.last %}<hr>{% endif %}
 			</div>
 			{% endfor %}
 		</div>	
