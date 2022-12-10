@@ -1,6 +1,5 @@
 {% extends "base/base.html" %}
 
-
 {% block additional_head_content %}
 	<link rel="stylesheet" href="{% static 'blog/style.css' %}">
 	{% block post_head_content %}
@@ -45,49 +44,27 @@
 	<div class="spacer50" id="header"></div>
 
 
-	<!-- BLOG CATEGORIES BAR
+	<!-- BLOG CATEGORIES BAR ON TOP
 	# --------------------------------------------------------------------->
 
 	<section class="categories-bar">
 		<div class="navbar card-very-thin rounded-small centered">
 			{% for category in category_list %}
-			<div class="centered inline padded-tiny smaller-text clickable nav-button" id="nav-button-{{ category }}" onClick="showdiv('recent-posts-{{ category }}'); addClass(this, 'nav-button-', 'nav-button-active');">
-				<p>{{ category|capfirst }}</p>
+			<!-- NOTE: the if condition to detect the active link is less than ideal. I would like to use something like << if request.path == 'blog/category/'|add:category.id|stringformat:'s' >> as a condition, but it's not working for some reason -->
+			<div class="centered inline padded-tiny smaller-text clickable {% if category.id|stringformat:'s' in request.path %}nav-button-active{% else %}nav-button{% endif %}">
+				<a href="{% url 'blog:category' category.id %}#header">{{ category|capfirst }}</a>
 			</div>
 			{% endfor %}
 		</div>
 	</section>
 
 
-	<!-- POST LISTS
+	<!-- POSTS LIST
 	# --------------------------------------------------------------------->
-	
-	<!-- create a listing section for each blog category -->
-	<!-- then show/hide them on the frontend based on what nav button is clicked -->
-	{% for category in category_list %}
-	<section class="recent-posts hidden-at-first" id="recent-posts-{{ category }}">
-		<h2>{{ category|capfirst }}</h2>
-		<hr>
-		<div class="grid-container">
-			<!-- because Category does not have a posts field, posts can be relationally accessed via the _set suffix -->
-			<!-- dictsort and dictsortreversed can be used on an attribute of the QuerySet -->
-			{% for item in category.post_set.all|dictsortreversed:"publication_date" %}
-			<div class="item grid-container">
-				<div>
-					<a class="clickable" href="{% url 'blog:post' item.id %}#header">{{ item.title }}</a>
-				</div>
-				<div class="right uppercase color-subtle">
-					{{ item.publication_date|date:"M Y" }}
-				</div>
-			</div>
-			<hr class="narrow">
-			{% empty %}
-			<!-- clause to run if no posts were found in the given category -->
-			<p class="color-subtle">No posts in this category yet.</p>
-			{% endfor %}
-		</div>
-	</section>
-	{% endfor %}
+	<!-- this block is replaced by either the category or the tag page  -->
+	{% block posts-list %}
+
+	{% endblock posts-list %}
 
 
 	<!-- POST
@@ -97,12 +74,11 @@
 
 	{% endblock %}
 
-
 	
 	<!-- RECENT POSTS (from any/all categories)
 	# --------------------------------------------------------------------->
 
-	<section class="recent-posts">
+	<section class="posts-list">
 		<h2>Recent Posts</h2>
 		<hr>
 		<div class="grid-container">
@@ -110,11 +86,12 @@
 			<div class="item grid-container">
 				<div>
 					<a href="{% url 'blog:post' item.id %}#header"><p class="clickable">{{ item.title }}</p></a>
-					<p>
-						<!-- because Post has a categories field, it can be relationally accessed via the field_name.all and we don't need to use _set here I think -->
+					<p><span class="color-subtle smaller-text">Categories: </span>
 						{% for cat in item.categories.all %}
 						{% if not cat.hidden %}
-						<span class="tag">{{ cat.name }}</span>
+						<a href="{% url 'blog:category' cat.id %}">
+							<span class="tag category-tag clickable">{{ cat.name }}</span>
+						</a>
 						{% endif %}
 						{% endfor %}
 					</p>

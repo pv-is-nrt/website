@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Category, Tag, Reference, Post
 
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'hidden')
+    list_display = ('name', 'display_order', 'hidden')
     ordering = ('name',) # should be a tuple/list, throws error without a , 
 
 class ReferenceAdmin(admin.ModelAdmin):

@@ -19,6 +19,7 @@ Roboto Serif: 100, 400, 700, 900
 	--color-subtle: #444;
 	--bg-color: #fff;
 	--bg-color-subtle: #ddd;
+	--bg-color-very-subtle: #eee;
 	--color-accent: #c92;
 	--color-accent2: #2c9;
 	--color-accent3: #c29;
@@ -410,6 +411,7 @@ code {
 
 .tag {
 	font-size: 80%;
+	color: var(--color);
 	text-transform: lowercase;
 	background-color: var(--bg-color-subtle);
 	border-radius: var(--small-radius);

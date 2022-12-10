@@ -43,6 +43,8 @@ class uploadPath(object):
 class Category(models.Model):
     name = models.CharField(max_length=100)
     hidden = models.BooleanField(default=False)
+    # add a display order dropdown field
+    display_order = models.PositiveSmallIntegerField(default=0)
     def __str__(self):
         return self.name
 

@@ -1,0 +1,35 @@
+{% extends "./index.html" %}
+
+{% block title %}
+   {{ tag }} | Posts
+{% endblock %}
+
+<!-- we only need to override the posts-list section -->
+
+    <!-- POSTS LIST
+    # --------------------------------------------------------------------->
+    {% block posts-list %}
+	
+	<!-- create a listing section for each tag -->
+	<section class="posts-list">
+		<h2>Posts with tag: <span class="italic">{{ tag }}</span></h2>
+		<hr>
+		<div class="grid-container">
+			{% for item in tag_posts %}
+			<div class="item grid-container">
+				<div>
+					<a href="{% url 'blog:post' item.id %}#header"><p class="clickable">{{ item.title }}</p></a>
+				</div>
+				<div class="right uppercase color-subtle">
+					{{ item.publication_date|date:"M Y" }}
+				</div>
+			</div>
+			<hr class="narrow">
+			{% empty %}
+			<!-- clause to run if no posts were found for the given tag -->
+			<p class="color-subtle">No posts for this tag yet.</p>
+			{% endfor %}
+		</div>
+	</section>
+
+	{% endblock posts-list %}
