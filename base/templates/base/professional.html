@@ -29,6 +29,10 @@
 			<span class="material-icons space-narrow-span-left space-span-right">subdirectory_arrow_right</span>Experience</a>
 		</li>
 		<li class="smaller-text nav-sub-link">
+			<a href="{% url 'base:professional' %}#service">
+			<span class="material-icons space-narrow-span-left space-span-right">subdirectory_arrow_right</span>Service</a>
+		</li>
+		<li class="smaller-text nav-sub-link">
 			<a href="{% url 'base:professional' %}#awards">
 			<span class="material-icons space-narrow-span-left space-span-right">subdirectory_arrow_right</span>Awards</a>
 		</li>
@@ -187,6 +191,65 @@
 			</div>
 			{% endfor %}
 		</div>
+	</section>
+
+
+	<!-- SERVICE
+	# --------------------------------------------------------------------->
+
+	<section class="service" id="service">
+
+		<h2>Service and Volunteering</h2>
+
+		<div class="advising padded card-very-thin">
+			<h3>Research advising</h3>
+			<hr>
+			<p>Direct supervisor for members marked with an *. Last name has been hidden for the sake of privacy online. Journey is approximate and limited by person's stalkability on LinkedIn.</p>
+			<div class="spacer20"></div>
+			{% for advising in advisings %}
+			<div>
+				<h5>{% if advising.linkedin_url %}<a href="{{ advising.linkedin_url }}" target="blank"><i class="fa-brands fa-linkedin"></i></a> {% endif %}<span class="color-accent">{{ advising.get_first_name }}</span> / {{ advising.start_date|date:"Y" }} &ndash; {{ advising.end_date|date:"Y"|default:"present" }}</h5>
+				<p><span class="color-accent2">Research area</span> {{ advising.title }}</p>
+				<p class="smaller-text"><span class="color-accent2">Journey</span> <span class="color-subtle">{{ advising.journey_short }}</span></p>
+				<hr>
+			</div>
+			{% endfor %}
+		</div>
+
+		<div class="spacer30"></div>
+
+		<div class="mentoring padded card-very-thin">
+			<h3>Mentoring</h3>
+			<hr>
+			<p>Serving as a mentor for GT Mentor Jackets, GT MSE Industry Mentorship Program and IITR Alumni Mentorship Program.Last name has been hidden for the sake of privacy online. Journey is approximate and limited by person's stalkability on LinkedIn.</p>
+			<div class="spacer20"></div>
+			{% for mentoring in mentorings %}
+			<div>
+				<h5>{% if mentoring.linkedin_url %}<a href="{{ mentoring.linkedin_url }}" target="blank"><i class="fa-brands fa-linkedin"></i></a> {% endif %}<span class="color-accent">{{ mentoring.get_first_name }}</span> / {{ mentoring.start_date|date:"Y" }} &ndash; {{ mentoring.end_date|date:"Y"|default:"present" }}</h5>
+				<p>{{ mentoring.degree_type }} student</p>
+				<p>{{ mentoring.title }}</p>
+				<p class="smaller-text"><span class="color-accent2">Journey</span> <span class="color-subtle">{{ mentoring.journey_short }}</span></p>
+				<hr>
+			</div>
+			{% endfor %}
+		</div>	
+
+		<div class="spacer30"></div>
+
+		<div class="teaching padded card-very-thin">
+			<h3>Teaching</h3>
+			<hr>
+			<div class="spacer20"></div>
+			{% for teaching in teachings %}
+			<div>
+				<h5>{{ teaching.position }} / {{ teaching.course_code }}</h5>
+				<p>{{ teaching.topic|default:teaching.course_name }}</p>
+				<p class="smaller-text"><span class="color-accent">{{ teaching.organization.short_name }}</span> <span class="">{{ teaching.year }}</span></p>
+				<hr>
+			</div>
+			{% endfor %}
+		</div>	
+
 	</section>
 
 

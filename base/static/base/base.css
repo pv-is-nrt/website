@@ -516,28 +516,28 @@ input:focus, textarea:focus {
 		font-size: 1.2em;
 		line-height: 2em; /* in case they move to a new line */
 	}
-	nav .nav-social-bar i:hover {
+	i {
 		color: var(--color-subtle);
 	}
-		nav .nav-social-bar i.fa-instagram:hover {
+		i.fa-instagram:hover {
 			color: var(--color-instagram);
 		}
-		nav .nav-social-bar i.fa-twitter:hover {
+		i.fa-twitter:hover {
 			color: var(--color-twitter);
 		}
-		nav .nav-social-bar i.fa-linkedin:hover {
+		i.fa-linkedin:hover {
 			color: var(--color-linkedin);
 		}
-		nav .nav-social-bar i.fa-github:hover {
+		i.fa-github:hover {
 			color: var(--color-github);
 		}
-		nav .nav-social-bar i.fa-medium:hover {
+		i.fa-medium:hover {
 			color: var(--color-medium);
 		}
-		nav .nav-social-bar i.fa-google:hover {
+		i.fa-google:hover {
 			color: var(--color-google);
 		}
-		nav .nav-social-bar i.fa-youtube:hover {
+		i.fa-youtube:hover {
 			color: var(--color-youtube);
 		}
 	nav .nav-social-bar p {
