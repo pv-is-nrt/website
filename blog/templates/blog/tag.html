@@ -1,7 +1,7 @@
 {% extends "./index.html" %}
 
 {% block title %}
-   {{ tag }} | Posts
+   {{ tag|capfirst }} | Posts
 {% endblock %}
 
 <!-- we only need to override the posts-list section -->
