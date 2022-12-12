@@ -35,7 +35,7 @@
 				<div class="wrapper"> <!-- allows left bg to be set -->
 					<h1>{{ basic_info.first_name }} {{ basic_info.last_name }}</h1>
 					<p>
-						{{ basic_info.resume_tagline }}
+						{{ basic_info.resume_tagline|safe }}
 					</p>
 				</div>
 			</div>
@@ -58,7 +58,7 @@
 				<!-- Statement
 				# ------------------------------------------------------------->
 				<div class="statement module">
-					<p>{{ basic_info.personal_statement }}</p>
+					<p>{{ basic_info.personal_statement|safe }}</p>
 				</div>
 
 				<!-- Work Experience
@@ -213,7 +213,7 @@
 							<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 							<!-- some classes are not styled, but I'll let them stay for future -->
 							<span class="authors">
-							{% for author in publication.authors_list_very_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last and author != "et al." %}, {% endif %}{% endfor %}</span><span class="title">; {% if publication.title|length > 150 %}{{ publication.title|truncatechars:"100" }}{% else %}{{ publication.title }}{% endif %}</span><span class="publisher">; {{ publication.publisher }}</span>; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.status != "published" %}<span>; ({{ publication.status }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+							{% for author in publication.authors_list_very_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last and author != "et al." %}, {% endif %}{% endfor %}</span><span class="title">; {% if publication.title|length > 150 %}{{ publication.title|truncatechars:"100" }}{% else %}{{ publication.title|safe }}{% endif %}</span><span class="publisher">; {{ publication.publisher }}</span>; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.status != "published" %}<span>; ({{ publication.status }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 						</li>
 						{% endfor %}
 					</ul>
@@ -228,7 +228,7 @@
 					<ul>
 					{% for presentation in presentations_featured|slice:":8" %}
 						<li>
-							<span class="title">{{ presentation.title }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; {{ presentation.comment }}</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+							<span class="title">{{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; {{ presentation.comment }}</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 						</li>
 					{% endfor %}
 					</ul>
@@ -247,7 +247,7 @@
 					{% for leadership in leaderships_featured|slice:":5" %}
 					<div class="item">
 						<h4>{{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }} / {{ leadership.organization.short_name }}</h4>
-						<p>{{ leadership.short_title }}</p>
+						<p>{{ leadership.short_title|safe }}</p>
 					</div>
 					{% endfor %}
 				</div>

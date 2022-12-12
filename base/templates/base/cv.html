@@ -36,7 +36,7 @@
 				<div class="wrapper"> <!-- allows left bg to be set -->
 					<h1>{{ basic_info.first_name }} {{ basic_info.last_name }}</h1>
 					<p>
-						{{ basic_info.resume_tagline }}
+						{{ basic_info.resume_tagline|safe }}
 					</p>
 				</div>
 			</div>
@@ -59,7 +59,7 @@
 				<!-- Statement
 				# ------------------------------------------------------------->
 				<div class="statement module">
-					<p>{{ basic_info.personal_statement }}</p>
+					<p>{{ basic_info.personal_statement|safe }}</p>
 				</div>
 
 				<!-- Education
@@ -176,7 +176,7 @@
 						<div class="material-icons h2-right">read_more</div>
 					</div>
 					{% for item in honor_and_awards_featured|slice:":4" %}
-						<p class="item"><span class="year">{{ item.start_date|date:"Y" }}</span>{{ item.short_title }}</p>
+						<p class="item"><span class="year">{{ item.start_date|date:"Y" }}</span>{{ item.short_title|safe }}</p>
 					{% endfor %}
 				</div>
 
@@ -249,7 +249,7 @@
 					<li>
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 						<span class="authors">
-						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 					{% endfor %}
 					{% endif %}
@@ -297,7 +297,7 @@
 					{% for publication in group.list|slice:"8:" %}
 					<li>
 						<span class="authors">
-						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 					{% endfor %}
 					{% endif %}
@@ -313,7 +313,7 @@
 					<li>
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 						<span class="authors">
-						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 					{% endfor %}
 					{% endif %}
@@ -331,7 +331,7 @@
 				<ul>
 				{% for presentation in presentations|slice:":12" %}
 					<li>
-						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 				{% endfor %}
 				</ul>
@@ -373,7 +373,7 @@
 				<ul>
 				{% for presentation in presentations|slice:"12:" %}
 					<li>
-						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 				{% endfor %}
 				</ul>
@@ -396,7 +396,7 @@
 					<div class="col-year">{{ teaching.year }}</div>
 					<div class="col-course">{{ teaching.course_code }}</div>
 					<div class="col-school">{{ teaching.organization.short_name }}</div>
-					<div class="col-topic">{{ teaching.position }} / {{ teaching.topic|default:teaching.course_name }}</div>
+					<div class="col-topic">{{ teaching.position }} / {{ teaching.topic|default:teaching.course_name|safe }}</div>
 				</div>
 				{% endfor %}
 			</div>
@@ -410,7 +410,7 @@
 				<ol>
 				{% for awards in honor_and_awards %}
 				<li>
-					<span class="title">{{ awards.title }}</span><span class="agency"> / {{ awards.organization.short_name }}</span><span class="date"> / {{ awards.start_date|date:"Y" }}{% if awards.end_date %} &ndash; {{ awards.end_date|date:"Y" }}{% endif %}</span>
+					<span class="title">{{ awards.title|safe }}</span><span class="agency"> / {{ awards.organization.short_name }}</span><span class="date"> / {{ awards.start_date|date:"Y" }}{% if awards.end_date %} &ndash; {{ awards.end_date|date:"Y" }}{% endif %}</span>
 				</li>
 				{% endfor %}
 			</div>
@@ -455,7 +455,7 @@
 				<ol>
 				{% for proposal in proposals %}
 					<li>
-						{% if proposal.status == "awarded" %}<span class="status">{{ proposal.status|capfirst }}, </span>{% endif %}<span class="title">{{ proposal.title }}</span><span class="agency">, {{ proposal.agency }}</span><span class="pi">, PI: {{ proposal.pi }}</span><span class="date">, {{ proposal.year }}</span>
+						{% if proposal.status == "awarded" %}<span class="status">{{ proposal.status|capfirst }}, </span>{% endif %}<span class="title">{{ proposal.title|safe }}</span><span class="agency">, {{ proposal.agency }}</span><span class="pi">, PI: {{ proposal.pi }}</span><span class="date">, {{ proposal.year }}</span>
 					</li>
 				{% endfor %}
 				</ol>
@@ -477,7 +477,7 @@
 				{% for advising in advisings %}
 				<div class="row">
 					<div class="col-name">{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ advising.name }}{% else %}{{ advising.get_first_name }}{% endif %}</div>
-					<div class="col-topic">{{ advising.title }}</div>
+					<div class="col-topic">{{ advising.title|safe }}</div>
 					<div class="col-year">{{ advising.start_date|date:"Y" }} &ndash; {{ advising.end_date|date:"Y"|default:"present" }}</div>
 					<div class="col-journey">{{ advising.journey_short }}</div>
 				</div>
@@ -522,7 +522,7 @@
 				<ol>
 				{% for leadership in leaderships %}
 					<li>
-						<span class="title">{{ leadership.title }}</span><span class="agency"> / {{ leadership.organization.short_name }}</span><span class="date"> / {{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</span>
+						<span class="title">{{ leadership.title|safe }}</span><span class="agency"> / {{ leadership.organization.short_name }}</span><span class="date"> / {{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</span>
 					</li>
 				{% endfor %}
 			</div>
