@@ -59,7 +59,7 @@
 				<!-- Statement
 				# ------------------------------------------------------------->
 				<div class="statement module">
-					<p>{{ basic_info.personal_statement|safe }}</p>
+					<p>{{ basic_info.cv_statement|safe }}</p>
 				</div>
 
 				<!-- Education
@@ -647,7 +647,7 @@
 					<div class="module-heading">
 						<h2>References</h2>
 					</div>
-					{% for reference in references|slice:":5" %}
+					{% for reference in references|slice:":6" %}
 					<div class="item">
 						<h4 class="name">{{ reference.name }}{% if reference.website_url %}<a href="{{ reference.website_url }}" target="_blank"><span class="material-icons md-small-right">link</span></a>{% endif %}</h4>
 						<p>{{ reference.position }}, {{ reference.organization.short_name }}</p>

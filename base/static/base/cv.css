@@ -2,6 +2,7 @@
 
 :root {
     --accent-color: #c93;
+    --item-vgap: 0.2in;
 }
 
 .page-1 .module-heading {

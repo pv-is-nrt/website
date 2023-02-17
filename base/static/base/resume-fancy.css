@@ -9,7 +9,7 @@ Roboto Serif: 100, 200, 300, 400, 500, 600, 700, 800, 900
 
 /* set an accent color variable */
 :root {
-    --accent-color: #d44;
+    --accent-color: #e55;
     --page-width: 8.5in;
     --page-height: 11in;
     --page-side-margin: 0.6in;
@@ -61,7 +61,7 @@ h2 {
 h3 {
     font-size: 0.85em;
     letter-spacing: 0.15em;
-    margin-bottom: 0.03in;
+    margin-bottom: 0.04in;
 }
 h4 {
     letter-spacing: 0.1em;
@@ -76,11 +76,11 @@ ol {
     padding-left: 0.2in; /* 0.18in aligns it with the 0.05 left padding */
 }
 ul {
-    list-style-type: '−'; /* this is a minus sign U2212 */
-    padding-left: 0.1in;
+    list-style-type: '—';
+    padding-left: 0.18in;
 }
 li {
-    padding-left: 0.05in;
+    padding-left: 0.1in;
     margin-bottom: 0.2em; /* better than line height, because this keeps multi-lines in a list together */
 }
 
@@ -243,11 +243,7 @@ footer {
     grid-area: footer-border;
 }
 
-/* UNICODE AND MATERIAL ICONS */
-.icon {
-    font-family: 'Segoe UI Symbol';
-    font-size: 1.4em;
-}
+/* MATERIAL ICONS */
 .material-icons.md-normal {
     font-size: 1.4em;
     line-height: inherit;
@@ -311,6 +307,11 @@ footer {
 
 /* ---------------------------------------------------------- */
 
+.education h4 {
+    /* fine tuning */
+    margin-bottom: 0.05in;
+    line-height: 1.5em;
+}
 .education .gpa, .education .date {
     font-size: 0.95em; /* fine tuning */
 }
@@ -359,13 +360,9 @@ footer {
 .publications .date {
     font-weight: bold;
 }
-.publications ul {
-    padding-left: 0.18in;
-}
 .publications li {
     font-size: 0.9em;
     list-style: '\2712';
-    padding-left: 0.1in;
 }
 
 /* ---------------------------------------------------------- */
@@ -378,13 +375,9 @@ footer {
     text-transform: uppercase;
     font-weight: bold;
 }
-.presentations ul {
-    padding-left: 0.18in;
-}
 .presentations li {
     font-size: 0.9em;
     list-style: '\1F4E3';
-    padding-left: 0.1in;
 }
 .speaker-author {
     font-style: italic;
@@ -505,11 +498,4 @@ footer {
 }
 .col-course {
 	width: 1in;
-}
-
-.job-description {
-    color: #fff;
-    font-size: 0.2em;
-    line-height: 0.15em;
-
 }
