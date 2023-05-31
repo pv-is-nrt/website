@@ -29,6 +29,7 @@ _*/
 *.code-workspace
 .history
 TODO.md
+trials.ipynb
 
 #    Specific
 # -------------------------------------------------------------------- #
