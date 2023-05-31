@@ -196,6 +196,11 @@ def contact(request):
         HIDDEN_FIELD = request.POST['country'] # anti-spam hidden field
         SENDERS_NAME = request.POST['senders_name']
         SENDERS_EMAIL = request.POST['senders_email']
+        # TEMP FIX
+        # do nothing, don't save to database nor send an email if the SENDERS_EMAIL ends in .ru
+        if SENDERS_EMAIL.endswith('.ru') or len(SENDERS_NAME.split()[1]) < 1:
+            return render(request, 'base/contact.html', context)
+
         SENDERS_MESSAGE = request.POST['message']
         MY_NAME = basic_info.first_name + ' ' + basic_info.last_name
         MY_EMAIL = basic_info.contact_email
@@ -225,7 +230,9 @@ def contact(request):
             # send email to me (NOTE that gmail will rewrite sender's email address to my email/server's address to disallow spoofing)
             # Has been set to throw an error on email send failure only if the requester is not localhost
             email_in_success = send_mail(SUBJECT_IN, MESSAGE_IN, SENDERS_NAME + ' <' + SENDERS_EMAIL + '>', [MY_NAME + ' <' + MY_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
-            email_out_success = send_mail(SUBJECT_OUT, MESSAGE_OUT, MY_NAME + ' <' + MY_EMAIL + '>', [SENDERS_NAME + ' <' + SENDERS_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
+            # TEMP BLOCKING OUTGOING EMAIL
+            # email_out_success = send_mail(SUBJECT_OUT, MESSAGE_OUT, MY_NAME + ' <' + MY_EMAIL + '>', [SENDERS_NAME + ' <' + SENDERS_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
+            email_out_success = False # remove this when the above line is uncommented
         else:
             # if spam was detected, email out wasn't sent
             email_in_success = None
