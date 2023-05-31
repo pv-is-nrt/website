@@ -58,6 +58,8 @@ class BasicInformation(models.Model):
     website_tagline = models.CharField(max_length=100, blank=True)
     resume_tagline = models.CharField(max_length=100, blank=True)
     personal_statement = models.TextField(blank=True)
+    resume_statement = models.TextField(blank=True)
+    cv_statement = models.TextField(blank=True)
     website_statement = models.TextField(blank=True)
     extra_curricular = models.TextField(blank=True)
     website_url = models.URLField(blank=True)
@@ -114,6 +116,7 @@ class Experience(models.Model):
     end_date = models.DateField(blank=True, null=True)
     supervisor = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
+    short_description = models.TextField(blank=True)
 
     # return a string representation of the object
     def __str__(self):
@@ -267,25 +270,51 @@ class Skillset(models.Model):
         skills_list = self.skills.split(", ")
         # sort the skills_list alphabetically
         skills_list.sort(key=str.lower) # so that uppercase does not come before lowercase
-        score_list = [item.split('#')[1].strip() for item in skills_list]
+        score_list = [item.split('#')[1].strip().strip('*') for item in skills_list]
         skills_list_without_score = [item.split('#')[0].strip() for item in skills_list]
         # zip the lists together
         return list(zip(skills_list_without_score, score_list))
     def skills_list_abbr(self):
         skills_list = self.skills.split(", ")
         # remove the score from the list
-        skills_list = [item.split('#')[0].strip() for item in skills_list]
+        skills_list = [item.split('#')[0].strip().strip('*') for item in skills_list]
         return [item.split(' (')[0] for item in skills_list]
     def skills_list_abbr_with_score(self):
         skills_list = self.skills.split(", ")
         # sort the skills_list alphabetically
         skills_list.sort(key=str.lower) # so that uppercase does not come before lowercase
-        score_list = [item.split('#')[1].strip() for item in skills_list]
+        score_list = [item.split('#')[1].strip().strip('*') for item in skills_list]
         skills_list_without_score = [item.split('#')[0].strip() for item in skills_list]
         skills_list_abbr = [item.split(' (')[0] for item in skills_list_without_score]
         # zip the lists together
         return list(zip(skills_list_abbr, score_list))
 
+
+#    Skills
+# ---------------------------------------------------------------------------- #
+
+class SkillCategory(models.Model):
+    # define the fields
+    name = models.CharField(max_length=100)
+    score = models.PositiveSmallIntegerField(default=50)
+    group = models.CharField(max_length=100, choices=[("1", "1"), ("2", "2"), ("3", "3"), ("4", "4")])
+    order = models.PositiveSmallIntegerField(default=1)
+    hidden = models.BooleanField(default=False)
+    # define the methods
+    # return a string representation of the object
+    def __str__(self):
+        return self.name
+
+class Skill(models.Model):
+    name = models.CharField(max_length=200)
+    short_name = models.CharField(max_length=100, blank=True)
+    category = models.ManyToManyField(SkillCategory)
+    score = models.PositiveSmallIntegerField(default=50)
+    start_year = models.PositiveSmallIntegerField(default=2006) # used to gauge the newness of the skill
+    # define the methods
+    # return a string representation of the object
+    def __str__(self):
+        return self.name
 
 
 #    Leadership
@@ -488,6 +517,17 @@ class Review(models.Model):
         # return a string representation of the object
         def __str__(self):
             return self.publication
+
+
+#    Job description
+# ---------------------------------------------------------------------------- #
+
+class JobDescription(models.Model):
+    # used to fill a white text in resume template while applying for jobs
+    description = models.TextField(blank=True)
+    # return a string representation of the object
+    def __str__(self):
+        return "job description"
 
 
 #    ANALYTICS
