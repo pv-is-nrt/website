@@ -1,7 +1,7 @@
 # django related imports
 from django.conf import settings
 from django.shortcuts import render
-from .models import BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, Analytic
+from .models import BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, JobDescription, Analytic
 # import models from other apps
 from blog.models import Post
 # Email
@@ -22,6 +22,10 @@ publications = Publication.objects.order_by('-status', '-date') # reverse order
 presentations = Presentation.objects.order_by('-date') # reverse order
 proposals = Proposal.objects.order_by('-year') # reverse order
 skillsets = Skillset.objects.order_by('group', 'order')
+# note the ordering by group is important for grouping in the template
+skills_categories = SkillCategory.objects.order_by('group', 'order')
+# get all skills ordered by score
+skills = Skill.objects.order_by('-score')
 leaderships = Leadership.objects.order_by('-start_date') # reverse order
 honor_and_awards = HonorAndAward.objects.order_by('-start_date') # reverse order
 advisings = Advising.objects.order_by('-start_date') # reverse order
@@ -30,6 +34,7 @@ teachings = Teaching.objects.order_by('-year') # reverse order, TODO add semeste
 work_highlights = WorkHighlight.objects.order_by('-start_year')
 references = Reference.objects.order_by('start_year')
 reviews = Review.objects.order_by('publication') # reverse order
+job_description = JobDescription.objects.get(pk=1)
 
 # imports from other apps
 # import a maximum of six featured posts from the blog app ordered by most recent first
@@ -85,6 +90,12 @@ diversity_index = {
                     'internationals': diversity_international_percent,
                     'first-gen college goers': diversity_first_gen_percent,
                   }
+
+#    Skills
+# ---------------------------------------------------------------------------- #
+
+# find skills with start_year > 2018 and order by start_year
+recent_skills = Skill.objects.filter(start_year__gt=2018).order_by('-start_year')
 
 
 #    Index page
@@ -202,6 +213,11 @@ def contact(request):
             return render(request, 'base/contact.html', context)
 
         SENDERS_MESSAGE = request.POST['message']
+        # TEMP FIX
+        # do nothing, don't save to database nor send an email if the SENDERS_EMAIL ends in .ru
+        if SENDERS_EMAIL.endswith('.ru'):
+            return render(request, 'base/contact.html', context)
+
         MY_NAME = basic_info.first_name + ' ' + basic_info.last_name
         MY_EMAIL = basic_info.contact_email
 
@@ -269,6 +285,9 @@ resume_cv_context = {
         'presentations_featured': presentations_featured,
         'proposals': proposals,
         'skillsets': skillsets,
+        'skills_categories': skills_categories,
+        'skills': skills,
+        'recent_skills': recent_skills,
         'leaderships': leaderships,
         'leaderships_featured': leaderships_featured,
         'honor_and_awards': honor_and_awards,
@@ -283,6 +302,7 @@ resume_cv_context = {
         'references': references,
         'reviews': reviews,
         'reviews_featured': reviews_featured,
+        'job_description': job_description,
     }
 
 
@@ -310,3 +330,16 @@ def resume(request):
 
     context = resume_cv_context
     return render(request, 'base/resume.html', context)
+
+
+#    Fancy Resume page
+# ---------------------------------------------------------------------------- #
+
+def resume_fancy(request):
+
+    # ADD USER VISIT INFO TO DATABASE
+    # -------------------------------------------#
+    core.add_user_info_to_database(Analytic(), request, '/resume-fancy')
+
+    context = resume_cv_context
+    return render(request, 'base/resume-fancy.html', context)

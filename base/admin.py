@@ -1,6 +1,6 @@
 from django.contrib import admin
 # import the model objects from the model file
-from .models import Organization, DiversityTag, PublicationTag, BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Leadership, HonorAndAward, Advising, Mentoring, Teaching, WorkHighlight, Message, Reference, Review, Analytic
+from .models import Organization, DiversityTag, PublicationTag, BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, WorkHighlight, Message, Reference, Review, JobDescription, Analytic
 
 
 # ModelAdmin class definitions
@@ -15,7 +15,7 @@ class BasicInformationAdmin(admin.ModelAdmin):
             'fields': ('notification_email', 'contact_email', 'personal_email', 'work_email', 'country_phone_code', 'phone', 'address', 'city', 'zip_code', 'country')
             }),
         ('Statements', {
-            'fields': ('website_tagline', 'resume_tagline', 'website_statement', 'personal_statement', 'extra_curricular')
+            'fields': ('website_tagline', 'resume_tagline', 'website_statement', 'personal_statement', 'resume_statement', 'cv_statement', 'extra_curricular')
             }),
         ('Websites', {
             'fields': ('website_url', 'scholar_url', 'researchgate_url', 'orcid_url', 'publons_url', 'facebook_url', 'twitter_url', 'linkedin_url', 'github_url', 'instagram_url', 'snapchat_url', 'youtube_url', 'medium_url', 'towardsdatascience_url')
@@ -41,6 +41,12 @@ class ProposalAdmin(admin.ModelAdmin):
 
 class SkillsetAdmin(admin.ModelAdmin):
     list_display = ('category', 'group', 'order')
+
+class SkillCategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'score', 'group', 'order')
+
+class SkillAdmin(admin.ModelAdmin):
+    list_display = ('name', 'short_name', 'score', 'start_year')
 
 class HonorAndAwardAdmin(admin.ModelAdmin):
     list_display = ('title', 'featured', 'organization', 'start_date')
@@ -76,6 +82,8 @@ admin.site.register(Publication, PublicationsAdmin)
 admin.site.register(Presentation, PresentationAdmin)
 admin.site.register(Proposal, ProposalAdmin)
 admin.site.register(Skillset, SkillsetAdmin)
+admin.site.register(SkillCategory, SkillCategoryAdmin)
+admin.site.register(Skill, SkillAdmin)
 admin.site.register(Leadership)
 admin.site.register(HonorAndAward, HonorAndAwardAdmin)
 admin.site.register(Advising)
@@ -84,4 +92,5 @@ admin.site.register(Teaching, TeachingAdmin)
 admin.site.register(WorkHighlight, WorkHighlightAdmin)
 admin.site.register(Reference)
 admin.site.register(Review, ReviewAdmin)
+admin.site.register(JobDescription)
 admin.site.register(Analytic, AnalyticAdmin)

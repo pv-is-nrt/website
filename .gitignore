@@ -29,7 +29,7 @@ _*/
 *.code-workspace
 .history
 TODO.md
-*.ipynb
+trials.ipynb
 
 #    Specific
 # -------------------------------------------------------------------- #
