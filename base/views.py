@@ -1,7 +1,7 @@
 # django related imports
 from django.conf import settings
 from django.shortcuts import render
-from .models import BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, JobDescription, Analytic
+from .models import BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, Analytic
 # import models from other apps
 from blog.models import Post
 # Email
@@ -34,7 +34,6 @@ teachings = Teaching.objects.order_by('-year') # reverse order, TODO add semeste
 work_highlights = WorkHighlight.objects.order_by('-start_year')
 references = Reference.objects.order_by('start_year')
 reviews = Review.objects.order_by('publication') # reverse order
-job_description = JobDescription.objects.get(pk=1)
 
 # imports from other apps
 # import a maximum of six featured posts from the blog app ordered by most recent first
@@ -302,7 +301,6 @@ resume_cv_context = {
         'references': references,
         'reviews': reviews,
         'reviews_featured': reviews_featured,
-        'job_description': job_description,
     }
 
 

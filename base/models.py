@@ -519,17 +519,6 @@ class Review(models.Model):
             return self.publication
 
 
-#    Job description
-# ---------------------------------------------------------------------------- #
-
-class JobDescription(models.Model):
-    # used to fill a white text in resume template while applying for jobs
-    description = models.TextField(blank=True)
-    # return a string representation of the object
-    def __str__(self):
-        return "job description"
-
-
 #    ANALYTICS
 # ---------------------------------------------------------------------------- #
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
 # import the model objects from the model file
-from .models import Organization, DiversityTag, PublicationTag, BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, WorkHighlight, Message, Reference, Review, JobDescription, Analytic
+from .models import Organization, DiversityTag, PublicationTag, BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, WorkHighlight, Message, Reference, Review, Analytic
 
 
 # ModelAdmin class definitions
@@ -92,5 +92,4 @@ admin.site.register(Teaching, TeachingAdmin)
 admin.site.register(WorkHighlight, WorkHighlightAdmin)
 admin.site.register(Reference)
 admin.site.register(Review, ReviewAdmin)
-admin.site.register(JobDescription)
 admin.site.register(Analytic, AnalyticAdmin)
