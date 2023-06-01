@@ -18,22 +18,26 @@
 
     <section class="post">
 
-        <h2>{{ post.title }}</h2>
+        <h1>{{ post.title }}</h1>
 
         {% if post.subtitle %}
         <p class="color-subtle">{{ post.subtitle }}</p>
         <div class="spacer30"></div>
         {% endif %}
 
-        <p class="subheading-small"><span class="color-accent2">{{ post.author.first_name }} {{ post.author.last_name }}</span> / {{ post.publication_date|date:"d F Y" }}</p>
-
-        <div class="spacer30"></div>
-        
-        <p>
-            {% for tag in post.tags.all %}
-            <a href="{% url 'blog:tag' tag.id %}"><span class="tag">{{ tag }}</span></a>
-            {% endfor %}
-        </p>
+        <div class="post-header">
+            <div class="post-header-left">
+                <p class="subheading-small"><span class="color-accent2">{{ post.author.first_name }} {{ post.author.last_name }}</span> / {{ post.publication_date|date:"d F Y" }}</p>
+                <div class="spacer20"></div>
+                <p>
+                    {% for tag in post.tags.all %}
+                    <a href="{% url 'blog:tag' tag.id %}"><span class="tag">{{ tag }}</span></a>
+                    {% endfor %}
+                </p>
+            </div><div class="post-header-right">
+                <img src="{{ post.image_1.url }}" alt="featured photo for {{ post.title }}" class="logo150">
+            </div>
+        </div>
 
         <div class="spacer20"></div>
 
@@ -41,7 +45,9 @@
 
         <div class="spacer20"></div>
 
-        <p class="double-spaced body">{{ post.body|markdown_to_html|safe }}</p>
+        <p>{{ post.body|markdown_to_html|safe }}</p>
+
+        <div class="spacer20"></div>
 
         <hr>
 
@@ -50,12 +56,12 @@
             <p>Last updated on {{ post.time_updated|date:"F d, Y" }}</p>
 
             {% if post.references.all %}
-            <p>References:</p>
-            <ul>
+            <h5>References:</h5>
+            <ol>
                 {% for reference in post.references.all %}
-                <li><a href="{{ reference.url }}">{{ reference.title }}</a></li>
+                <li>{{ reference.name }}{% if reference.url %} <a href="{{ reference.url }}" target="blank"><span class="material-icons">open_in_new</span></a>{% endif %}</li>
                 {% endfor %}
-            </ul>
+            </ol>
             {% endif %}
 
             {% if post.organization %}

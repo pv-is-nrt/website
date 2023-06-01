@@ -70,11 +70,6 @@ Roboto Serif: 100, 400, 700, 900
 	scroll-behavior: smooth;
 }
 
-body,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,input,textarea,p,blockquote,th,td, header, article, footer { 
-    margin:0;
-    padding:0;
-}
-
 body {
 	font-family: 'Roboto', sans-serif;
 	font-weight: normal;
@@ -106,23 +101,26 @@ li {
 }
 
 h1 {
-	font-family: 'Roboto Condensed', sans-serif;
-	font-size: 3.6em;
-	line-height: 3.6em; /* multi-line styling has been handled in mobile.css */
-	font-weight: 300;
+	font-size: 2.4em;
+	line-height: 1.8em; /* multi-line styling has been handled in mobile.css */
+	font-weight: 700;
+	margin-top: 60px;
+	margin-bottom: 30px;
 }
 h2 {
-	font-size: 2.4em;
-	line-height: 3.0em; /* multi-line styling has been handled in mobile.css */
-	font-weight: 700;
-	margin-bottom: 40px;
+	font-size: 2.0em;
+	line-height: 2.4em; /* multi-line styling has been handled in mobile.css */
+	font-weight: 500;
+	margin-top: 45px;
+	margin-bottom: 23px;
 }
 h3 {
 	font-family: 'Roboto Condensed', sans-serif;
 	font-size: 1.6em;
-	line-height: 2.0em;
+	line-height: 1.6em;
 	font-weight: 700;
-	margin-bottom: 20px;
+	margin-top: 30px;
+	margin-bottom: 15px;
 }
 h4 {
 	text-transform: uppercase;
@@ -130,7 +128,8 @@ h4 {
 	font-size: 1.0em;
 	line-height: 2.0em;
 	font-weight: bold;
-	margin-bottom: 20px;
+	margin-top: 20px;
+	margin-bottom: 10px;
 }
 h5 {
 	text-transform: uppercase;
@@ -138,6 +137,7 @@ h5 {
 	font-size: 0.9em;
 	line-height: 1.6em;
 	font-weight: normal;
+	margin-top: 10px;
 	margin-bottom: 5px;
 }
 h6 {
@@ -410,6 +410,7 @@ code {
 .logo150 {
 	max-width: 150px;
 	height: auto; /* so that the image is not stretched */
+	border-radius: 75px;
 }
 
 .tag {
@@ -560,3 +561,11 @@ input:focus, textarea:focus {
 	border-bottom: solid 1px var(--color-hr);
 	text-align: right;
 }
+	.header h1 {
+		font-family: 'Roboto Condensed', sans-serif;
+		font-size: 3.6em;
+		line-height: 3.6em; /* multi-line styling has been handled in mobile.css */
+		font-weight: 300;
+		margin-top: 0;
+		margin-bottom: 0;
+	}

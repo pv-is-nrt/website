@@ -65,6 +65,7 @@
 /*=========================================================================== */
 
 .skillsets h4 {
+	margin-top: 0px; /* specific scenario */
 	margin-bottom: 0px; /* specific scenario */
 }
 .skillsets .grid-container {

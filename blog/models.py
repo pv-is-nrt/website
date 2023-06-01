@@ -18,6 +18,7 @@ POST_IMAGE_DIR = 'blog/images/' # BASE MEDIA DIR > APP > IMAGES
 @deconstructible # needs an import
 class uploadPath(object):
     """Used to be a function, but has been modded into a class. Creates a full filepath for a file upload field utilizing a provided root directory and the field's id manually set when defining the field.
+    NOTE: DO NOT UPLOAD IMAGE BEFORE THE POST HAS BEEN CREATED. THE INSTANCE ID WILL BE SET TO NONE.
     ARGUMENTS FOR INIT:
         root_dir (str): The root directory to use for the file upload. Make sure to include the trailing slash.
         field_id (str): The id of the field to use for the file upload.

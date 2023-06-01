@@ -466,7 +466,7 @@ class Teaching(models.Model):
             return self.course_code
 
 
-#    Work highlights
+#    Work highlights (not used any more)
 # ---------------------------------------------------------------------------- #
 
 class WorkHighlight(models.Model):

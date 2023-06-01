@@ -1,20 +1,27 @@
-/*   EXPERIENCE
+/*   RESEARCH SUMMARY
 /*=========================================================================== */
 
-.experience .grid-container {
-	grid-template-columns: 1fr;
-	gap: var(--vertical-gap);
+.research-summary {
+	grid-template-columns: 1fr 1fr;
 }
-.experience h4 {
+.research-summary h4 {
+	margin-top: 0px;
 	margin-bottom: 0px;
 }
-.experience ul {
-	padding-left: 20px; /* because ul, li come from database */
+@media screen and (max-width: 720px) {
+	.research-summary {
+		grid-template-columns: 1fr;
+		gap: var(--vertical-gap);
+	}
 }
 
-/*   RESEARCH (publications/presentations)
+
+/*   CV RESUME
 /*=========================================================================== */
 
+.cv-resume h5 {
+	margin-top: 0px;
+}
 .cv-resume.grid-container {
 	grid-template-columns: 1fr 1fr;
 }
@@ -25,21 +32,25 @@
 		}
 	}
 
-.research h3 {
-	margin-top: 40px; /* specific scenario for "Publications" and "Presentations" headings */
+
+/*   EXPERIENCE
+/*=========================================================================== */
+
+.experience .grid-container {
+	grid-template-columns: 1fr;
+	gap: var(--vertical-gap);
 }
-.publications h4, .presentations h4 {
-	margin-top: 30px; /* specific scenario */
+.experience h4 {
+	margin-top: 0px;
+	margin-bottom: 0px;
 }
-	.research-summary {
-		grid-template-columns: 1fr 1fr;
-	}
-	@media screen and (max-width: 720px) {
-		.research-summary {
-			grid-template-columns: 1fr;
-			gap: var(--vertical-gap);
-		}
-	}
+.experience ul {
+	padding-left: 20px; /* because ul, li come from database */
+}
+
+/*   RESEARCH (publications/presentations)
+/*=========================================================================== */
+
 
 
 /*   FOR SMALL HEIGHT SCREENS

@@ -9,6 +9,23 @@
 	letter-spacing: 0.1em;
 }
 
+.post-header-left, .post-header-right {
+	display: inline-block;
+	vertical-align: middle;
+}
+	.post-header-left {
+		/* set to 100% - 150px */
+		width: calc(95% - 150px);
+	}
+	.post-header-right {
+		width: 150px;
+		height: auto;
+	}
+
+
+.post p {
+	margin-bottom: 0.5em;
+}
 .post h2 {
 	line-height: 1.6em;
 }
