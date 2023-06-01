@@ -443,12 +443,13 @@ footer {
     text-transform: uppercase;
     font-size: 0.85em;
     letter-spacing: 1pt;
-	padding: 0 0.1in 0.02in;
+	margin: 0 0.1in 0.02in;
 	border-bottom: solid 1px #666;
 	margin-bottom: 0.07in;
 }
     .heading-row div {
         display: inline-block;
+        vertical-align: top;
         padding: 0.02in 0 0.02in 0.02in; /* top bottom left */
     }
 .row {
@@ -495,7 +496,7 @@ footer {
         width: 0.5in;
     }
 .col-journey {
-	width: 2.5in;
+	width: 2.45in; /* fine-tuned minding the margin */
 }
     .mentoring .col-journey {
         width: 5in;
