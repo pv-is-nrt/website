@@ -348,6 +348,9 @@ code {
 .uncolor {
 	color: inherit !important;
 }
+.dotted {
+	border-bottom: dotted 1px var(--color-subtle);
+}
 
 .padded {
 	padding: var(--gap) max(var(--gap), 5%); /* fixed top and bottom, but variable sides */
@@ -415,7 +418,7 @@ code {
 	text-transform: lowercase;
 	background-color: var(--bg-color-subtle);
 	border-radius: var(--small-radius);
-	padding: 0.4em; /* fine-tuned */
+	padding: 0.4em 0.6em; /* fine-tuned */
 	line-height: 2.4em; /* fine-tuned, so that they are separated at multi-line */
 }
 
