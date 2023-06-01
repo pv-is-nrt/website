@@ -206,12 +206,9 @@ def contact(request):
         HIDDEN_FIELD = request.POST['country'] # anti-spam hidden field
         SENDERS_NAME = request.POST['senders_name']
         SENDERS_EMAIL = request.POST['senders_email']
-        # TEMP FIX
-        # do nothing, don't save to database nor send an email if the SENDERS_EMAIL ends in .ru
-        if SENDERS_EMAIL.endswith('.ru') or len(SENDERS_NAME.split()[1]) < 1:
-            return render(request, 'base/contact.html', context)
 
         SENDERS_MESSAGE = request.POST['message']
+
         # TEMP FIX
         # do nothing, don't save to database nor send an email if the SENDERS_EMAIL ends in .ru
         if SENDERS_EMAIL.endswith('.ru'):
@@ -220,7 +217,7 @@ def contact(request):
         MY_NAME = basic_info.first_name + ' ' + basic_info.last_name
         MY_EMAIL = basic_info.contact_email
 
-        # add posted data to the database
+        # add posted data to the database, whether spam or not
         messages_object.hidden_field = HIDDEN_FIELD
         messages_object.senders_name = SENDERS_NAME
         messages_object.senders_email = SENDERS_EMAIL
@@ -232,10 +229,12 @@ def contact(request):
         if HIDDEN_FIELD == '' or HIDDEN_FIELD == None:
             SPAM_DETECTED = False
 
-        # create email related constants >>>
+        # construct email related constants >>>
+
         # subject and message for email that will be sent to me, when someone sends me a message
         SUBJECT_IN = 'Message from ' + SENDERS_NAME + ' (via prateekverma.com)'
         MESSAGE_IN = 'You received a message from\n' + 'Name: ' + SENDERS_NAME + '\n' + 'Email: ' + SENDERS_EMAIL + '\n' + 'Message: ' + SENDERS_MESSAGE
+
         # subject and message for email that will be sent to user, as a confirmation that I have received their message
         SUBJECT_OUT = 'Message sent to ' + MY_NAME
         MESSAGE_OUT = 'Hi, ' + SENDERS_NAME + '!\n\n' + 'Thank you for contacting me. I have received your message and will get back to you as soon as possible!\n\nSincerely,\n' + MY_NAME + '\n\n' + '--------------------------------------------------------\nThe message you sent was:\n' + SENDERS_MESSAGE
@@ -243,13 +242,12 @@ def contact(request):
         # send email to user only if it's not a spam
         if SPAM_DETECTED == False:
             # send email to me (NOTE that gmail will rewrite sender's email address to my email/server's address to disallow spoofing)
-            # Has been set to throw an error on email send failure only if the requester is not localhost
+            # Has been set to throw an error on email send failure only if the requester is localhost
             email_in_success = send_mail(SUBJECT_IN, MESSAGE_IN, SENDERS_NAME + ' <' + SENDERS_EMAIL + '>', [MY_NAME + ' <' + MY_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
-            # TEMP BLOCKING OUTGOING EMAIL
-            # email_out_success = send_mail(SUBJECT_OUT, MESSAGE_OUT, MY_NAME + ' <' + MY_EMAIL + '>', [SENDERS_NAME + ' <' + SENDERS_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
-            email_out_success = False # remove this when the above line is uncommented
+            # send email to user
+            email_out_success = send_mail(SUBJECT_OUT, MESSAGE_OUT, MY_NAME + ' <' + MY_EMAIL + '>', [SENDERS_NAME + ' <' + SENDERS_EMAIL + '>'], fail_silently=False if request.META['REMOTE_ADDR'] == '127.0.0.1' else True)
         else:
-            # if spam was detected, email out wasn't sent
+            # if spam was detected, don't send email and set the email success/failure log to None
             email_in_success = None
             email_out_success = None
             # although the return of send_mail is an integer, the field in database allows None. 0 would mean that there was a problem sending the email, which is not true. Hence we set it to None.
@@ -260,7 +258,7 @@ def contact(request):
         # note that this second save does not create a new row or throw an error. It updates the existing row.
         messages_object.save()
         
-        # create a send back a message to display to the user
+        # create a message to display to the user
         contact_status_message = "Your message was sent successfully!"
         # add this message to the context
         context['contact_status_message'] = contact_status_message
