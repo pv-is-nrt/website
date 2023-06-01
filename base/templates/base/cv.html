@@ -72,7 +72,9 @@
 					<div class="item">
 						<h3>{{ education.organization.full_name }}<span class="date"> / {{ education.start_date|date:"Y" }} &ndash; {{ education.end_date|date:"Y" }}</span></h3>
 						<p>{{ education.degree }}, {{ education.major }}<span class="gpa">, GPA {{ education.gpa }} / {{ education.gpa_total }}</span></p>
-						<p class="thesis">Thesis &ndash; {{ education.thesis }}</p>
+						<!-- hiding thesis temporarily
+							<p class="thesis">Thesis &ndash; {{ education.thesis }}</p> 
+						-->
 					</div>
 					{% endfor %}
 				</div>
@@ -188,7 +190,7 @@
 		# --------------------------------------------------------------------->
 		<footer>
 			<div class="footer-left">
-				<span class="material-icons md-normal">read_more</span>continued on subsequent page(s)
+				<span class="material-icons md-normal">read_more</span>continued
 			</div>
 			<div class="footer-center">
 				<span class="material-icons md-normal">history</span>{% now "F Y" %}
