@@ -120,7 +120,7 @@ def index(request):
         'educations': educations,
         'work_highlights': work_highlights,
         'posts_featured': posts_featured,
-        'skillsets': skillsets,
+        'skills_categories': skills_categories,
         'debug_info': debug_info,
     }
 
