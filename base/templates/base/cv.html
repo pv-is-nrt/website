@@ -593,19 +593,20 @@
 				<div class="module-heading">
 					<h2>Skillsets</h2>
 				</div>
-				{% regroup skillsets by group as skillsets_groups %}
-				{% for group in skillsets_groups %}
+				{% regroup skills_categories by group as category_groups %}
+				{% for group in category_groups %}
 				<div class="skillset-group">
-					{% for skillset in group.list %}
+					{% for category in group.list %}
 					<div class="skillset">
-						<h3>{{ skillset.category_full|default:skillset.category }}</h3>
-						{% for skill in skillset.skills_list_abbr_with_score %}
+						<h3>{{ category }}</h3>
+						<!-- NOTE: below is the way to reverse look up a manyToMany field. Uses _set -->
+						{% for skill in category.skill_set.all %}
 						<div class="skill-item">
 							<div class="progress-bar-container">
-								<div class="progress-bar" style="width: {{ skill.1 }}%">{{ skill.0 }}</div>
+								<div class="progress-bar" style="width: {{ skill.score }}%">{{ skill.short_name|default:skill.name }}</div>
 							</div>
 						</div>
-						{% endfor %}	
+						{% endfor %}
 					</div>
 					{% endfor %}
 				</div>
