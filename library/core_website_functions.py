@@ -24,7 +24,10 @@ def get_last_modified_date(file_path:str):
     A string containing the last modified date of the file in the %Y-%m-%d format as a string.
     """
     # get the last modified date of the file as a float
-    last_modified_date = path.getmtime(file_path)
+    try:
+        last_modified_date = path.getmtime(file_path)
+    except FileNotFoundError:
+        return 'File not found.'
     # convert the float to a a django friendly string %Y-%m-%d
     last_modified_date = datetime.fromtimestamp(last_modified_date).strftime('%b %d, %Y')
     return last_modified_date

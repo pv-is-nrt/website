@@ -69,32 +69,6 @@
 
 		<h2>Research</h2>
 		
-		<!-- Resume and CV removed temporarily -->
-		<!--
-		<p>Please find a copy of my Résumé or CV below</p>
-		<div class="spacer30"></div>
-		<section class="cv-resume grid-container card-very-thin padded">
-			<div>
-				<h5 class="color-accent">Résumé</h5>
-				<p>
-					<a href="{% url 'base:resume' %}" class="uppercase space-narrow-span-left dotted mono" target="_blank"><span class="material-icons color-link space-narrow-span-left">open_in_new</span>web page</a><span class="color-subtle smaller-text">up to date</span>
-				</p>
-				<p>
-					<a href="{% static 'base/docs/Prateek Verma - Resume.pdf' %}" class="uppercase space-narrow-span-left dotted mono" target="_blank"><span class="material-icons color-accent3 space-narrow-span-left">picture_as_pdf</span>PDF copy</a><span class="color-subtle smaller-text">updated on {{ resume_mod }}</span>
-				</p>
-			</div>
-			<div>
-				<h5 class="color-accent">Curriculum Vitae</h5>
-				<p>
-					<a href="{% url 'base:cv' %}" class="uppercase space-narrow-span-left dotted mono" target="_blank"><span class="material-icons color-link space-narrow-span-left">open_in_new</span>web page</a><span class="color-subtle smaller-text">up to date</span>
-				</p>
-				<p>
-					<a href="{% static 'base/docs/Prateek Verma - CV.pdf' %}" class="uppercase space-narrow-span-left dotted mono" target="_blank"><span class="material-icons color-accent3 space-narrow-span-left">picture_as_pdf</span>PDF copy</a><span class="color-subtle smaller-text">updated on {{ cv_mod }}</span>
-				</p>
-			</div>
-		</section>
-		-->
-		
 		<section class="research-summary grid-container">
 			<div class="padded card-very-thin">
 				<h4>Links to research profiles</h4>
@@ -126,6 +100,30 @@
 				<p><span class="fancy-text space-narrow-span-left">{{ presentations|length }}</span> presentations</p>
 				<p><span class="fancy-text space-narrow-span-left">{{ publications_published_or_submitted|length }}</span> papers published or submitted</p>
 				<p><span class="fancy-text space-narrow-span-left">{{ publications_first_author|length }}</span> first-author papers</p>
+			</div>
+		</section>
+		
+		<!-- Resume and CV view/download -->
+		<h5>View or download</h5>
+		<div class="spacer30"></div>
+		<section class="cv-resume grid-container card-very-thin padded">
+			<div>
+				<h5 class="color-accent">Resume</h5>
+				<p>
+					<a href="{% url 'base:resume' %}" class="uppercase space-narrow-span-left dotted mono" target="_blank"><span class="material-icons color-link space-narrow-span-left">open_in_new</span>web page</a><span class="color-subtle smaller-text">up to date</span>
+				</p>
+				<p>
+					<a href="{% static 'base/docs/Prateek Verma - Resume.pdf' %}" class="uppercase space-narrow-span-left dotted mono" target="_blank"><span class="material-icons color-accent3 space-narrow-span-left">picture_as_pdf</span>PDF copy</a><span class="color-subtle smaller-text">updated on {{ resume_mod }}</span>
+				</p>
+			</div>
+			<div>
+				<h5 class="color-accent">Curriculum Vitae</h5>
+				<p>
+					<a href="{% url 'base:cv' %}" class="uppercase space-narrow-span-left dotted mono" target="_blank"><span class="material-icons color-link space-narrow-span-left">open_in_new</span>web page</a><span class="color-subtle smaller-text">up to date</span>
+				</p>
+				<p>
+					<a href="{% static 'base/docs/Prateek Verma - CV.pdf' %}" class="uppercase space-narrow-span-left dotted mono" target="_blank"><span class="material-icons color-accent3 space-narrow-span-left">picture_as_pdf</span>PDF copy</a><span class="color-subtle smaller-text">updated on {{ cv_mod }}</span>
+				</p>
 			</div>
 		</section>
 
