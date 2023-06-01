@@ -302,13 +302,13 @@ code {
 	margin-right: 1em;
 }
 .space-narrow-span-left {
-	margin-right: 0.5em;
+	margin-right: 0.25em;
 }
 .space-span-right {
 	margin-left: 1em;
 }
 .space-narrow-span-right {
-	margin-left: 0.5em;
+	margin-left: 0.25em;
 }
 
 .hidden-at-first {
