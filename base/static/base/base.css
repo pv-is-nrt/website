@@ -474,11 +474,11 @@ input:focus, textarea:focus {
 	}
 	.tagline {
 		/* currently sits in the navbar */
-		font-size: 0.8em;
+		font-size: 1em;
 		font-weight: normal;
-		text-transform: uppercase;
+		/* text-transform: uppercase; */
 		text-align: center;
-		letter-spacing: 0.2em;
+		/* letter-spacing: 0.2em; */
 		color: var(--color-subtle);
 		margin-bottom: var(--gap);
 		padding: 0 var(--tiny-gap);

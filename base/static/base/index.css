@@ -5,6 +5,9 @@
 	padding: 0px 2% 50px;
 	border-bottom: solid 1px var(--color-hr);
 }
+	.statement p {
+		margin-bottom: 1em;
+	}
 
 
 /*   EDUCATION
