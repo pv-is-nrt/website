@@ -259,7 +259,7 @@
 					{% endfor %}
 				</ul>
 				
-				<!-- Published (continued) -->
+				<!-- Published -->
 				<ul>
 					{% regroup publications by status as publications_status_groups %}
 					{% for group in publications_status_groups %}
@@ -268,7 +268,7 @@
 					{% for publication in group.list|slice:":1" %}
 					<li>
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
-						<span class="authors">
+						<span class="pub-counter">{{ group.list|length }}.</span><span class="authors">
 						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 					{% endfor %}
@@ -319,7 +319,7 @@
 					{% for publication in group.list|slice:"1:" %}
 					<li>
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
-						<span class="authors">
+						<span class="pub-counter">{{ forloop.revcounter }}.</span><span class="authors">
 						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 					{% endfor %}
