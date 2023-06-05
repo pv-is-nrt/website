@@ -126,7 +126,7 @@ h4 {
 	text-transform: uppercase;
 	letter-spacing: 0.2em;
 	font-size: 1.0em;
-	line-height: 1.0em;
+	line-height: 1.5em; /* larger because it's uppercase */
 	font-weight: bold;
 	margin-top: 20px;
 	margin-bottom: 10px;
@@ -135,7 +135,7 @@ h5 {
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
 	font-size: 0.9em;
-	line-height: 1.0em;
+	line-height: 1.45em; /* larger because it's uppercase */
 	font-weight: normal;
 	margin-top: 10px;
 	margin-bottom: 5px;
