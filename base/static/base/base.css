@@ -447,6 +447,10 @@ input:focus, textarea:focus {
 	visibility: hidden;
 }
 
+.g-recaptcha {
+	margin-bottom: var(--tiny-gap);
+}
+
 
 /*   NAVBAR
 /*=========================================================================== */
