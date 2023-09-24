@@ -2,7 +2,7 @@
 
 
 {% block additional_head_content %}
-
+	<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 {% endblock %}
 
 
@@ -59,6 +59,7 @@
 			<input type="text" name="senders_name" id="contactName" placeholder="Your name..." required="required" maxlength="100">
 			<input type="email" name="senders_email" id="contactEmail" placeholder="Your email address..." required="required" maxlength="100">
 			<textarea name="message" id="contactMessage" rows="4" placeholder="Your message..." required="required" maxlength="5000"></textarea>
+			<div class="g-recaptcha" data-sitekey="{{ recaptcha_public_key }}" data-theme="dark"></div>
 			<input type="submit" id="contactSubmt" name="contactSubmit" value="Send message" class="button">
 		</form>
 	</section>
