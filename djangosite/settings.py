@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'base.apps.BaseConfig',
     'blog.apps.BlogConfig',
-    'captcha',
 ]
 
 MIDDLEWARE = [
@@ -165,10 +164,3 @@ EMAIL_USE_TLS = True
 # only one of SSL or TLS should be used, and SSL does not work for now. Throws ConnectionResetError [WinError 10054] An existing connection was forcibly closed by the remote host
 EMAIL_USE_SSL = False
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-
-#    Add captcha settings
-# ---------------------------------------------------------------------------- #
-
-RECAPTCHA_PUBLIC_KEY = config_dict['RECAPTCHA_PUBLIC_KEY']
-RECAPTCHA_PRIVATE_KEY = config_dict['RECAPTCHA_PRIVATE_KEY']

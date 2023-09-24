@@ -197,8 +197,6 @@ def contact(request):
         'basic_info': basic_info,
         'first_name': basic_info.first_name,
         'last_name': basic_info.last_name,
-        # recaptcha site key
-        'recaptcha_public_key': settings.RECAPTCHA_PUBLIC_KEY,
     }
 
     # process incoming data
@@ -213,8 +211,8 @@ def contact(request):
 
         # TEMP FIX
         # do nothing, don't save to database nor send an email if the SENDERS_EMAIL ends in .ru
-        # if SENDERS_EMAIL.endswith('.ru'):
-        #     return render(request, 'base/contact.html', context)
+        if SENDERS_EMAIL.endswith('.ru'):
+            return render(request, 'base/contact.html', context)
 
         MY_NAME = basic_info.first_name + ' ' + basic_info.last_name
         MY_EMAIL = basic_info.contact_email
