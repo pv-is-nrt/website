@@ -209,10 +209,23 @@ def contact(request):
 
         SENDERS_MESSAGE = request.POST['message']
 
-        # TEMP FIX
+        # TEMP FIXES
+        # -------------------------------------------#
         # do nothing, don't save to database nor send an email if the SENDERS_EMAIL ends in .ru
         if SENDERS_EMAIL.endswith('.ru'):
+            # create a message to display to the user
+            contact_status_message = "Suspicious activity detected. Please try again later, or try differently."
+            # add this message to the context
+            context['contact_status_message'] = contact_status_message
             return render(request, 'base/contact.html', context)
+        # if sender only uses first name only, don't save to database nor send an email
+        if len(SENDERS_NAME.split()) == 1:
+            # create a message to display to the user
+            contact_status_message = "Please enter your full name in the format 'FirstName LastName'."
+            # add this message to the context
+            context['contact_status_message'] = contact_status_message
+            return render(request, 'base/contact.html', context)
+        
 
         MY_NAME = basic_info.first_name + ' ' + basic_info.last_name
         MY_EMAIL = basic_info.contact_email

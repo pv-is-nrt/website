@@ -56,7 +56,7 @@
 		<form action="{% url 'base:contact' %}" method="post" id="contactForm" name="contactForm">
 			{% csrf_token %}
 			<input type="text" name="country" id="country" maxlength="100" class="country">
-			<input type="text" name="senders_name" id="contactName" placeholder="Your name..." required="required" maxlength="100">
+			<input type="text" name="senders_name" id="contactName" placeholder="First and Last name" required="required" maxlength="100">
 			<input type="email" name="senders_email" id="contactEmail" placeholder="Your email address..." required="required" maxlength="100">
 			<textarea name="message" id="contactMessage" rows="4" placeholder="Your message..." required="required" maxlength="5000"></textarea>
 			<input type="submit" id="contactSubmt" name="contactSubmit" value="Send message" class="button">
