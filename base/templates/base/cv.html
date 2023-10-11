@@ -92,7 +92,7 @@
 						<h3>{{ experience.position }}, <span class="organization">{{ experience.organization.full_name }}</span></h3>
 						<p class="supervisor_and_date">
 						{% if experience.supervisor %}
-							<span class="supervisor">{{ experience.supervisor }} {% if 'and' in experience.supervisor %}groups{% else %}group{% endif %} / </span>
+							<span class="supervisor">{{ experience.supervisor }} {% if 'AIMRC' not in experience.supervisor %}{% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}{% endif %} / </span>
 							{% endif %}
 							<span class="date">{{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}</span>
 						</p>
