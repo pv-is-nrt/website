@@ -141,13 +141,9 @@ def professional(request):
     # -------------------------------------------#
     core.add_user_info_to_database(Analytic(), request, '/professional')
 
-    # get the complete file path of CV and resume depending on whether the requester is localhost (testing) or not (server)
-    if request.META['REMOTE_ADDR'] == '127.0.0.1':
-        cv_path = settings.BASE_DIR / 'base/static/base/docs/Prateek Verma - CV.pdf'
-        resume_path = settings.BASE_DIR / 'base/static/base/docs/Prateek Verma - Resume.pdf'
-    else:
-        cv_path = settings.STATIC_ROOT / 'base/docs/Prateek Verma - CV.pdf'
-        resume_path = settings.STATIC_ROOT / 'base/docs/Prateek Verma - Resume.pdf'
+    # get the complete file path of CV and resume
+    cv_path = settings.BASE_DIR / 'base/static/base/docs/Prateek_Verma_CV.pdf'
+    resume_path = settings.BASE_DIR / 'base/static/base/docs/Prateek_Verma_Resume.pdf'
 
     # get the modified date of the CV and resume files
     cv_mod = core.get_last_modified_date(cv_path)
