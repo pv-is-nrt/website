@@ -17,16 +17,13 @@
 
 	<!-- modifies part of the navigation bar -->
 	{% block nav_links_li %}
-    <li><a href="{% url 'base:professional' %}#header">
-        <span class="material-icons space-span-left">attach_money</span>Professional</a>
+    <li><a href="{% url 'base:professional' %}#header">Professional</a>
     </li>
 	<li>
         <!-- color this link icon because it's the current page -->
-		<a href="{% url 'blog:index' %}#header">
-		<span class="material-icons-outlined space-span-left color-accent">edit_note</span>Blog</a>
+		<a href="{% url 'blog:index' %}#header" class="color-accent">Blog</a>
 	</li>
-	<li><a href="{% url 'base:contact' %}#header">
-		<span class="material-icons-outlined space-span-left">drafts</span>Contact</a>
+	<li><a href="{% url 'base:contact' %}#header">Contact</a>
 	</li>
 	{% endblock %}
 

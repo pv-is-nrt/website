@@ -42,21 +42,20 @@
                 <!-- and it will reload the page even if already on base -->
                 <!-- color Home icon only if path is exactly /base/ otherwise it will also be highlighted for /base/professional etc. -->
                 <li>
-                    <a href="{% url 'base:index' %}#header">
-                    <span class="material-icons-outlined space-span-left {% if request.path == '/base/' %}color-accent{% endif %}">home</span>Home</a>
+                    <a href="{% url 'base:index' %}#header" class="{% if request.path == '/' %}color-accent{% endif %}">Home</a>
                 </li>
                 {% block nav_links_li %}
-                <li><a href="#featured">
-                    <span class="material-icons-outlined space-span-left">dashboard</span>Featured</a>
+                <li>
+                    <a href="#featured">Featured</a>
                 </li>
-                <li><a href="{% url 'base:professional' %}#header">
-                    <span class="material-icons space-span-left">attach_money</span>Professional</a>
+                <li>
+                    <a href="{% url 'base:professional' %}#header">Professional</a>
                 </li>
-                <li><a href="{% url 'blog:index' %}#header">
-                    <span class="material-icons-outlined space-span-left">edit_note</span>Blog</a>
+                <li>
+                    <a href="{% url 'blog:index' %}#header">Blog</a>
                 </li>
-                <li><a href="{% url 'base:contact' %}#header">
-                    <span class="material-icons-outlined space-span-left">drafts</span>Contact</a>
+                <li>
+                    <a href="{% url 'base:contact' %}#header">Contact</a>
                 </li>
                 {% endblock %}
             </ul>

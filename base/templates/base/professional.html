@@ -17,8 +17,7 @@
 	{% block nav_links_li %}
 	<li>
 		<!-- color this link icon because it's the current page -->
-		<a href="{% url 'base:professional' %}#header">
-		<span class="material-icons-outlined space-span-left color-accent">attach_money</span>Professional</a>
+		<a href="{% url 'base:professional' %}#header" class="color-accent">Professional</a>
 		<!-- sub navigation items -->
 		<li class="smaller-text nav-sub-link">
 			<a href="{% url 'base:professional' %}#research">
@@ -38,11 +37,9 @@
 		</li>
 	</li>
 	<li>
-		<a href="{% url 'blog:index' %}#header">
-		<span class="material-icons-outlined space-span-left">edit_note</span>Blog</a>
+		<a href="{% url 'blog:index' %}#header">Blog</a>
 	</li>
-	<li><a href="{% url 'base:contact' %}#header">
-		<span class="material-icons-outlined space-span-left">drafts</span>Contact</a>
+	<li><a href="{% url 'base:contact' %}#header">Contact</a>
 	</li>
 	{% endblock %}
 

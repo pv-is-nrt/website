@@ -16,16 +16,13 @@
 
 	{% block nav_links_li %}
 	<li>
-		<!-- color this link icon because it's the current page -->
-		<a href="{% url 'base:professional' %}#header">
-		<span class="material-icons-outlined space-span-left">attach_money</span>Professional</a>
+		<!-- color contact link icon because it's the current page -->
+		<a href="{% url 'base:professional' %}#header">Professional</a>
 	</li>
 	<li>
-		<a href="{% url 'blog:index' %}#header">
-		<span class="material-icons-outlined space-span-left">edit_note</span>Blog</a>
+		<a href="{% url 'blog:index' %}#header">Blog</a>
 	</li>
-	<li><a href="{% url 'base:contact' %}#header">
-		<span class="material-icons-outlined space-span-left color-accent">drafts</span>Contact</a>
+	<li><a href="{% url 'base:contact' %}#header" class="color-accent">Contact</a>
 	</li>
 	{% endblock %}
 
