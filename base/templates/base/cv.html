@@ -334,7 +334,7 @@
 				</div>
 				<p class="item">Speakers are italicized</p>
 				<ul>
-				{% for presentation in presentations|slice:":7" %}
+				{% for presentation in presentations|slice:":8" %}
 					<li>
 						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
@@ -376,7 +376,7 @@
 			<div class="presentations module">
 				<!-- no heading, because presentations continuing -->
 				<ul>
-				{% for presentation in presentations|slice:"7:" %}
+				{% for presentation in presentations|slice:"8:" %}
 					<li>
 						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
