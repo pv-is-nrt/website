@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<html>
+
+	<head>
+
+		<title>{{ basic_info.first_name }} {{ basic_info.last_name }} - CV</title>
+
+		<!-- CSS -->
+		{% load static %}
+		<link rel="stylesheet" type="text/css" href="{% static 'base/normalize.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'base/resume-classic.css' %}">
+		<link href='https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed|Roboto+Serif' rel='stylesheet' type='text/css'>
+
+        <!-- FAVICONS -->
+        {% include "./head-favicon.html" %}
+
+	</head>
+
+<body>
+
+
+    <header>
+        <h1>{{ basic_info.first_name }} {{ basic_info.last_name }}</h1>
+        <p class="tagline">{{ basic_info.resume_tagline|safe }}</p>
+        <p><b>Website</b>: <a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a>, <b>Email</b>: {% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ basic_info.work_email }}{% else %}<a href="{% url 'base:contact' %}" target="_blank">contact form</a>{% endif %}, <b>Phone</b>: {% if request.META.REMOTE_ADDR == '127.0.0.1' %}+{{ basic_info.country_phone_code }} {{ basic_info.phone }}{% else %}hidden online{% endif %}</p>
+    </header>
+   
+    
+    <!-- Statement
+    # --------------------------------------------------------------------->
+    <p>{{ basic_info.cv_statement|safe }}</p>
+   
+    
+    <!-- Education
+    # --------------------------------------------------------------------->
+    <h2>Education</h2>
+    {% for education in educations %}
+    <h3>{{ education.organization.full_name }}, {{ education.start_date|date:"Y" }} &ndash; {{ education.end_date|date:"Y" }}</h3>
+    <p>{{ education.degree }}, {{ education.major }}, GPA {{ education.gpa }}/{{ education.gpa_total }}</p>
+    <p class="thesis">Thesis &ndash; {{ education.thesis }}</p>
+    {% endfor %}
+    
+ 
+    <!-- Experience
+    # --------------------------------------------------------------------->
+    <h2>Experience</h2>
+    {% for experience in experiences %}
+    <h3>{{ experience.position }}, {{ experience.organization.full_name }}, {{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}</h3>
+    {% if experience.supervisor %}
+        <p>{{ experience.supervisor }} {% if 'AIMRC' not in experience.supervisor %}{% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}{% endif %}</p>
+    {% endif %}
+    <div>{{ experience.description|safe }}</div>
+    {% endfor %}
+    
+
+    <!-- Skills
+    # --------------------------------------------------------------------->
+    <h2>Skills</h2>
+    {% regroup skills_categories by group as category_groups %}
+    {% for group in category_groups %}
+        {% for category in group.list %}
+            <p>
+            <b>{{ category }}</b> &ndash; 
+            {% for skill in category.skill_set.all %}
+                {{ skill|capfirst }}{% if not forloop.last %}, {% else %}.{% endif %}
+            {% endfor %}
+            </p>
+        {% endfor %}
+    {% endfor %}
+    
+
+    <!-- Publications
+    # --------------------------------------------------------------------->
+    <h2>Publications</h2>
+    <p>In the list of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. <a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank" class="scholar-link">Google Scholar link</a></p>
+    {% regroup publications by status as publications_status_groups %}
+    {% for group in publications_status_groups %}
+    <h3>{{ group.grouper|capfirst }}</h3>
+    <ul>
+        {% for publication in group.list %}
+        <li>
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.publisher }}</i>{% if publication.issue_etc %}; {{ publication.issue_etc }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank">(link)</a>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+    
+
+    <!-- Presentations
+    # --------------------------------------------------------------------->
+    <h2>Presentations</h2>
+    <p>Speakers are shown in bold.</p>
+    <ul>
+        {% for presentation in presentations %}
+        <li>
+            {% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}; {{ presentation.title|safe }}; {{ presentation.city }} (<span class="small-uppercase">{{ presentation.country }}</span>){% if presentation.issue_etc %}; {{ presentation.issue_etc }}{% endif %}; <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; (<i>{{ presentation.comment }}</i>){% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank">(link)</a>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+
+
+    <!-- Teaching
+    # --------------------------------------------------------------------->
+    <h2>Teaching experience</h2>
+    <ul>
+        {% for teaching in teachings %}
+        <li>{{ teaching.position }} for {{ teaching.topic|default:teaching.course_name|safe }} at {{ teaching.organization.short_name }} ({{ teaching.course_code }}) in <b>{{ teaching.year }}</b>
+        </li>
+        {% endfor %}
+    </ul>
+
+
+    <!-- Awards
+    # --------------------------------------------------------------------->
+    <h2>Honors and awards</h2>
+    <ol>
+        {% for award in honor_and_awards %}
+        <li>{{ award.title|safe }}, <b>{{ award.organization.short_name }}</b>, {{ award.start_date|date:"Y" }}{% if award.end_date %} &ndash; {{ award.end_date|date:"Y" }}{% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+
+
+    <!-- Research funding
+    # --------------------------------------------------------------------->
+    <h2>Research funding</h2>
+    <p>Contributed to the planning, writing, editing and/or review of the following research funding proposals.</p>
+    <ol>
+    {% for proposal in proposals %}
+        <li>
+            {% if proposal.status == "awarded" %}{{ proposal.status|capfirst }}, {% endif %}{{ proposal.title|safe }}, {{ proposal.agency }}, PI: {{ proposal.pi }}, {{ proposal.year }}
+        </li>
+    {% endfor %}
+    </ol>
+
+
+    <!-- Research advising
+    # --------------------------------------------------------------------->
+    <h2>Research advising</h2>
+    <p>Direct supervisor for members marked with an * {% if request.META.REMOTE_ADDR != '127.0.0.1' %}. Last name has been hidden for the sake of privacy online.{% endif %}</p>
+    {% for advising in advisings %}
+        <p><b>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ advising.name }}{% else %}{{ advising.get_first_name }}{% endif %}</b>, {{ advising.title|safe }}, {{ advising.start_date|date:"Y" }} &ndash; {{ advising.end_date|date:"Y"|default:"present" }}. <span class="smaller">Journey &ndash; {{ advising.journey_short }}</span></p>
+    {% endfor %}
+
+
+    <!-- Mentoring
+    # --------------------------------------------------------------------->
+    <h2>Mentorship</h2>
+    <p>Serving as a mentor for GT Mentor Jackets, GT MSE Industry Mentorship Program and IITR Alumni Mentorship Program. {% if request.META.REMOTE_ADDR != '127.0.0.1' %}Last name has been hidden for the sake of privacy online.{% endif %}</p>
+    {% regroup mentorings by degree_type as mentoring_groups %}
+    {% for group in mentoring_groups %}
+    <h3>{{ group.grouper }}</h3>
+        {% for mentoring in group.list %}
+        <p><b>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ mentoring.name }}{% else %}{{ mentoring.get_first_name }}{% endif %}</b> from {{ mentoring.start_date|date:"Y" }} &ndash; {{ mentoring.end_date|date:"Y"|default:"present" }}. Journey &ndash; {{ mentoring.journey_short }}</p>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+
+    <!-- Leadership
+    # --------------------------------------------------------------------->
+    <h2>Leadership</h2>
+    <p>Leadership roles in various organizations and clubs.</p>
+    <ul>
+        {% for leadership in leaderships %}
+        <li>{{ leadership.title|safe }}, {{ leadership.organization.short_name }}, <b>{{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</b>  
+        </li>
+        {% endfor %}
+    </ul>
+
+
+    <!-- Scientific Reviewing
+    # --------------------------------------------------------------------->
+    <h2>Scientific reviewing</h2>
+    <p>Reviewed manuscripts for the following journals:</p>
+    <ul>
+        {% for review in reviews %}
+        <li>{{ review.publication }}</li>
+        {% endfor %}
+    </ul>
+
+
+    <!-- References
+    # --------------------------------------------------------------------->
+    <h2>References</h2>
+    {% for reference in references|slice:":6" %}
+        <p><b>{{ reference.name }}</b>, {{ reference.position }}, {{ reference.organization.short_name }}. Email: {{ reference.email }}{% if reference.website_url %} <a href="{{ reference.website_url }}" target="_blank">(Website)</a>{% endif %}</p>
+    {% endfor %}
+
+
+</body>
+
+</html>

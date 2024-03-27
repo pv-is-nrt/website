@@ -337,14 +337,36 @@ def resume(request):
     return render(request, 'base/resume.html', context)
 
 
-#    Fancy Resume page
+#    Classic Resume and CV page
 # ---------------------------------------------------------------------------- #
 
-def resume_fancy(request):
+def resume_classic(request):
 
     # ADD USER VISIT INFO TO DATABASE
     # -------------------------------------------#
-    core.add_user_info_to_database(Analytic(), request, '/resume-fancy')
+    core.add_user_info_to_database(Analytic(), request, '/resume-classic')
 
     context = resume_cv_context
-    return render(request, 'base/resume-fancy.html', context)
+    return render(request, 'base/resume-classic.html', context)
+
+def cv_classic(request):
+
+    # ADD USER VISIT INFO TO DATABASE
+    # -------------------------------------------#
+    core.add_user_info_to_database(Analytic(), request, '/cv-classic')
+
+    context = resume_cv_context
+    return render(request, 'base/cv-classic.html', context)
+
+
+#    Arial Resume and CV page
+# ---------------------------------------------------------------------------- #
+
+def cv_arial(request):
+    
+        # ADD USER VISIT INFO TO DATABASE
+        # -------------------------------------------#
+        core.add_user_info_to_database(Analytic(), request, '/cv-arial')
+    
+        context = resume_cv_context
+        return render(request, 'base/cv-arial.html', context)

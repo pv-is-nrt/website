@@ -1,0 +1,75 @@
+:root {
+    --accent-color: #000; /* was d44 */
+    --page-width: 8.5in;
+    --page-height: 11in;
+    --page-side-margin: 0.6in;
+    --xs-gap: 0.05in;
+    --s-gap: 0.075in;
+    --m-gap: 0.1in;
+    --l-gap: 0.15in;
+    --xl-gap: 0.2in;
+}
+
+body {
+    width: var(--page-width); /* setting this property to page class hides the shadow and centering etc., so it's better here */
+    margin: 0 auto;
+    padding: 0 var(--page-side-margin); /* set these while printing the document for automatic page breaks */
+    font-family: sans-serif;
+    font-size: 9pt;
+    line-height: 1.5em;
+}
+
+header {
+    padding: 0 0.1in var(--l-gap);
+    margin: 0 -0.1in var(--m-gap);
+    border-bottom: solid 1px var(--accent-color);
+}
+
+h1 {
+    margin: 0;
+    color: var(--accent-color);
+}
+
+h2 {
+    margin: var(--l-gap) -0.1in var(--s-gap);
+    padding: 0 0.1in var(--s-gap);
+    border-bottom: solid 1px var(--accent-color);
+}
+
+h3 {
+    margin-top: var(--m-gap);
+    margin-bottom: var(--xs-gap);
+}
+
+ol {
+    padding-left: 0.2in; /* 0.18in aligns it with the 0.05 left padding */
+}
+
+ul {
+    list-style-type: '−'; /* this is a minus sign U2212 */
+    padding-left: 0.1in;
+}
+
+li {
+    padding-left: 0.05in;
+    margin-bottom: 0.2em; /* better than line height, because this keeps multi-lines in a list together */
+}
+
+a {
+    color: var(--accent-color);
+}
+
+.tagline {
+    font-size: 1.2em;
+    font-style: italic;
+    margin: var(--s-gap) 0 var(--m-gap);
+}
+
+.small-uppercase {
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+
+.smaller {
+    font-size: 0.9em;
+}

@@ -1,0 +1,43 @@
+body {
+    font-family: sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: sans-serif;
+}
+
+h1 {
+    letter-spacing: 3pt;
+}
+
+h2 {
+    font-size: 1.1em;
+    letter-spacing: 0.15em;
+}
+
+h3 {
+    font-size: 0.9em;
+    letter-spacing: 0.1em;
+}
+
+.skillset h3 {
+    font-weight: bold;
+}
+
+.skill-item {
+    font-weight: normal;
+}
+
+.page-1 .header-left p {
+    /* applies to the tagline */
+    font-family: sans-serif;
+    font-weight: normal;
+}
+
+.page-1 .header-right p {
+    font-family: sans-serif;
+}
+
+.heading-row, .group-row {
+    font-family: sans-serif;
+}
