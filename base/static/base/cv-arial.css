@@ -20,14 +20,6 @@ h3 {
     letter-spacing: 0.1em;
 }
 
-.skillset h3 {
-    font-weight: bold;
-}
-
-.skill-item {
-    font-weight: normal;
-}
-
 .page-1 .header-left p {
     /* applies to the tagline */
     font-family: sans-serif;
@@ -40,4 +32,16 @@ h3 {
 
 .heading-row, .group-row {
     font-family: sans-serif;
+}
+
+.skillset-group {
+    /* not sure why I had to tweak this but was needed to keep all four groups together */
+    width: 1.79in;
+}
+.skillset h3 {
+    font-weight: bold;
+}
+
+.skill-item {
+    font-weight: normal;
 }
