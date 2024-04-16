@@ -218,7 +218,7 @@
 					<h2>Select Publications</h2>
 				</div>
 				<ul>
-					{% for publication in publications_featured|slice:":10" %}
+					{% for publication in publications_featured %}
 					<li>
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 						<!-- some classes are not styled, but I'll let them stay for future -->
@@ -265,7 +265,7 @@
 					<h2>Select Presentations</h2>
 				</div>
 				<ul>
-				{% for presentation in presentations_featured|slice:":10" %}
+				{% for presentation in presentations_featured %}
 					<li>
 						{{ presentation.title|safe }}; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>); <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; {{ presentation.comment }}{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
