@@ -42,9 +42,9 @@
 			<div class="header-right">
 				<div class="wrapper"> <!-- allows right bg to be set -->
 					<!-- shows different info online vs localhost -->
-					<p><span class="icon" aria-label="Email">✉</span> {% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ basic_info.work_email }}{% else %}<a href="{% url 'base:contact' %}" target="_blank">contact form</a>{% endif %}</p>
-					<p><span class="icon" aria-label="Website">🌎</span> <a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a></p>
-					<p><span class="icon" aria-label="Phone">📱</span> {% if request.META.REMOTE_ADDR == '127.0.0.1' %}+{{ basic_info.country_phone_code }} {{ basic_info.phone }}{% else %}hidden online{% endif %}</p>
+					<p><span class="material-icons md-normal">forward_to_inbox</span>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ basic_info.work_email }}{% else %}<a href="{% url 'base:contact' %}" target="_blank">contact form</a>{% endif %}</p>
+					<p><span class="material-icons md-normal">devices</span><a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a></p>
+					<p><span class="material-icons md-normal">call</span>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}+{{ basic_info.country_phone_code }} {{ basic_info.phone }}{% else %}hidden online{% endif %}</p>
 				</div>
 			</div>
 		</header>
@@ -167,7 +167,7 @@
 				<span class="material-icons md-normal">history</span>{% now "F Y" %}
 			</div>
 			<div class="footer-right">
-				<span class="icon" aria-label="page">📄</span> &nbsp;1 of 3
+				<span class="material-icons md-normal">layers</span>1 of 3
 			</div>
 			<div class="footer-border"></div>
 		</footer>
@@ -223,7 +223,7 @@
 						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 						<!-- some classes are not styled, but I'll let them stay for future -->
 						<span class="authors">
-						{% for author in publication.authors_list_very_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last and author != "et al." %}, {% endif %}{% endfor %}</span>; {% if publication.title|length > 150 %}{{ publication.title|truncatechars:"100" }}{% else %}{{ publication.title|safe }}{% endif %}<i>; {{ publication.publisher }}</i>; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.status != "published" %}; ({{ publication.status }}){% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="icon">🔗</span></a>{% endif %}
+						{% for author in publication.authors_list_very_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last and author != "et al." %}, {% endif %}{% endfor %}</span>; {% if publication.title|length > 150 %}{{ publication.title|truncatechars:"100" }}{% else %}{{ publication.title|safe }}{% endif %}<i>; {{ publication.publisher }}</i>; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.status != "published" %}; ({{ publication.status }}){% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 					{% endfor %}
 				</ul>
@@ -240,7 +240,7 @@
 				<span class="material-icons md-normal">history</span>{% now "F Y" %}
 			</div>
 			<div class="footer-right">
-				<span class="icon" aria-label="page">📄</span> &nbsp;2 of 3
+				<span class="material-icons md-normal">layers</span>2 of 3
 			</div>
 			<div class="footer-border"></div>
 		</footer>
@@ -267,7 +267,7 @@
 				<ul>
 				{% for presentation in presentations_featured|slice:":10" %}
 					<li>
-						{{ presentation.title|safe }}; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>); <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; {{ presentation.comment }}{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="icon">🔗</span></a>{% endif %}
+						{{ presentation.title|safe }}; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>); <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; {{ presentation.comment }}{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 				{% endfor %}
 				</ul>
@@ -336,7 +336,7 @@
 					<div class="item">
 						<h4 class="name">{{ reference.name }}</h4>
 						<p>{{ reference.position }}, {{ reference.organization.short_name }}</p>
-						<p><span class="icon" aria-label="Email">✉</span> {{ reference.email }}</p>
+						<p><span class="material-icons md-small-left">mail_outline</span>{{ reference.email }}</p>
 					</div>
 					{% endfor %}
 				</div>
@@ -366,7 +366,7 @@
 				<span class="material-icons md-normal">history</span>{% now "F Y" %}
 			</div>
 			<div class="footer-right">
-				<span class="icon" aria-label="page">📄</span> &nbsp;3 of 3
+				<span class="material-icons md-normal">layers</span>3 of 3
 			</div>
 			<div class="footer-border"></div>
 		</footer>

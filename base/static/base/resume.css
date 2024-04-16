@@ -244,10 +244,6 @@ footer {
 }
 
 /* UNICODE AND MATERIAL ICONS */
-.icon {
-    /* font-family: 'Segoe UI Symbol'; */
-    font-size: 1.4em;
-}
 .material-icons.md-normal {
     font-size: 1.4em;
     line-height: inherit;

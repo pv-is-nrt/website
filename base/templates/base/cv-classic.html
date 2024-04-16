@@ -5,7 +5,7 @@
 
 	<head>
 
-		<title>{{ basic_info.first_name }} {{ basic_info.last_name }} - CV</title>
+		<title>{{ basic_info.first_name }} {{ basic_info.last_name }} - CV classic</title>
 
 		<!-- CSS -->
 		{% load static %}
@@ -15,6 +15,13 @@
 
         <!-- FAVICONS -->
         {% include "./head-favicon.html" %}
+
+        <!-- add some styles specific to this page -->
+        <style>
+            :root {
+                --accent-color: #c93;
+            }
+        </style>
 
 	</head>
 

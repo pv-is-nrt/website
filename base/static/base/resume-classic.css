@@ -1,5 +1,5 @@
 :root {
-    --accent-color: #000; /* was d44 */
+    --accent-color: #d44; /* was d44 */
     --page-width: 8.5in;
     --page-height: 11in;
     --page-side-margin: 0.6in;
@@ -27,17 +27,19 @@ header {
 
 h1 {
     margin: 0;
-    color: var(--accent-color);
+    /* color: var(--accent-color); */
 }
 
 h2 {
-    margin: var(--l-gap) -0.1in var(--s-gap);
+    font-size: 1.3em; /* default is 1.5em */
+    margin: var(--xl-gap) -0.1in var(--m-gap);
     padding: 0 0.1in var(--s-gap);
     border-bottom: solid 1px var(--accent-color);
 }
 
 h3 {
-    margin-top: var(--m-gap);
+    font-size: 1.05em; /* default is 1.17em */
+    margin-top: var(--l-gap);
     margin-bottom: var(--xs-gap);
 }
 
@@ -56,7 +58,7 @@ li {
 }
 
 a {
-    color: var(--accent-color);
+    color: #000;
 }
 
 .tagline {
