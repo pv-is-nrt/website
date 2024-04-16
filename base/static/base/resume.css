@@ -245,7 +245,7 @@ footer {
 
 /* UNICODE AND MATERIAL ICONS */
 .icon {
-    font-family: 'Segoe UI Symbol';
+    /* font-family: 'Segoe UI Symbol'; */
     font-size: 1.4em;
 }
 .material-icons.md-normal {
@@ -439,7 +439,7 @@ footer {
 .heading-row {
     /* I think this is better than using heading tags distributed across the html */
     font-family: 'Roboto Serif', serif;
-	font-weight: 900;
+	font-weight: bold;
     text-transform: uppercase;
     font-size: 0.85em;
     letter-spacing: 1pt;
@@ -466,7 +466,7 @@ footer {
     }
 .group-row {
     font-family: 'Roboto Serif', serif;
-	font-weight: 900;
+	font-weight: bold;
     text-transform: uppercase;
     font-size: 0.8em;
     letter-spacing: 1pt;

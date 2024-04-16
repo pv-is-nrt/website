@@ -2,11 +2,12 @@ body {
     font-family: sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: sans-serif;
+h1, h2, h3, h4, h5, h6, .heading-row, .group-row {
+    font-family: 'Trebuchet MS', sans-serif;
 }
 
 h1 {
+    font-size: 1.5em;
     letter-spacing: 3pt;
 }
 
@@ -22,16 +23,13 @@ h3 {
 
 .page-1 .header-left p {
     /* applies to the tagline */
-    font-family: sans-serif;
-    font-weight: normal;
+    font-family: 'Trebuchet MS', sans-serif;
+    font-weight: bold;
+    font-size: 0.9em;
 }
 
 .page-1 .header-right p {
-    font-family: sans-serif;
-}
-
-.heading-row, .group-row {
-    font-family: sans-serif;
+    font-family: 'Trebuchet MS', sans-serif;
 }
 
 .skillset-group {

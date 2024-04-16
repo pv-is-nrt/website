@@ -44,9 +44,9 @@
 			<div class="header-right">
 				<div class="wrapper"> <!-- allows right bg to be set -->
 					<!-- shows different info online vs localhost -->
-					<p><span class="material-icons md-normal">forward_to_inbox</span>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ basic_info.work_email }}{% else %}<a href="{% url 'base:contact' %}" target="_blank">contact form</a>{% endif %}</p>
+					<p><span class="material-icons md-normal">forward_to_inbox</span>{{ basic_info.work_email }}</p>
 					<p><span class="material-icons md-normal">devices</span><a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a></p>
-					<p><span class="material-icons md-normal">call</span>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}+{{ basic_info.country_phone_code }} {{ basic_info.phone }}{% else %}hidden online{% endif %}</p>
+					<p><span class="material-icons md-normal">call</span>+{{ basic_info.country_phone_code }} {{ basic_info.phone }}</p>
 				</div>
 			</div>
 		</header>
@@ -335,7 +335,7 @@
 				</div>
 				<p class="item">Speakers are italicized</p>
 				<ul>
-				{% for presentation in presentations|slice:":8" %}
+				{% for presentation in presentations|slice:":6" %}
 					<li>
 						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
@@ -377,34 +377,12 @@
 			<div class="presentations module">
 				<!-- no heading, because presentations continuing -->
 				<ul>
-				{% for presentation in presentations|slice:"8:" %}
+				{% for presentation in presentations|slice:"6:" %}
 					<li>
 						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
 					</li>
 				{% endfor %}
 				</ul>
-			</div>
-	
-			<!-- Teaching
-			# ------------------------------------------------------------->
-			<div class="teaching module">
-				<div class="module-heading">
-					<h2>Teaching experience</h2>
-				</div>
-				<div class="heading-row">
-					<div class="col-year">Year</div>
-					<div class="col-course">Course</div>
-					<div class="col-school">School</div>
-					<div class="col-topic">Topic</div>
-				</div>
-				{% for teaching in teachings %}
-				<div class="row">
-					<div class="col-year">{{ teaching.year }}</div>
-					<div class="col-course">{{ teaching.course_code }}</div>
-					<div class="col-school">{{ teaching.organization.short_name }}</div>
-					<div class="col-topic">{{ teaching.position }} / {{ teaching.topic|default:teaching.course_name|safe }}</div>
-				</div>
-				{% endfor %}
 			</div>
 
 			<!-- Honors and Awards
@@ -418,6 +396,20 @@
 				<li>
 					<span class="title">{{ awards.title|safe }}</span><span class="agency"> / {{ awards.organization.short_name }}</span><span class="date"> / {{ awards.start_date|date:"Y" }}{% if awards.end_date %} &ndash; {{ awards.end_date|date:"Y" }}{% endif %}</span>
 				</li>
+				{% endfor %}
+			</div>
+
+			<!-- Leadership
+			# ------------------------------------------------------------->
+			<div class="leadership module">
+				<div class="module-heading">
+					<h2>Leadership</h2>
+				</div>
+				<ol>
+				{% for leadership in leaderships %}
+					<li>
+						<span class="title">{{ leadership.title|safe }}</span><span class="agency"> / {{ leadership.organization.short_name }}</span><span class="date"> / {{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</span>
+					</li>
 				{% endfor %}
 			</div>
 
@@ -518,18 +510,26 @@
 		<header></header>
 
 		<div class="page-body">
-
-			<!-- Leadership
+	
+			<!-- Teaching
 			# ------------------------------------------------------------->
-			<div class="leadership module">
+			<div class="teaching module">
 				<div class="module-heading">
-					<h2>Leadership</h2>
+					<h2>Teaching experience</h2>
 				</div>
-				<ol>
-				{% for leadership in leaderships %}
-					<li>
-						<span class="title">{{ leadership.title|safe }}</span><span class="agency"> / {{ leadership.organization.short_name }}</span><span class="date"> / {{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</span>
-					</li>
+				<div class="heading-row">
+					<div class="col-year">Year</div>
+					<div class="col-course">Course</div>
+					<div class="col-school">School</div>
+					<div class="col-topic">Topic</div>
+				</div>
+				{% for teaching in teachings %}
+				<div class="row">
+					<div class="col-year">{{ teaching.year }}</div>
+					<div class="col-course">{{ teaching.course_code }}</div>
+					<div class="col-school">{{ teaching.organization.short_name }}</div>
+					<div class="col-topic">{{ teaching.position }} / {{ teaching.topic|default:teaching.course_name|safe }}</div>
+				</div>
 				{% endfor %}
 			</div>
 	
