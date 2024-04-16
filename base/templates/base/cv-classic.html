@@ -24,7 +24,7 @@
     <header>
         <h1>{{ basic_info.first_name }} {{ basic_info.last_name }}</h1>
         <p class="tagline">{{ basic_info.resume_tagline|safe }}</p>
-        <p><b>Website</b>: <a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a>, <b>Email</b>: {% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ basic_info.work_email }}{% else %}<a href="{% url 'base:contact' %}" target="_blank">contact form</a>{% endif %}, <b>Phone</b>: {% if request.META.REMOTE_ADDR == '127.0.0.1' %}+{{ basic_info.country_phone_code }} {{ basic_info.phone }}{% else %}hidden online{% endif %}</p>
+        <p><b>Website</b>: <a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a>, <b>Email</b>: {{ basic_info.work_email }}, <b>Phone</b>: +{{ basic_info.country_phone_code }} {{ basic_info.phone }}</p>
     </header>
    
     
