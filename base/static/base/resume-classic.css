@@ -15,31 +15,32 @@ body {
     margin: 0 auto;
     padding: 0 var(--page-side-margin); /* set these while printing the document for automatic page breaks */
     font-family: sans-serif;
-    font-size: 9pt;
-    line-height: 1.5em;
+    font-size: 8.5pt; /* lesser than resume.css */
+    line-height: 1.25em; /* lesser than resume.css */
 }
 
 header {
-    padding: 0 0.1in var(--l-gap);
-    margin: 0 -0.1in var(--m-gap);
+    padding: 0 0.1in var(--m-gap);
+    margin: 0 -0.1in var(--l-gap);
     border-bottom: solid 1px var(--accent-color);
 }
 
 h1 {
+    font-size: 1.7em; /* default is 2em */
     margin: 0;
     /* color: var(--accent-color); */
 }
 
 h2 {
-    font-size: 1.3em; /* default is 1.5em */
-    margin: var(--xl-gap) -0.1in var(--m-gap);
+    font-size: 1.2em; /* default is 1.5em */
+    margin: var(--l-gap) -0.1in var(--s-gap);
     padding: 0 0.1in var(--s-gap);
     border-bottom: solid 1px var(--accent-color);
 }
 
 h3 {
-    font-size: 1.05em; /* default is 1.17em */
-    margin-top: var(--l-gap);
+    font-size: 1em; /* default is 1.17em */
+    margin-top: var(--m-gap);
     margin-bottom: var(--xs-gap);
 }
 
@@ -56,7 +57,7 @@ ul {
 
 li {
     padding-left: 0.05in;
-    margin-bottom: 0.2em; /* better than line height, because this keeps multi-lines in a list together */
+    margin-bottom: 0.1em; /* better than line height, because this keeps multi-lines in a list together */
 }
 
 a {
