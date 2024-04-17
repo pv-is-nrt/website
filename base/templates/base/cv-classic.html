@@ -70,7 +70,7 @@
         {% for category in group.list %}
             <p>
             <b>{{ category }}</b> &ndash; 
-            {% for skill in category.skill_set.all %}
+            {% for skill in category.skill_set.all|dictsortreversed:"start_year" %}
                 {{ skill|capfirst }}{% if not forloop.last %}, {% else %}.{% endif %}
             {% endfor %}
             </p>
@@ -88,7 +88,7 @@
     <ul>
         {% for publication in group.list %}
         <li>
-            {% for author in publication.authors_list_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.publisher }}</i>{% if publication.issue_etc %}; {{ publication.issue_etc }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank">(link)</a>{% endif %}
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.publisher }}</i>{% if publication.issue_etc %}; {{ publication.issue_etc }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
         </li>
         {% endfor %}
     </ul>
@@ -102,7 +102,7 @@
     <ul>
         {% for presentation in presentations %}
         <li>
-            {% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}; {{ presentation.title|safe }}; {{ presentation.city }} (<span class="small-uppercase">{{ presentation.country }}</span>){% if presentation.issue_etc %}; {{ presentation.issue_etc }}{% endif %}; <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; (<i>{{ presentation.comment }}</i>){% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank">(link)</a>{% endif %}
+            {% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}; {{ presentation.title|safe }}; {{ presentation.city }} (<span class="small-uppercase">{{ presentation.country }}</span>){% if presentation.issue_etc %}; {{ presentation.issue_etc }}{% endif %}; <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; (<i>{{ presentation.comment }}</i>){% endif %}{% if presentation.link %} <a href="{{ presentation.link }}" target="blank">(link)</a>{% endif %}
         </li>
         {% endfor %}
     </ul>

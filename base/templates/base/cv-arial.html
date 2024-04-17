@@ -602,7 +602,7 @@
 					<div class="skillset">
 						<h3>{{ category }}</h3>
 						<!-- NOTE: below is the way to reverse look up a manyToMany field. Uses _set -->
-						{% for skill in category.skill_set.all %}
+						{% for skill in category.skill_set.all|dictsortreversed:"start_year" %}
 						<div class="skill-item">
 							<div class="progress-bar-container">
 								<div class="progress-bar" style="width: {{ skill.score }}%">{{ skill.short_name|default:skill.name }}</div>
