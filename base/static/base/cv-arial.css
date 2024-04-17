@@ -3,33 +3,45 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6, .heading-row, .group-row {
-    font-family: 'Trebuchet MS', sans-serif;
+    text-transform: none;
+    font-family: 'Georgia', sans-serif;
 }
 
 h1 {
-    font-size: 1.5em;
-    letter-spacing: 3pt;
+    font-family: 'Trebuchet MS', 'Georgia', sans-serif;
+    font-size: 2em;
+    font-weight: bold;
+    letter-spacing: 0.05em;
 }
 
 h2 {
-    font-size: 1.1em;
-    letter-spacing: 0.15em;
+    font-size: 1.2em;
+    letter-spacing: 0.02em;
 }
 
 h3 {
-    font-size: 0.9em;
-    letter-spacing: 0.1em;
+    font-size: 1em;
+    letter-spacing: 0.0em;
 }
 
 .page-1 .header-left p {
     /* applies to the tagline */
-    font-family: 'Trebuchet MS', sans-serif;
-    font-weight: bold;
-    font-size: 0.9em;
+    font-family: 'Arial', sans-serif;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-weight: normal;
+    font-size: 1em;
 }
 
 .page-1 .header-right p {
-    font-family: 'Trebuchet MS', sans-serif;
+    font-family: 'Georgia', sans-serif;
+    letter-spacing: 0.2em;
+    font-weight: normal;
+    font-size: 0.75em;
+}
+
+.heading-row {
+    letter-spacing: 0;
 }
 
 .skillset-group {
