@@ -15,8 +15,8 @@ body {
     margin: 0 auto;
     padding: 0 var(--page-side-margin); /* set these while printing the document for automatic page breaks */
     font-family: sans-serif;
-    font-size: 8.5pt; /* lesser than resume.css */
-    line-height: 1.25em; /* lesser than resume.css */
+    font-size: 9pt;
+    line-height: 1.3em; /* lesser than resume.css */
 }
 
 header {
