@@ -77,14 +77,14 @@
 							{% endif %}
 							<span class="date">{{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}</span>
 						</p>
-						<div>{{ experience.short_description|default:experience.description|safe }}</div>
+						<div>{{ experience.description|safe }}</div>
 					</div>
 					{% endfor %}
 					<!-- internships -->
 					<div class="item">
 						<h3>Internships</h3>
 						<p>
-						{% for experience in experiences|slice:"4:" %}
+						{% for experience in experiences|slice:"5:" %}
 							{{ experience.organization.short_name }} ({{ experience.start_date|date:"Y" }}){% if forloop.counter < 3 %}, {% endif %}
 						{% endfor %}
 						</p>
