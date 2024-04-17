@@ -5,14 +5,12 @@
 
 	<head>
 
-		<title>{{ basic_info.first_name }} {{ basic_info.last_name }} / Resume</title>
+		<title>{{ basic_info.first_name }} {{ basic_info.last_name }} - Resume classic</title>
 
 		<!-- CSS -->
 		{% load static %}
 		<link rel="stylesheet" type="text/css" href="{% static 'base/normalize.css' %}">
-		<link rel="stylesheet" type="text/css" href="{% static 'base/resume.css' %}">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="{% static 'base/resume-classic.css' %}">
 		<link href='https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed|Roboto+Serif' rel='stylesheet' type='text/css'>
 
         <!-- FAVICONS -->
@@ -22,263 +20,111 @@
 
 <body>
 
-    <div class="page page-1">
-	
-        <!-- HEADER
-        # --------------------------------------------------------------------->
-        <header>
-            <div class="header-left">
-                <div class=""> <!-- allows left bg to be set -->
-                    <h1>{{ basic_info.first_name }} {{ basic_info.last_name }}</h1>
-                    <p>
-                        {{ basic_info.resume_tagline|safe }}
-                    </p>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class=""> <!-- allows right bg to be set -->
-                    <!-- shows different info online vs localhost -->
-                    <p><span class="icon" aria-label="Email">✉</span> {% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ basic_info.work_email }}{% else %}<a href="{% url 'base:contact' %}" target="_blank">contact form</a>{% endif %}</p>
-                    <p><span class="icon" aria-label="Website">🌎</span> <a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a></p>
-                    <p><span class="icon" aria-label="Phone">📱</span> {% if request.META.REMOTE_ADDR == '127.0.0.1' %}+{{ basic_info.country_phone_code }} {{ basic_info.phone }}{% else %}hidden online{% endif %}</p>
-                </div>
-            </div>
-        </header>
 
-        <!-- PAGE CONTENT
-        # --------------------------------------------------------------------->
-        <div class="page-body">
+    <header>
+        <h1>{{ basic_info.first_name }} {{ basic_info.last_name }}</h1>
+        <p class="tagline">{{ basic_info.resume_tagline|safe }}</p>
+        <p><b>Website</b>: <a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a>, <b>Email</b>: {{ basic_info.work_email }}, <b>Phone</b>: +{{ basic_info.country_phone_code }} {{ basic_info.phone }}</p>
+    </header>
+   
+    
+    <!-- Statement
+    # --------------------------------------------------------------------->
+    <p>{{ basic_info.resume_statement|safe }}</p>
+   
+    
+    <!-- Education
+    # --------------------------------------------------------------------->
+    <h2>Education</h2>
+    {% for education in educations %}
+    <p><b>{{ education.organization.full_name }}, {{ education.start_date|date:"Y" }} &ndash; {{ education.end_date|date:"Y" }}</b>, {{ education.degree }}, {{ education.major }}, GPA {{ education.gpa }}/{{ education.gpa_total }}</p>
+    {% endfor %}
+    
+ 
+    <!-- Experience
+    # --------------------------------------------------------------------->
+    <h2>Experience</h2>
+    {% for experience in experiences|slice:":4" %}
+    <h3>{{ experience.position }}, {{ experience.organization.full_name }}, {{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}</h3>
+    {% if experience.supervisor %}
+        <p>{{ experience.supervisor }} {% if 'AIMRC' not in experience.supervisor %}{% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}{% endif %}</p>
+    {% endif %}
+    <div>{% if experience.short_description %}{{ experience.short_description|safe }}{% else %}{{ experience.description|safe }}{% endif %}</div>
+    {% endfor %}
+    
 
-            <!-- Statement
-            # ------------------------------------------------------------->
-            <div class="statement module">
-                <p>{{ basic_info.resume_statement|safe }}</p>
-            </div>
-
-            <!-- Work Experience
-            # ------------------------------------------------------------->
-            <div class="experience module">
-                <div class="module-heading">
-                    <h2>Work experience</h2>
-                </div>
-                <!-- loops through first three experiences -->
-                {% for experience in experiences|slice:":4" %}
-                <div class="item">
-                    <h3>{{ experience.position }}, <span class="organization">{{ experience.organization.full_name }}</span></h3>
-                    <p class="supervisor_and_date">
-                    {% if experience.supervisor %}
-                        <span class="supervisor">{{ experience.supervisor }} {% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}, </span>
-                        {% endif %}
-                        <span class="date">{{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}</span>
-                    </p>
-                    <div>{{ experience.short_description|default:experience.description|safe }}</div>
-                </div>
-                {% endfor %}
-                <!-- internships -->
-                <div class="item">
-                    <h3>Internships</h3>
-                    <p>
-                    {% for experience in experiences|slice:"4:" %}
-                        {{ experience.organization.short_name }} ({{ experience.start_date|date:"Y" }}){% if forloop.counter < 3 %}, {% endif %}
-                    {% endfor %}
-                    </p>
-                </div>
-            </div>
-
-            <!-- Highlights
-            # ------------------------------------------------------------->
-            <div class="highlights module">
-                <div>
-                    <strong>{{ publications_published_or_submitted|length }}</strong> &nbsp;papers published or submitted
-                </div>
-                <div>
-                    <strong>{{ publications_first_author|length }}</strong> &nbsp;first author papers
-                </div>
-                <div><strong>{{ presentations|length }}</strong> &nbsp;conference presentations
-                </div>
-                <div>
-                    <strong>21</strong> &nbsp;manuscripts reviewed
-                </div>
-            </div>
-
-            <!-- Education
-            # ------------------------------------------------------------->
-            <div class="education module">
-                <div class="module-heading">
-                    <h2>Education</h2>
-                </div>
-                {% for education in educations %}
-                <div class="item">
-                    <h4>{{ education.organization.full_name }}</h4>
-                    <p>{{ education.degree }}, <span class="date">{{ education.start_date|date:"Y" }} &ndash; {{ education.end_date|date:"Y" }}</span></p>
-                    <p>{{ education.major }}</p>
-                    <p class="gpa">GPA {{ education.gpa }}/{{ education.gpa_total }}</p>
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- NEW SKILLS
-            # ------------------------------------------------------------->
-            <div class="sidebar-skills module">
-                <div class="module-heading">
-                    <h2>New skills</h2>
-                </div>
-                {% for skill in recent_skills|slice:":11" %}
-                <div class="item">
-                    <h5>{{ skill.short_name|default:skill }}</h5>
-                    <div class="sidebar-progress-bar-container">
-                        <div class="sidebar-progress-bar" style="width: {{ skill.score }}%"><div class="sidebar-progress-bar-dot"></div></div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Awards
-            # ------------------------------------------------------------->
-            <div class="sidebar-awards module">
-                <div class="module-heading">
-                    <h2>Select awards</h2>
-                </div>
-                {% for item in honor_and_awards_featured|slice:":8" %}
-                    <p class="item">{{ item.start_date|date:"Y" }} &ndash; {{ item.short_title|safe }}</p>
-                {% endfor %}
-            </div>
-
-        </div>
-
-        <!-- SKILLSETS
-        # ------------------------------------------------------------->
-        <div class="skillsets-full module">
-            <div class="module-heading">
-                <h2>Skillsets</h2>
-            </div>
-            {% regroup skills_categories by group as category_groups %}
-            {% for group in category_groups %}
-            <div class="skillset-group">
-                {% for category in group.list %}
-                <div class="skillset">
-                    <h3>{{ category }}</h3>
-                    <!-- NOTE: below is the way to reverse look up a manyToMany field. Uses _set -->
-                    {% for skill in category.skill_set.all %}
-                    <div class="skill-item">
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: {{ skill.score }}%">{{ skill.short_name|default:skill.name }}</div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endfor %}
-            </div>
-            {% endfor %}
-        </div> <!-- end skillsets-full -->
-
-        <!-- Publications
-        # ------------------------------------------------------------->
-        <div class="publications module">
-            <div class="module-heading">
-                <h2>Select Publications</h2>
-            </div>
-            <ul>
-                {% for publication in publications_featured|slice:":10" %}
-                <li>
-                    <!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
-                    <!-- some classes are not styled, but I'll let them stay for future -->
-                    <span class="authors">
-                    {% for author in publication.authors_list_very_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last and author != "et al." %}, {% endif %}{% endfor %}</span>; {% if publication.title|length > 150 %}{{ publication.title|truncatechars:"100" }}{% else %}{{ publication.title|safe }}{% endif %}<i>; {{ publication.publisher }}</i>; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.status != "published" %}; ({{ publication.status }}){% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="icon">🔗</span></a>{% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-        </div> <!-- end publications -->
-
-        <!-- Presentations
-        # ------------------------------------------------------------->
-        <div class="presentations module">
-            <div class="module-heading">
-                <h2>Select Presentations</h2>
-            </div>
-            <ul>
-            {% for presentation in presentations_featured|slice:":10" %}
-                <li>
-                    {{ presentation.title|safe }}; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>); <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; {{ presentation.comment }}{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="icon">🔗</span></a>{% endif %}
-                </li>
-            {% endfor %}
-            </ul>
-        </div> <!-- end presentations -->
-
-        <!-- Professional Service
-        # ------------------------------------------------------------->
-        <div class="service module">
-
-            <div class="module-heading">
-                <h2>Professional service</h2>
-            </div>
-
-            <div class="item">
-                <h3>Peer reviewing</h3>
-                <p>Reviewed more than <strong>21</strong> manuscripts for journals such as:</p>
-                <p>{% for review in reviews_featured|slice:":6" %}{{ review.publication }}, {% endfor %}etc. 
-                </p>
-            </div>
-
-            <div class="item">
-                <h3>Mentoring</h3>
-                <p>Served as a mentor for Mentor Jackets, MSE Industry Mentoring and IITR's Alumni Mentorship Program since 2016 for:</p>
-                {% regroup mentorings by degree_type as mentoring_groups %}
-                {% for group in mentoring_groups %}
-                <p><b>&nbsp;{{ group.list|length }}</b> &nbsp;{{ group.grouper }} students</p>
-                {% endfor %}
-            </div>
-
-            <div class="item">
-                <h3>Research advising</h3>
-                <p>Advised the research of <strong>{{ advisings|length }}</strong> (direct supervisor for {{ count_direct_advising }}) industry members / graduates / undergraduates in the following broad areas:</p>
-                <ul>
-                    <li>convolutional neural networks</li>
-                    <li>machine learning for molecules</li>
-                    <li>linear and logistic regression</li>
-                    <li>auxetics and metamaterials</li>
-                    <li>structure-property relationships</li>
-                </ul>
-            </div>
-
-            <div class="item">
-                <h3>Select leadership</h3>
-                <ul>
-                {% for leadership in leaderships_featured|slice:":5" %}
-                    <li>{{ leadership.short_title|safe }}, {{ leadership.organization.short_name }}, {{ leadership.start_date|date:"Y" }}&ndash;{{ leadership.end_date|date:"Y"|default:"present" }}</li>
-                {% endfor %}
-                </ul>
-            </div>
-
-        </div> <!-- end professional service -->
-
-        <!-- REFERENCES
-        # ------------------------------------------------------------->
-        <div class="references module">
-            <div class="module-heading">
-                <h2>References</h2>
-            </div>
-            {% for reference in references|slice:":5" %}
-            <div class="item">
-                <h4 class="name">{{ reference.name }}</h4>
-                <p>{{ reference.position }}, {{ reference.organization.short_name }}</p>
-                <p><span class="icon" aria-label="Email">✉</span> {{ reference.email }}</p>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- EXTRA-CURRICULAR
-        # ------------------------------------------------------------->
-        <div class="extracurriculars module">
-            <div class="module-heading">
-                <h2>Extracurriculars</h2>
-            </div>
+    <!-- Skills
+    # --------------------------------------------------------------------->
+    <h2>Skills</h2>
+    {% regroup skills_categories by group as category_groups %}
+    {% for group in category_groups %}
+        {% for category in group.list %}
             <p>
-                {{ basic_info.extra_curricular|safe }}
+            <b>{{ category }}</b> &ndash; 
+            {% for skill in category.skill_set.all %}
+                {{ skill|capfirst }}{% if not forloop.last %}, {% else %}.{% endif %}
+            {% endfor %}
             </p>
-        </div>
+        {% endfor %}
+    {% endfor %}
+    
 
-    </div> <!-- end page -->
+    <!-- Publications
+    # --------------------------------------------------------------------->
+    <h2>Publications</h2>
+    <p>of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. Five most recent publications are shown.</p>
+    <p>Please visit <a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank">Google Scholar</a> or <a href="https://www.prateekverma.com/professional/#research" target="blank">my website</a> for a complete list.</p>
+    <ol reversed>
+        {% for publication in publications_featured|slice:":5" %}
+        <li>
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.publisher }}</i> ({{ publication.status }}){% if publication.issue_etc %}; {{ publication.issue_etc }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank">(link)</a>{% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+    
+
+    <!-- Presentations
+    # --------------------------------------------------------------------->
+    <h2>Presentations</h2>
+    <p>of {{ presentations|length }} total, five most recent are shown. Speakers are shown in bold.</p>
+    <ol reversed>
+        {% for presentation in presentations|slice:":5" %}
+        <li>
+            {% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}; {{ presentation.title|safe }}; {{ presentation.city }} (<span class="small-uppercase">{{ presentation.country }}</span>); <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; (<i>{{ presentation.comment }}</i>){% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank">(link)</a>{% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+
+
+    <!-- Service
+    # --------------------------------------------------------------------->
+    <h2>Service</h2>
+    <p><b>Research advising</b> &ndash; Advised the research of a total of {{ advisings|length }} undergraduate and graduate students and industry members.</p>
+    <p><b>Mentorship</b> &ndash; Served as a mentor for Mentor Jackets, MSE Industry Mentoring and IITR's Alumni Mentorship Program for a total of {{ mentorings|length }} members.</p>
+    <p><b>Teaching</b> &ndash; Taught a total of {{ teachings|length }} lectures and labs.</p>
+    <p><b>Scientific Reviewing</b> &ndash; Reviewed manuscripts for a total of {{ reviews|length }} scientific journals.</p>
+    <p><b>Research funding</b> &ndash; Contributed to the planning, writing, editing and/or review of {{ proposals|length }} research funding proposals securing ~$500,000 in awards.</p>
+
+
+    <!-- Awards
+    # --------------------------------------------------------------------->
+    <h2>Honors and awards</h2>
+    <p>
+    {% for award in honor_and_awards %}
+    <b>({{ forloop.counter }})</b> {{ award.title|safe }}, {{ award.organization.short_name }} ({{ award.start_date|date:"Y" }}{% if award.end_date %} &ndash; {{ award.end_date|date:"Y" }}{% endif %}){% if not forloop.last %}; {% else %}.{% endif %}
+    {% endfor %}
+    </p>
+
+
+    <!-- Leadership
+    # --------------------------------------------------------------------->
+    <h2>Leadership experience</h2>
+    <p>
+    {% for leadership in leaderships %}
+    <b>({{ forloop.counter }})</b> {{ leadership.title|safe }}, {{ leadership.organization.short_name }}, ({{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}){% if not forloop.last %}; {% else %}.{% endif %}
+    {% endfor %}
+    </p>
+
 
 </body>
 

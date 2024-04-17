@@ -81,7 +81,7 @@
     <!-- Publications
     # --------------------------------------------------------------------->
     <h2>Publications</h2>
-    <p>In the list of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. <a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank" class="scholar-link">Google Scholar link</a></p>
+    <p>In the list of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. <a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank">Google Scholar link</a></p>
     {% regroup publications by status as publications_status_groups %}
     {% for group in publications_status_groups %}
     <h3>{{ group.grouper|capfirst }}</h3>

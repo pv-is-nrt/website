@@ -44,10 +44,12 @@ h3 {
 }
 
 ol {
+    margin-top: 0.03in;
     padding-left: 0.2in; /* 0.18in aligns it with the 0.05 left padding */
 }
 
 ul {
+    margin-top: 0.03in;
     list-style-type: '−'; /* this is a minus sign U2212 */
     padding-left: 0.1in;
 }
