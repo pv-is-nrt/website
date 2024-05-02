@@ -24,6 +24,13 @@ nav .nav-social-bar {
 	text-align: justify;
 }
 
+/* For light theme make the nav bar darker */
+@media (prefers-color-scheme: light) {
+	nav {
+		background-color: var(--bg-color-very-subtle);
+	}
+}
+
 /*   FOR LOW HEIGHT SCREENS
 /*=========================================================================== */
 

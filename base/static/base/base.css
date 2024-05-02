@@ -17,18 +17,18 @@ Roboto Serif: 100, 400, 700, 900
 :root {
 	--color: #000;
 	--color-subtle: #444;
-	--bg-color: #fff;
-	--bg-color-subtle: #ddd;
-	--bg-color-very-subtle: #eee;
-	--color-accent: #c92;
-	--color-accent2: #2c9;
-	--color-accent3: #c29;
+	--bg-color: #eee;
+	--bg-color-subtle: #ccc;
+	--bg-color-very-subtle: #ddd;
+	--color-accent: #960;
+	--color-accent2: #690;
+	--color-accent3: #906;
 	--color-link: #c92;
 	--shadow-very-dark: rgba(0, 0, 0, 0.3);
 	--shadow-dark: rgba(0, 0, 0, 0.2);
 	--color-selection: #000;
 	--color-bg-selection: #ed9;
-	--color-progress-bar: #6c6;
+	--color-progress-bar: #690;
 	--color-hr: #000;
 	--tiny-radius: 2px;
 	--small-radius: 5px;
@@ -52,6 +52,28 @@ Roboto Serif: 100, 400, 700, 900
 	--color-github: #979; /* custom, not the same as github logo */
 	--color-medium: #00ab6c;
 	--color-google: #4285f4;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		/* include only the ones that need to be overridden */
+		--color: #ddd;
+		--color-subtle: #aaa;
+		--bg-color: #222;
+		--bg-color-subtle: #333;
+		--bg-color-very-subtle: #282828;
+		--color-accent: #fb1;
+		--color-accent2: #696;
+		--color-accent3: #c43;
+		--color-link: #1ac;
+		--color-hr: #666;
+		--shadow-very-dark: rgba(0, 0, 0, 0.5);
+		--shadow-dark: rgba(0, 0, 0, 0.3);
+		--color-selection: #000;
+		--color-bg-selection: #960;
+		--color-progress-bar: #364;
+		--thin-font-weight: 100;
+	}
 }
 
 
