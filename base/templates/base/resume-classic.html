@@ -72,10 +72,10 @@
     <!-- Publications
     # --------------------------------------------------------------------->
     <h2>Publications</h2>
-    <p>of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. Five most recent publications are shown.</p>
+    <p>of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. A few most recent publications are shown.</p>
     <p>Please visit <a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank">Google Scholar</a> or <a href="https://www.prateekverma.com/professional/#research" target="blank">my website</a> for a complete list.</p>
     <ol reversed>
-        {% for publication in publications_featured|slice:":5" %}
+        {% for publication in publications_featured|slice:":7" %}
         <li>
             {% for author in publication.authors_list_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.publisher }}</i> ({{ publication.status }}){% if publication.issue_etc %}; {{ publication.issue_etc }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
         </li>
