@@ -20,15 +20,15 @@ Roboto Serif: 100, 400, 700, 900
 	--bg-color: #eee;
 	--bg-color-subtle: #ccc;
 	--bg-color-very-subtle: #ddd;
-	--color-accent: #960;
-	--color-accent2: #690;
-	--color-accent3: #906;
-	--color-link: #c92;
+	--color-accent: #963;
+	--color-accent2: #364;
+	--color-accent3: #568;
+	--color-link: #963;
 	--shadow-very-dark: rgba(0, 0, 0, 0.3);
 	--shadow-dark: rgba(0, 0, 0, 0.2);
 	--color-selection: #000;
 	--color-bg-selection: #ed9;
-	--color-progress-bar: #690;
+	--color-progress-bar: var(--color-accent2);
 	--color-hr: #000;
 	--tiny-radius: 2px;
 	--small-radius: 5px;
@@ -71,7 +71,6 @@ Roboto Serif: 100, 400, 700, 900
 		--shadow-dark: rgba(0, 0, 0, 0.3);
 		--color-selection: #000;
 		--color-bg-selection: #960;
-		--color-progress-bar: #364;
 		--thin-font-weight: 100;
 	}
 }
@@ -416,10 +415,9 @@ code {
 
 .fancy-text {
 	font-size: 90%;
-    font-weight: 900;
-	color: #000;
+    font-weight: 700;
+	color: var(--bg-color);
     background-color: var(--color-accent2);
-    border-bottom: solid 1pxv var(--shadow-very-dark);
     border-radius: var(--tiny-radius);
     padding: 0 0.3em;
 }

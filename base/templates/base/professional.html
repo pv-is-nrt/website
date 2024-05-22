@@ -86,16 +86,17 @@
 					<i class="fa-brands fa-orcid space-span-left color-link"></i>ORCID
 				</a>
 				<hr class="narrow">
+				<!-- TODO: change publons to web of science in database -->
 				<a href="{{ basic_info.publons_url }}" target="blank">
-					<i class="fa-solid fa-p space-span-left color-link"></i>Publons
+					<i class="fa-solid fa-flask space-span-left color-link"></i>Web of Science
 				</a>
 			</div>
 			<div class="padded card-very-thin double-spaced">
 				<h4>Some research stats</h4>
 				<hr>
-				<p><span class="fancy-text space-narrow-span-left">{{ publications|length }}</span> papers published, submitted or submitting soon</p>
-				<p><span class="fancy-text space-narrow-span-left">{{ presentations|length }}</span> presentations</p>
-				<p><span class="fancy-text space-narrow-span-left">{{ publications_published_or_submitted|length }}</span> papers published or submitted</p>
+				<p><span class="fancy-text space-narrow-span-left">{{ publications_published|length }}</span> papers published</p>
+				<p><span class="fancy-text space-narrow-span-left">{{ presentations|length }}</span> conference presentations</p>
+				<p><span class="fancy-text space-narrow-span-left">{{ publications|length }}</span> papers published, submitted or in preparation</p>
 				<p><span class="fancy-text space-narrow-span-left">{{ publications_first_author|length }}</span> first-author papers</p>
 			</div>
 		</section>
