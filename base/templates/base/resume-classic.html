@@ -59,12 +59,14 @@
     {% regroup skills_categories by group as category_groups %}
     {% for group in category_groups %}
         {% for category in group.list %}
+        {% if category.name != "Lab Techniques" %}
             <p>
             <b>{{ category }}</b> &ndash; 
-            {% for skill in category.skill_set.all|dictsortreversed:"start_year" %}
-                {{ skill.short_name|capfirst|default:skill.name|capfirst }}{% if not forloop.last %}, {% else %}.{% endif %}
+            {% for skill in category.skill_set.all|dictsortreversed:"score" %}
+                {{ skill.short_name|default:skill.name }}{% if not forloop.last %}, {% else %}.{% endif %}
             {% endfor %}
             </p>
+        {% endif %}
         {% endfor %}
     {% endfor %}
     
@@ -72,7 +74,7 @@
     <!-- Publications
     # --------------------------------------------------------------------->
     <h2>Publications</h2>
-    <p>of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. A few most recent publications are shown.</p>
+    <p>of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. A few of the most recent publications are shown.</p>
     <p>Please visit <a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank">Google Scholar</a> or <a href="https://www.prateekverma.com/professional/#research" target="blank">my website</a> for a complete list.</p>
     <ol reversed>
         {% for publication in publications_featured|slice:":7" %}
@@ -101,8 +103,8 @@
     <h2>Service</h2>
     <p><b>Research advising</b> &ndash; Advised the research of a total of {{ advisings|length }} undergraduate and graduate students and industry members.</p>
     <p><b>Mentorship</b> &ndash; Served as a mentor for Mentor Jackets, MSE Industry Mentoring and IITR's Alumni Mentorship Program for a total of {{ mentorings|length }} members.</p>
-    <p><b>Teaching</b> &ndash; Taught a total of {{ teachings|length }} lectures and labs.</p>
-    <p><b>Scientific Reviewing</b> &ndash; Reviewed manuscripts for a total of {{ reviews|length }} scientific journals.</p>
+    <p><b>Teaching</b> &ndash; Taught {{ teachings|length }}+ lectures, labs and workshops.</p>
+    <p><b>Scientific Reviewing</b> &ndash; Reviewed 20+ manuscripts for {{ reviews|length }}+ scientific journals.</p>
     <p><b>Research funding</b> &ndash; Contributed to the planning, writing, editing and/or review of {{ proposals|length }} research funding proposals securing ~$500,000 in awards.</p>
 
 
