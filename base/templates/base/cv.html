@@ -644,11 +644,13 @@
 						<h2>Scientific reviewing</h2>
 					</div>
 					<div class="item">
-						Reviewed manuscripts for the following journals: 
+						Reviewed <span class="fancy-number">34</span> manuscripts for the following select journals: 
 					</div>
 					<ul>
 					{% for review in reviews %}
+					{% if review.featured %}
 						<li>{{ review.publication }}</li>
+					{% endif %}
 					{% endfor %}
 					</ul>
 				</div>
