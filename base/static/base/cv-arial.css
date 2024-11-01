@@ -1,58 +1,11 @@
 body {
-    font-family: sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6, .heading-row, .group-row {
-    text-transform: none;
-    font-family: 'Georgia', sans-serif;
-}
-
-h1 {
-    font-family: 'Trebuchet MS', 'Georgia', sans-serif;
-    font-size: 2em;
-    font-weight: bold;
-    letter-spacing: 0.05em;
-}
-
-h2 {
-    font-size: 1.2em;
-    letter-spacing: 0.02em;
-}
-
-h3 {
-    font-size: 1em;
-    letter-spacing: 0.0em;
-}
-
-.page-1 .header-left p {
-    /* applies to the tagline */
-    font-family: 'Arial', sans-serif;
-    text-transform: none;
-    letter-spacing: 0.02em;
-    font-weight: normal;
-    font-size: 1em;
-}
-
-.page-1 .header-right p {
-    font-family: 'Georgia', sans-serif;
-    letter-spacing: 0.2em;
-    font-weight: normal;
-    font-size: 0.75em;
-}
-
-.heading-row {
-    letter-spacing: 0;
+  font-family: "Arial", sans-serif;
 }
 
 .skillset-group {
-    /* not sure why I had to tweak this but was needed to keep all four groups together */
-    width: 1.79in;
-}
-.skillset h3 {
-    font-size: 0.9em;
-    font-weight: bold;
+  width: 1.79in;
 }
 
 .skill-item {
-    font-weight: normal;
+  font-weight: normal;
 }
