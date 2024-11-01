@@ -357,16 +357,3 @@ def cv_classic(request):
 
     context = resume_cv_context
     return render(request, 'base/cv-classic.html', context)
-
-
-#    Arial Resume and CV page
-# ---------------------------------------------------------------------------- #
-
-def cv_arial(request):
-    
-        # ADD USER VISIT INFO TO DATABASE
-        # -------------------------------------------#
-        core.add_user_info_to_database(Analytic(), request, '/cv-arial')
-    
-        context = resume_cv_context
-        return render(request, 'base/cv-arial.html', context)

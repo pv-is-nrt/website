@@ -5,6 +5,10 @@
   --item-vgap: 0.2in;
 }
 
+body {
+  font-family: "Arial", sans-serif;
+}
+
 .page-1 .module-heading {
   margin-bottom: 0.15in; /* fine-tuned */
 }
@@ -19,4 +23,12 @@
 .mentoring .item,
 .reviews .item {
   margin-bottom: 0.07in; /* fine-tuned */
+}
+
+.skillset-group {
+  width: 1.79in;
+}
+
+.skill-item {
+  font-weight: normal;
 }
