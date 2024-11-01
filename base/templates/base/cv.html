@@ -459,27 +459,24 @@
 		<header></header>
 
 		<div class="page-body">
-	
-			<!-- Teaching
+
+			<!-- Proposals / Research funding
 			# ------------------------------------------------------------->
-			<div class="teaching module">
+		
+			<div class="proposals module">
 				<div class="module-heading">
-					<h2>Teaching experience</h2>
+					<h2>Research funding</h2>
 				</div>
-				<div class="heading-row">
-					<div class="col-year">Year</div>
-					<div class="col-course">Course</div>
-					<div class="col-school">School</div>
-					<div class="col-topic">Topic</div>
+				<p class="item">Contributed to the planning, writing, editing and/or review of the following research funding proposals.</p>
+				<div class="item">
+					<ol>
+					{% for proposal in proposals %}
+						<li>
+							{% if proposal.status == "awarded" %}<span class="status">{{ proposal.status|capfirst }}, </span>{% endif %}<span class="title">{{ proposal.title|safe }}</span><span class="agency">, {{ proposal.agency }}</span><span class="pi">, PI: {{ proposal.pi }}</span><span class="date">, {{ proposal.year }}</span>
+						</li>
+					{% endfor %}
+					</ol>
 				</div>
-				{% for teaching in teachings %}
-				<div class="row">
-					<div class="col-year">{{ teaching.year }}</div>
-					<div class="col-course">{{ teaching.course_code }}</div>
-					<div class="col-school">{{ teaching.organization.short_name }}</div>
-					<div class="col-topic">{{ teaching.position }} / {{ teaching.topic|default:teaching.course_name|safe }}</div>
-				</div>
-				{% endfor %}
 			</div>
 
 			<!-- Advising
@@ -533,24 +530,27 @@
 		<header></header>
 
 		<div class="page-body">
-
-			<!-- Proposals / Research funding
+	
+			<!-- Teaching
 			# ------------------------------------------------------------->
-		
-			<div class="proposals module">
+			<div class="teaching module">
 				<div class="module-heading">
-					<h2>Research funding</h2>
+					<h2>Teaching experience</h2>
 				</div>
-				<p class="item">Contributed to the planning, writing, editing and/or review of the following research funding proposals.</p>
-				<div class="item">
-					<ol>
-					{% for proposal in proposals %}
-						<li>
-							{% if proposal.status == "awarded" %}<span class="status">{{ proposal.status|capfirst }}, </span>{% endif %}<span class="title">{{ proposal.title|safe }}</span><span class="agency">, {{ proposal.agency }}</span><span class="pi">, PI: {{ proposal.pi }}</span><span class="date">, {{ proposal.year }}</span>
-						</li>
-					{% endfor %}
-					</ol>
+				<div class="heading-row">
+					<div class="col-year">Year</div>
+					<div class="col-course">Course</div>
+					<div class="col-school">School</div>
+					<div class="col-topic">Topic</div>
 				</div>
+				{% for teaching in teachings %}
+				<div class="row">
+					<div class="col-year">{{ teaching.year }}</div>
+					<div class="col-course">{{ teaching.course_code }}</div>
+					<div class="col-school">{{ teaching.organization.short_name }}</div>
+					<div class="col-topic">{{ teaching.position }} / {{ teaching.topic|default:teaching.course_name|safe }}</div>
+				</div>
+				{% endfor %}
 			</div>
 	
 			<!-- Mentoring
