@@ -249,7 +249,7 @@
 					<!-- Published -->
 					<!-- <h3>{{ group.grouper|capfirst }}</h3> -->
 					<ol start="{{ group.list|length }}" reversed>
-						{% for publication in group.list|slice:":7" %}
+						{% for publication in group.list|slice:":6" %}
 						<li>
 							<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 							<!-- <span class="pub-counter">{{ forloop.revcounter }}.</span> -->
@@ -302,8 +302,8 @@
 					{% if group.grouper == 'published' %}
 					<!-- Published -->
 					<!-- <h3>{{ group.grouper|capfirst }}</h3> -->
-					<ol start="{{ group.list|length|add:-7 }}" reversed>
-						{% for publication in group.list|slice:"7:" %}
+					<ol start="{{ group.list|length|add:-6 }}" reversed>
+						{% for publication in group.list|slice:"6:" %}
 						<li>
 							<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
 							<!-- <span class="pub-counter">{{ forloop.revcounter }}.</span> -->
