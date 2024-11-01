@@ -568,7 +568,7 @@
 				{% regroup mentorings by degree_type as mentoring_groups %}
 				{% for group in mentoring_groups %}
 				<div class="mentoring-group">
-					<div class="row group-row">{{ group.grouper }}</div>
+					<!-- <div class="row group-row">{{ group.grouper }}</div> -->
 					{% for mentoring in group.list %}
 					<div class="row">
 						<div class="col-name">{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ mentoring.name }}{% else %}{{ mentoring.get_first_name }}{% endif %}</div>
