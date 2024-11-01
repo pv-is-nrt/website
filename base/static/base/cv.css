@@ -1,27 +1,22 @@
 /* used as an extension of resume.css */
 
 :root {
-    --accent-color: #c93;
-    --item-vgap: 0.2in;
+  --accent-color: #c93;
+  --item-vgap: 0.2in;
 }
 
 .page-1 .module-heading {
-    margin-bottom: 0.15in; /* fine-tuned */
+  margin-bottom: 0.15in; /* fine-tuned */
 }
-    .page-1 .experience .item {
-        margin-bottom: 0.14in; /* fine-tuned */
-    }
-
-.publications h3 {
-    margin-left: -0.13in; /* fine-tuned */
-    margin-top: 0.15in; /* fine-tuned */
+.page-1 .experience .item {
+  margin-bottom: 0.14in; /* fine-tuned */
 }
 
 .publications .item,
 .presentations .item,
 .proposals .item,
-.advising .item, 
+.advising .item,
 .mentoring .item,
-.reviews .item { 
-    margin-bottom: 0.07in; /* fine-tuned */
+.reviews .item {
+  margin-bottom: 0.07in; /* fine-tuned */
 }

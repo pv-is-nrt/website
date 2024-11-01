@@ -242,23 +242,25 @@
 					<h2>Publications</h2>
 				</div>
 				<p class="item">In the list of <span class="fancy-number">{{ publications|length }}</span> total, <span class="fancy-number">{{ publications_published_or_submitted|length }}</span> are published or submitted and <span class="fancy-number">{{ publications_first_author|length }}</span> are first-author papers (<a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank" class="scholar-link">Google Scholar link</a>)</p>
-
-				<!-- submitted or submitting next -->
-				<ul>
+				<div class="item">
 					{% regroup publications by status as publications_status_groups %}
 					{% for group in publications_status_groups %}
-					{% if group.grouper == 'under review / submitted' or group.grouper == 'submitting next' %}
+					{% if group.grouper == 'published' %}
+					<!-- Published -->
 					<h3>{{ group.grouper|capfirst }}</h3>
-					{% for publication in group.list %}
-					<li>
-						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
-						<span class="authors">
-						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span>{% if group.grouper == 'under review / submitted' %}<span class="publisher">; {{ publication.publisher }}</span>{% endif %}{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
-					</li>
-					{% endfor %}
+					<ol start="{{ group.list|length }}" reversed>
+						{% for publication in group.list|slice:":7" %}
+						<li>
+							<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
+							<!-- <span class="pub-counter">{{ forloop.revcounter }}.</span> -->
+							<span class="authors">
+							{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						</li>
+						{% endfor %}
+					</ol>
 					{% endif %}
 					{% endfor %}
-				</ul>
+				</div>
 				
 			</div>
 
@@ -294,37 +296,44 @@
 			<!-- Publications (continued)
 			# ------------------------------------------------------------->
 			<div class="publications module">
-				<!-- Published -->
-				<ul>
+				<div class="item">
 					{% regroup publications by status as publications_status_groups %}
 					{% for group in publications_status_groups %}
 					{% if group.grouper == 'published' %}
-					<h3>{{ group.grouper|capfirst }}</h3>
-					{% for publication in group.list %}
-					<li>
-						<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
-						<span class="pub-counter">{{ forloop.revcounter }}.</span><span class="authors">
-						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
-					</li>
-					{% endfor %}
+					<!-- Published -->
+					<!-- <h3>{{ group.grouper|capfirst }}</h3> -->
+					<ol start="{{ group.list|length|add:-7 }}" reversed>
+						{% for publication in group.list|slice:"7:" %}
+						<li>
+							<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
+							<!-- <span class="pub-counter">{{ forloop.revcounter }}.</span> -->
+							<span class="authors">
+							{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						</li>
+						{% endfor %}
+					</ol>
 					{% endif %}
 					{% endfor %}
-				</ul>
-				<!-- in progress (hidden temporarily) 
-				<ul>
+				</div>
+
+				<div class="item">
+					<!-- submitted or submitting next -->
 					{% regroup publications by status as publications_status_groups %}
 					{% for group in publications_status_groups %}
-					{% if group.grouper == 'in progress' %}
+					{% if group.grouper == 'under review / submitted' or group.grouper == 'submitting next' %}
 					<h3>{{ group.grouper|capfirst }}</h3>
-					{% for publication in group.list %}
-					<li>
-						<span class="authors">
-						{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span><span class="publisher">; {{ publication.publisher }}</span>{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
-					</li>
-					{% endfor %}
+					<ol start="{{ group.list|length }}" reversed>
+						{% for publication in group.list %}
+						<li>
+							<!-- unfortunately spans need to be all on one line, else they introduce a space in between -->
+							<span class="authors">
+							{% for author in publication.authors_list_short %}{% if author == "P Verma" %}<span class="prateek-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ publication.title|safe }}</span>{% if group.grouper == 'under review / submitted' %}<span class="publisher">; {{ publication.publisher }}</span>{% endif %}{% if publication.issue_etc %}<span class="issue_etc">; {{ publication.issue_etc }}</span>{% endif %}; <span class="date">{{ publication.date|date:"Y" }}</span>{% if publication.comment %}<span class="comment">; ({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						</li>
+						{% endfor %}
+					</ol>
 					{% endif %}
 					{% endfor %}
-				</ul> -->
+				</div>
 			</div>
 
 			<!-- Presentations
@@ -334,13 +343,15 @@
 					<h2>Presentations</h2>
 				</div>
 				<p class="item">Speakers are italicized</p>
-				<ul>
-				{% for presentation in presentations|slice:":6" %}
-					<li>
-						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
-					</li>
-				{% endfor %}
-				</ul>
+				<div class="item">
+					<ol start="{{ presentations|length }}" reversed>
+					{% for presentation in presentations|slice:":6" %}
+						<li>
+							<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						</li>
+					{% endfor %}
+					</ol>
+				</div>
 			</div>
 
 		</div>
@@ -376,13 +387,15 @@
 			# ------------------------------------------------------------->
 			<div class="presentations module">
 				<!-- no heading, because presentations continuing -->
-				<ul>
-				{% for presentation in presentations|slice:"6:" %}
-					<li>
-						<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
-					</li>
-				{% endfor %}
-				</ul>
+				<div class="item">
+					<ol start="{{ presentations|length|add:-6 }}" reversed>
+					{% for presentation in presentations|slice:"6:" %}
+						<li>
+							<span class="authors">{% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<span class="speaker-author">{{ author }}</span>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}</span><span class="title">; {{ presentation.title|safe }}</span><span class="location">; {{ presentation.city }} (<span class="country">{{ presentation.country }}</span>)</span>{% if presentation.issue_etc %}<span class="issue_etc">; {{ presentation.issue_etc }}</span>{% endif %}; <span class="date">{{ presentation.date|date:"Y" }}</span>{% if presentation.comment %}<span class="comment">; ({{ presentation.comment }})</span>{% endif %}{% if presentation.link %} <a href={{ presentation.link }} target="blank"><span class="material-icons md-small-right">link</span></a>{% endif %}
+						</li>
+					{% endfor %}
+					</ol>
+				</div>
 			</div>
 
 			<!-- Honors and Awards
@@ -391,12 +404,15 @@
 				<div class="module-heading">
 					<h2>Honors and awards</h2>
 				</div>
-				<ol>
-				{% for awards in honor_and_awards %}
-				<li>
-					<span class="title">{{ awards.title|safe }}</span><span class="agency"> / {{ awards.organization.short_name }}</span><span class="date"> / {{ awards.start_date|date:"Y" }}{% if awards.end_date %} &ndash; {{ awards.end_date|date:"Y" }}{% endif %}</span>
-				</li>
-				{% endfor %}
+				<div class="item">
+					<ol>
+					{% for awards in honor_and_awards %}
+					<li>
+						<span class="title">{{ awards.title|safe }}</span><span class="agency"> / {{ awards.organization.short_name }}</span><span class="date"> / {{ awards.start_date|date:"Y" }}{% if awards.end_date %} &ndash; {{ awards.end_date|date:"Y" }}{% endif %}</span>
+					</li>
+					{% endfor %}
+					</ol>
+				</div>
 			</div>
 
 			<!-- Leadership
@@ -405,12 +421,15 @@
 				<div class="module-heading">
 					<h2>Leadership</h2>
 				</div>
-				<ol>
-				{% for leadership in leaderships %}
-					<li>
-						<span class="title">{{ leadership.title|safe }}</span><span class="agency"> / {{ leadership.organization.short_name }}</span><span class="date"> / {{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</span>
-					</li>
-				{% endfor %}
+				<div class="item">
+					<ol>
+					{% for leadership in leaderships %}
+						<li>
+							<span class="title">{{ leadership.title|safe }}</span><span class="agency"> / {{ leadership.organization.short_name }}</span><span class="date"> / {{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</span>
+						</li>
+					{% endfor %}
+					</ol>
+				</div>
 			</div>
 
 		</div>
@@ -450,13 +469,15 @@
 					<h2>Research funding</h2>
 				</div>
 				<p class="item">Contributed to the planning, writing, editing and/or review of the following research funding proposals.</p>
-				<ol>
-				{% for proposal in proposals %}
-					<li>
-						{% if proposal.status == "awarded" %}<span class="status">{{ proposal.status|capfirst }}, </span>{% endif %}<span class="title">{{ proposal.title|safe }}</span><span class="agency">, {{ proposal.agency }}</span><span class="pi">, PI: {{ proposal.pi }}</span><span class="date">, {{ proposal.year }}</span>
-					</li>
-				{% endfor %}
-				</ol>
+				<div class="item">
+					<ol>
+					{% for proposal in proposals %}
+						<li>
+							{% if proposal.status == "awarded" %}<span class="status">{{ proposal.status|capfirst }}, </span>{% endif %}<span class="title">{{ proposal.title|safe }}</span><span class="agency">, {{ proposal.agency }}</span><span class="pi">, PI: {{ proposal.pi }}</span><span class="date">, {{ proposal.year }}</span>
+						</li>
+					{% endfor %}
+					</ol>
+				</div>
 			</div>
 
 			<!-- Advising

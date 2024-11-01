@@ -9,105 +9,112 @@ Roboto Serif: 100, 200, 300, 400, 500, 600, 700, 800, 900
 
 /* set an accent color variable */
 :root {
-    --accent-color: #d44;
-    --page-width: 8.5in;
-    --page-height: 11in;
-    --page-side-margin: 0.6in;
-    --module-gap: 0.25in;
-    --item-vgap: 0.2in;
-    --item-lgap: 0.05in;
+  --accent-color: #d44;
+  --page-width: 8.5in;
+  --page-height: 11in;
+  --page-side-margin: 0.6in;
+  --module-gap: 0.25in;
+  --item-vgap: 0.2in;
+  --item-lgap: 0.05in;
 }
-
 
 /*   TAGS APPLICABLE TO ENTIRE (MAJORITY) OF DOCUMENT
 /*=========================================================================== */
 
 ::selection {
-	color: inherit;
-	background: var(--accent-color);
+  color: inherit;
+  background: var(--accent-color);
 }
 
 body {
-    width: var(--page-width); /* setting this property to page class hides the shadow and centering etc., so it's better here */
-    margin: 0 auto;
-    font-family: 'Roboto', sans-serif;
-    font-size: 9pt;
-    line-height: 1.5em;
-    box-shadow: 0 0 0.1in 0.05in rgba(0, 0, 0, 0.3);
+  width: var(
+    --page-width
+  ); /* setting this property to page class hides the shadow and centering etc., so it's better here */
+  margin: 0 auto;
+  font-family: "Roboto", sans-serif;
+  font-size: 9pt;
+  line-height: 1.5em;
+  box-shadow: 0 0 0.1in 0.05in rgba(0, 0, 0, 0.3);
 }
 
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Roboto Serif', serif;
-    text-transform: uppercase;
-    letter-spacing: 0.35em;
-    font-weight: 900;
-    margin: 0;
-    padding: 0;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Roboto Serif", serif;
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-weight: 900;
+  margin: 0;
+  padding: 0;
 }
 
-h1 { 
-    /* used for the name */
-    color: var(--accent-color);
-    font-size: 1.5em;
-    margin-bottom: 0.15in;
+h1 {
+  /* used for the name */
+  color: var(--accent-color);
+  font-size: 1.5em;
+  margin-bottom: 0.15in;
 }
 h2 {
-    /* used for module headings */
-    font-size: 0.95em;
-    letter-spacing: 0.25em;
-    grid-area: h2;
-    margin-bottom: 0.0in; /* h2 only appears inside a grid so the space is better controlled using grids */
+  /* used for module headings */
+  font-size: 0.95em;
+  letter-spacing: 0.25em;
+  grid-area: h2;
+  margin-bottom: 0in; /* h2 only appears inside a grid so the space is better controlled using grids */
 }
 h3 {
-    font-size: 0.85em;
-    letter-spacing: 0.15em;
-    margin-bottom: 0.03in;
+  font-size: 0.85em;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.03in;
 }
 h4 {
-    letter-spacing: 0.1em;
-    font-size: 0.8em;
+  letter-spacing: 0.1em;
+  font-size: 0.8em;
 }
 h5 {
-    letter-spacing: 0.1em;
-    font-size: 0.75em;
+  letter-spacing: 0.1em;
+  font-size: 0.75em;
 }
 
 ol {
-    padding-left: 0.2in; /* 0.18in aligns it with the 0.05 left padding */
+  padding-left: 0.2in; /* 0.18in aligns it with the 0.05 left padding */
 }
 ul {
-    list-style-type: '−'; /* this is a minus sign U2212 */
-    padding-left: 0.1in;
+  list-style-type: "−"; /* this is a minus sign U2212 */
+  padding-left: 0.1in;
 }
 li {
-    padding-left: 0.05in;
-    margin-bottom: 0.2em; /* better than line height, because this keeps multi-lines in a list together */
+  padding-left: 0.05in;
+  margin-bottom: 0.2em; /* better than line height, because this keeps multi-lines in a list together */
 }
 
 a {
-    color: inherit;
-    text-decoration: dotted;
+  color: inherit;
+  text-decoration: dotted;
 }
 
 header {
-    grid-area: header;
-    margin-bottom: 0.3in; /* slightly larger than gap between modules */
+  grid-area: header;
+  margin-bottom: 0.3in; /* slightly larger than gap between modules */
 }
 
 footer {
-    color: #666;
-    background-color: #eee;
-    display: grid; /* 3 children inside */
-    grid-area: footer;
-    grid-template-columns: calc(var(--page-width) / 3) auto calc(var(--page-width) / 3); /* roughly divide the page in thirds */
-    grid-template-rows: 0.6in 0.09in; /* 0.092 instead of 0.1 helps with no extra page during printing */
-    grid-template-areas: 
+  color: #666;
+  background-color: #eee;
+  display: grid; /* 3 children inside */
+  grid-area: footer;
+  grid-template-columns: calc(var(--page-width) / 3) auto calc(
+      var(--page-width) / 3
+    ); /* roughly divide the page in thirds */
+  grid-template-rows: 0.6in 0.09in; /* 0.092 instead of 0.1 helps with no extra page during printing */
+  grid-template-areas:
     "footer-left footer-center footer-right"
     "footer-border footer-border footer-border";
-    align-items: center; /* aligns the text in the middle of the row */
-    border-top: solid 1px #ddd;
+  align-items: center; /* aligns the text in the middle of the row */
+  border-top: solid 1px #ddd;
 }
-
 
 /*   COMMONLY USED CLASSES
 /*=========================================================================== */
@@ -115,314 +122,305 @@ footer {
 /*    PAGE RELATED
 /* ------------------------------------------------------------------ */
 .page {
-    display: grid;
-    /* it will be better to have left-right margins within sections */
-    grid-template-rows: 0.7in calc(var(--page-height) - 1.4in) 0.7in;
-    grid-template-areas:
-        "header"
-        "page-body"
-        "footer";
-    }
+  display: grid;
+  /* it will be better to have left-right margins within sections */
+  grid-template-rows: 0.7in calc(var(--page-height) - 1.4in) 0.7in;
+  grid-template-areas:
+    "header"
+    "page-body"
+    "footer";
+}
 .page-body {
-    margin: 0 var(--page-side-margin); /* 0.6in or something like that */
-    grid-area: page-body;
+  margin: 0 var(--page-side-margin); /* 0.6in or something like that */
+  grid-area: page-body;
 }
 .page-1 {
-    /* make the header taller than on the other pages */
-    grid-template-rows: 1.5in calc(var(--page-height) - (1.5in + 0.7in)) 0.7in;
+  /* make the header taller than on the other pages */
+  grid-template-rows: 1.5in calc(var(--page-height) - (1.5in + 0.7in)) 0.7in;
 }
-    .page-1 header {
-        /* page 1's the only header with content in it */
-        display: grid; /* 2 children inside */
-        grid-template-columns: 0.6in auto 2in 0.6in;
-        align-items: center; /* aligns the text in the middle of the row */
-        grid-template-areas:
-            ". header-left header-right .";
-        border-bottom: solid 1px var(--accent-color);
-    }
-        .page-1 .header-left {
-            grid-area: header-left;
-        }
-            .page-1 .header-left p {
-                /* applies to the tagline */
-                font-family: 'Roboto Serif', serif;
-                text-transform: uppercase;
-                font-weight: 900;
-                font-size: 0.8em;
-                line-height: 0.8em;
-                letter-spacing: 2pt;
-            }
-        .page-1 .header-right {
-            grid-area: header-right;
-        }
-            .page-1 .header-right p {
-                /* applies to the contact section */
-                font-family: 'Roboto Serif', serif;
-                text-transform: uppercase;
-                font-weight: bold;
-                font-size: 0.65em;
-                line-height: 2em;
-                letter-spacing: 2pt;
-            }
+.page-1 header {
+  /* page 1's the only header with content in it */
+  display: grid; /* 2 children inside */
+  grid-template-columns: 0.6in auto 2in 0.6in;
+  align-items: center; /* aligns the text in the middle of the row */
+  grid-template-areas: ". header-left header-right .";
+  border-bottom: solid 1px var(--accent-color);
+}
+.page-1 .header-left {
+  grid-area: header-left;
+}
+.page-1 .header-left p {
+  /* applies to the tagline */
+  font-family: "Roboto Serif", serif;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 0.8em;
+  line-height: 0.8em;
+  letter-spacing: 2pt;
+}
+.page-1 .header-right {
+  grid-area: header-right;
+}
+.page-1 .header-right p {
+  /* applies to the contact section */
+  font-family: "Roboto Serif", serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.65em;
+  line-height: 2em;
+  letter-spacing: 2pt;
+}
 .page-two-columns .page-body {
-    display: grid;
-    /* margin on 0.6in on each side has already been set in page-body class */
-    grid-template-columns: auto 2.6in; /* right-side is 2.6in */
-    grid-template-areas:
-        "left-area right-area";
+  display: grid;
+  /* margin on 0.6in on each side has already been set in page-body class */
+  grid-template-columns: auto 2.6in; /* right-side is 2.6in */
+  grid-template-areas: "left-area right-area";
 }
-.page-hybrid-columns .left-area { 
-    /* margin already set */
-    width: 4.6in; /* trial and error */
-    display: inline-block;
-    vertical-align: top;
+.page-hybrid-columns .left-area {
+  /* margin already set */
+  width: 4.6in; /* trial and error */
+  display: inline-block;
+  vertical-align: top;
 }
 .page-hybrid-columns .right-area {
-    /* margin already set */
-    width: 2.4in; /* matches 1st page */
-    display: inline-block;
-    vertical-align: top;
+  /* margin already set */
+  width: 2.4in; /* matches 1st page */
+  display: inline-block;
+  vertical-align: top;
 }
 .left-area {
-    grid-area: left-area;
-    margin-right: 0.1in; /* for the center gap of 0.2in */
+  grid-area: left-area;
+  margin-right: 0.1in; /* for the center gap of 0.2in */
 }
 .right-area {
-    grid-area: right-area;
-    margin-left: 0.1in; /* for the center gap of 0.2in */
+  grid-area: right-area;
+  margin-left: 0.1in; /* for the center gap of 0.2in */
 }
-    .right-area .item {
-        margin-bottom: 0.1in;
-    }
+.right-area .item {
+  margin-bottom: 0.1in;
+}
 
 /* ---------------------------------------------------------- */
 .module {
-    margin-bottom: var(--module-gap);
+  margin-bottom: var(--module-gap);
 }
-    .module-heading {
-        display: grid;
-        grid-template-columns: auto 0.3in;
-        grid-template-areas: 
-        "h2 h2-right";
-        margin-bottom: var(--item-vgap);
-        padding: 0 var(--item-lgap) 0.07in; /* bottom margin assigned here instead of to h element */
-        border-bottom: solid 1px var(--accent-color);
-        align-items: center; /* aligns the icon with the text */
-    }
+.module-heading {
+  display: grid;
+  grid-template-columns: auto 0.3in;
+  grid-template-areas: "h2 h2-right";
+  margin-bottom: var(--item-vgap);
+  padding: 0 var(--item-lgap) 0.07in; /* bottom margin assigned here instead of to h element */
+  border-bottom: solid 1px var(--accent-color);
+  align-items: center; /* aligns the icon with the text */
+}
 
 .item {
-    /* items within modules */
-    margin-bottom: var(--item-vgap);
-    padding-left: var(--item-lgap);
+  /* items within modules */
+  margin-bottom: var(--item-vgap);
+  padding-left: var(--item-lgap);
 }
 
 .fancy-number {
-    font-weight: bold; /* bold is better than 700 */
-    border-bottom: solid 1px var(--accent-color);
-    /* border-radius: 0.3em; */
-    padding: 0 0.03in;
+  font-weight: bold; /* bold is better than 700 */
+  border-bottom: solid 1px var(--accent-color);
+  /* border-radius: 0.3em; */
+  padding: 0 0.03in;
 }
 
 /* FOOTER */
 .footer-left {
-    grid-area: footer-left;
-    padding-left: 0.5in; /* note that this is slightly less than page side margin */
+  grid-area: footer-left;
+  padding-left: 0.5in; /* note that this is slightly less than page side margin */
 }
 .footer-center {
-    grid-area: footer-center;
-    text-align: center;
+  grid-area: footer-center;
+  text-align: center;
 }
 .footer-right {
-    grid-area: footer-right;
-    padding-right: 0.5in; /* note that this is slightly less than page side margin */
-    text-align: right;
+  grid-area: footer-right;
+  padding-right: 0.5in; /* note that this is slightly less than page side margin */
+  text-align: right;
 }
 .footer-border {
-    height: 100%; /* note that the grid row height is about 0.09in instead of 0.1in, which prevents an extra blank page created during printing */
-    background-color: #555;
-    grid-area: footer-border;
+  height: 100%; /* note that the grid row height is about 0.09in instead of 0.1in, which prevents an extra blank page created during printing */
+  background-color: #555;
+  grid-area: footer-border;
 }
 
 /* UNICODE AND MATERIAL ICONS */
 .material-icons.md-normal {
-    font-size: 1.4em;
-    line-height: inherit;
-    color: inherit;
-    margin-right: 0.1in;
-    vertical-align: middle;
+  font-size: 1.4em;
+  line-height: inherit;
+  color: inherit;
+  margin-right: 0.1in;
+  vertical-align: middle;
 }
 .material-icons.md-small-right {
-    font-size: 1.2em;
-    line-height: inherit;
-    color: inherit;
-    margin-left: 0.02in;
-    vertical-align: middle;
+  font-size: 1.2em;
+  line-height: inherit;
+  color: inherit;
+  margin-left: 0.02in;
+  vertical-align: middle;
 }
 .material-icons.md-small-left {
-    font-size: 1.0em;
-    line-height: inherit;
-    color: inherit;
-    margin-right: 0.02in;
-    vertical-align: middle;
+  font-size: 1em;
+  line-height: inherit;
+  color: inherit;
+  margin-right: 0.02in;
+  vertical-align: middle;
 }
 .material-icons.h2-right {
-    grid-area: h2-right;
-    font-size: 1.4em;
-    line-height: inherit;
-    justify-self: right;
+  grid-area: h2-right;
+  font-size: 1.4em;
+  line-height: inherit;
+  justify-self: right;
 }
 
-    
 /*   SPECIFIC CLASSES (roughly in order of appearance)
 /*=========================================================================== */
 
 /* skillsets sidebar */
 .sidebar-skills .item {
-    padding-right: 0.05in; /* bring it in a lil bit */
-    margin-bottom: 0.05in;
+  padding-right: 0.05in; /* bring it in a lil bit */
+  margin-bottom: 0.05in;
 }
 .sidebar-progress-bar-container {
-    height: 1px;
-    background-color: #ccc;
+  height: 1px;
+  background-color: #ccc;
 }
 .sidebar-progress-bar {
-    height: 100%;
-    background-color: #555;
+  height: 100%;
+  background-color: #555;
 }
 .sidebar-progress-bar-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 5px;
-    background-color: #555;
-    position: relative;
-    top: -2px;
-    left: calc(100% - 4px); /* so that the dot does not go beyond the bar by much, but enough to completely cover it */
+  width: 5px;
+  height: 5px;
+  border-radius: 5px;
+  background-color: #555;
+  position: relative;
+  top: -2px;
+  left: calc(
+    100% - 4px
+  ); /* so that the dot does not go beyond the bar by much, but enough to completely cover it */
 }
 
 /* ---------------------------------------------------------- */
 
 .statement p {
-    padding-left: var(--item-lgap);
+  padding-left: var(--item-lgap);
 }
 
 /* ---------------------------------------------------------- */
 
-.education .gpa, .education .date {
-    font-size: 0.95em; /* fine tuning */
+.education .gpa,
+.education .date {
+  font-size: 0.95em; /* fine tuning */
 }
 
 /* ---------------------------------------------------------- */
 
 .experience h3 .organization {
-    font-size: 0.9em; /* just subdues the organization a bit */
+  font-size: 0.9em; /* just subdues the organization a bit */
 }
-    .experience .supervisor_and_date {
-        font-weight: 500; /* does not really look different */
-        margin-bottom: 0.03in;
-    }
+.experience .supervisor_and_date {
+  font-weight: 500; /* does not really look different */
+  margin-bottom: 0.03in;
+}
 
 /* ---------------------------------------------------------- */
 
 .highlights {
-    padding-left: var(--item-lgap);
+  padding-left: var(--item-lgap);
 }
 
 /* ---------------------------------------------------------- */
 
 .sidebar-awards .item {
-    margin-bottom: 0.0in;
+  margin-bottom: 0in;
 }
 .sidebar-awards .year {
-    margin-right: 0.1in;
-    font-weight: bold;
-    font-size: 0.95em; /* numbers look too big otherwise */
+  margin-right: 0.1in;
+  font-weight: bold;
+  font-size: 0.95em; /* numbers look too big otherwise */
 }
 
 /* ---------------------------------------------------------- */
 
 .leadership .item {
-    margin-bottom: 0.07in;
+  margin-bottom: 0.07in;
 }
 
 /* ---------------------------------------------------------- */
 
 .publications .prateek-author {
-    font-weight: bold;
+  font-weight: bold;
 }
 .publications .publisher {
-    font-style: italic;
+  font-style: italic;
 }
 .publications .date {
-    font-weight: bold;
-}
-.publications ul {
-    padding-left: 0.18in;
+  font-weight: bold;
 }
 .publications li {
-    font-size: 0.9em;
-    list-style: '\2712';
-    padding-left: 0.1in;
+  font-size: 0.9em;
+  /* list-style: '\2712'; */
 }
 
 /* ---------------------------------------------------------- */
-    
+
 .presentations .date {
-    font-weight: bold;
+  font-weight: bold;
 }
 .presentations .country {
-    font-size: 0.8em;
-    text-transform: uppercase;
-    font-weight: bold;
-}
-.presentations ul {
-    padding-left: 0.18in;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 .presentations li {
-    font-size: 0.9em;
-    list-style: '\1F4E3';
-    padding-left: 0.1in;
+  font-size: 0.9em;
+  /* list-style: "\1F4E3"; */
 }
 .speaker-author {
-    font-style: italic;
+  font-style: italic;
 }
 
 /* ---------------------------------------------------------- */
 
 .skillset-group {
-    display: inline-block;
-    padding: 0 0.05in;
-    width: 1.8in;
-    vertical-align: top;
+  display: inline-block;
+  padding: 0 0.05in;
+  width: 1.8in;
+  vertical-align: top;
 }
-    .skillset-group .skillset {
-        margin-bottom: 0.15in;
-    }
-        .skill-item {
-            line-height: 0.13in; /* keeps it centered when border is given to the container having a height of 0.15in */
-            font-size: 0.55em;
-            font-weight: 900;
-            margin-bottom: 0.015in;
-            text-transform: uppercase;
-            letter-spacing: 0.5pt;
-        }
-        .progress-bar-container {
-            width:100%;
-            background-color: #f3f3f3;
-            border: solid 1px #ddd;
-            border-radius: 0.2em;
-            height: 0.15in;
-        }
-        .progress-bar {
-            background-color: #ddd; /* #E1A814 nice orange */
-            width: 100%; /* set dynamically in html */
-            white-space: nowrap; /* controls overflow? */
-            padding-left: 0.03in;
-        }
+.skillset-group .skillset {
+  margin-bottom: 0.15in;
+}
+.skill-item {
+  line-height: 0.13in; /* keeps it centered when border is given to the container having a height of 0.15in */
+  font-size: 0.55em;
+  font-weight: 900;
+  margin-bottom: 0.015in;
+  text-transform: uppercase;
+  letter-spacing: 0.5pt;
+}
+.progress-bar-container {
+  width: 100%;
+  background-color: #f3f3f3;
+  border: solid 1px #ddd;
+  border-radius: 0.2em;
+  height: 0.15in;
+}
+.progress-bar {
+  background-color: #ddd; /* #E1A814 nice orange */
+  width: 100%; /* set dynamically in html */
+  white-space: nowrap; /* controls overflow? */
+  padding-left: 0.03in;
+}
 
 /* ---------------------------------------------------------- */
 
 .reviews .item {
-    margin-bottom: 0.07in; /* fine-tuned */
+  margin-bottom: 0.07in; /* fine-tuned */
 }
 
 /* ---------------------------------------------------------- */
@@ -433,80 +431,79 @@ footer {
 /* unused in resume, but used in CV */
 
 .heading-row {
-    /* I think this is better than using heading tags distributed across the html */
-    font-family: 'Roboto Serif', serif;
-	font-weight: bold;
-    text-transform: uppercase;
-    font-size: 0.85em;
-    letter-spacing: 1pt;
-	margin: 0 0.1in 0.02in;
-	border-bottom: solid 1px #666;
-	margin-bottom: 0.07in;
+  /* I think this is better than using heading tags distributed across the html */
+  font-family: "Roboto Serif", serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 1pt;
+  margin: 0 0.1in 0.02in;
+  border-bottom: solid 1px #666;
+  margin-bottom: 0.07in;
 }
-    .heading-row div {
-        display: inline-block;
-        vertical-align: top;
-        padding: 0.02in 0 0.02in 0.02in; /* top bottom left */
-    }
+.heading-row div {
+  display: inline-block;
+  vertical-align: top;
+  padding: 0.02in 0 0.02in 0.02in; /* top bottom left */
+}
 .row {
-	font-size: 0.9em;
-    line-height: 1.4em;
-	margin: 0 0.1in;
-	border-bottom: dotted 1px #ccc;
+  font-size: 0.9em;
+  line-height: 1.4em;
+  margin: 0 0.1in;
+  border-bottom: dotted 1px #ccc;
 }
-    .advising .row:last-child {
-        border-bottom: none;
-    }
-    .teaching .row:last-child {
-        border-bottom: none;
-    }
+.advising .row:last-child {
+  border-bottom: none;
+}
+.teaching .row:last-child {
+  border-bottom: none;
+}
 .group-row {
-    font-family: 'Roboto Serif', serif;
-	font-weight: bold;
-    text-transform: uppercase;
-    font-size: 0.8em;
-    letter-spacing: 1pt;
-    padding: 0.07in 0 0.03in;
+  font-family: "Roboto Serif", serif;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 1pt;
+  padding: 0.07in 0 0.03in;
 }
 /* .row:last-child {
 	border-bottom: none;
 } */
-    .row div {
-        display: inline-block;
-        vertical-align: top;
-        padding: 0.02in 0 0.02in 0.02in; /* top bottom left */
-    }
+.row div {
+  display: inline-block;
+  vertical-align: top;
+  padding: 0.02in 0 0.02in 0.02in; /* top bottom left */
+}
 .col-name {
-	width: 1.0in;
+  width: 1in;
 }
 .col-topic {
-	width: 2.5in;
+  width: 2.5in;
 }
-    .teaching .col-topic {
-        width: 4in;
-    }
+.teaching .col-topic {
+  width: 4in;
+}
 .col-year {
-	width: 1in;
+  width: 1in;
 }
-    .teaching .col-year {
-        width: 0.5in;
-    }
+.teaching .col-year {
+  width: 0.5in;
+}
 .col-journey {
-	width: 2.45in; /* fine-tuned minding the margin */
+  width: 2.45in; /* fine-tuned minding the margin */
 }
-    .mentoring .col-journey {
-        width: 5in;
-    }
+.mentoring .col-journey {
+  width: 5in;
+}
 .col-school {
-	width: 1in;
+  width: 1in;
 }
 .col-course {
-	width: 1in;
+  width: 1in;
 }
 
 .job-description {
-    color: #fff;
-    font-size: 0.2em;
-    line-height: 0.15em;
-
+  color: #fff;
+  font-size: 0.2em;
+  line-height: 0.15em;
 }
