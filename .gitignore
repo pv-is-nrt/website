@@ -20,6 +20,7 @@ _*/
 #    Files
 # ============================================================================ #
 
+~*
 *.sqlite3
 *website-config.json
 *.log
@@ -29,6 +30,8 @@ _*/
 *.code-workspace
 .history
 TODO.md
+# since this is a public repo, we don't want people to know about backend dependencies
+requirements.txt
 
 #    Specific
 # -------------------------------------------------------------------- #
