@@ -13,7 +13,5 @@ urlpatterns = [
     path('professional/', views.professional, name='professional'),
     path('contact/', views.contact, name='contact'),
     path('cv/', views.cv, name='cv'),
-    path('cv-classic/', views.cv_classic, name='cv-classic'),
     path('resume/', views.resume, name='resume'),
-    path('resume-classic/', views.resume_classic, name='resume-classic'),
 ]

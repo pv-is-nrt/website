@@ -11,7 +11,6 @@ from django.core.mail import send_mail
 import library.core_website_functions as core
 import math
 
-
 #    Common straightforward database imports
 # ---------------------------------------------------------------------------- #
 
@@ -335,25 +334,3 @@ def resume(request):
 
     context = resume_cv_context
     return render(request, 'base/resume.html', context)
-
-
-#    Classic Resume and CV page
-# ---------------------------------------------------------------------------- #
-
-def resume_classic(request):
-
-    # ADD USER VISIT INFO TO DATABASE
-    # -------------------------------------------#
-    core.add_user_info_to_database(Analytic(), request, '/resume-classic')
-
-    context = resume_cv_context
-    return render(request, 'base/resume-classic.html', context)
-
-def cv_classic(request):
-
-    # ADD USER VISIT INFO TO DATABASE
-    # -------------------------------------------#
-    core.add_user_info_to_database(Analytic(), request, '/cv-classic')
-
-    context = resume_cv_context
-    return render(request, 'base/cv-classic.html', context)
