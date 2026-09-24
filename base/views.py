@@ -11,90 +11,112 @@ from django.core.mail import send_mail
 import library.core_website_functions as core
 import math
 
-#    Common straightforward database imports
+#    Helper function to get common context (fetches fresh data per request)
 # ---------------------------------------------------------------------------- #
 
-basic_info = BasicInformation.objects.get(pk=1)
-educations = Education.objects.order_by('-start_date') # reverse order
-experiences = Experience.objects.order_by('-start_date') # reverse order
-publications = Publication.objects.order_by('-status', '-date') # reverse order
-presentations = Presentation.objects.order_by('-date') # reverse order
-proposals = Proposal.objects.order_by('-year') # reverse order
-skillsets = Skillset.objects.order_by('group', 'order')
-# note the ordering by group is important for grouping in the template
-skills_categories = SkillCategory.objects.order_by('group', 'order')
-# get all skills ordered by score
-skills = Skill.objects.order_by('-score')
-leaderships = Leadership.objects.order_by('-start_date') # reverse order
-honor_and_awards = HonorAndAward.objects.order_by('-start_date') # reverse order
-advisings = Advising.objects.order_by('-start_date') # reverse order
-mentorings = Mentoring.objects.order_by('degree_type', '-start_date') # reverse order
-teachings = Teaching.objects.order_by('-year') # reverse order, TODO add semester ordering
-work_highlights = WorkHighlight.objects.order_by('-start_year')
-references = Reference.objects.order_by('start_year')
-reviews = Review.objects.order_by('publication') # reverse order
-
-# imports from other apps
-# import a maximum of six featured posts from the blog app ordered by most recent first
-posts_featured = Post.objects.filter(featured=True).order_by('-publication_date')[:6]
-
-
-#    Common but calculated things
-# ---------------------------------------------------------------------------- #
-
-publications_published = Publication.objects.filter(status='published').order_by('-date')
-publications_featured = Publication.objects.filter(featured=True).order_by('-date')
-# query database to find publications where author starts with Verma
-publications_first_author = Publication.objects.filter(authors__startswith='P Verma')
-publications_published_or_submitted = Publication.objects.filter(status='published').order_by('-date') | Publication.objects.filter(status='under review / submitted').order_by('-date')
-
-presentations_featured = Presentation.objects.filter(featured=True).order_by('-date')
-honor_and_awards_featured = HonorAndAward.objects.filter(featured=True).order_by('-start_date')
-leaderships_featured = Leadership.objects.filter(featured=True).order_by('-start_date')
-reviews_featured = Review.objects.filter(featured=True).order_by('publication')
-# calculate the number of advisings where the name field ends in a certain string
-count_direct_advising = len(Advising.objects.filter(name__endswith='*'))
-# get the distinct program values from the mentorings table
-mentorings_programs = Mentoring.objects.values_list('program', flat=True).distinct()
-# add the length of advisings and mentorings
-total_advisings_mentorings = len(advisings) + len(mentorings)
-
-#    Diversity index
-# ---------------------------------------------------------------------------- #
-
-num_women = len(Advising.objects.filter(diversity_tags__name__contains='women')) + len(Mentoring.objects.filter(diversity_tags__name__contains='women'))
-
-num_african_americans = len(Advising.objects.filter(diversity_tags__name__contains='african americans')) + len(Mentoring.objects.filter(diversity_tags__name__contains='african americans'))
-
-num_internationals = len(Advising.objects.filter(diversity_tags__name__contains='internationals')) + len(Mentoring.objects.filter(diversity_tags__name__contains='internationals'))
-
-num_hispanics = len(Advising.objects.filter(diversity_tags__name__contains='hispanics & latinos')) + len(Mentoring.objects.filter(diversity_tags__name__contains='hispanics & latinos'))
-
-num_first_gen = len(Advising.objects.filter(diversity_tags__name__contains='first-generation college goers')) + len(Mentoring.objects.filter(diversity_tags__name__contains='first-generation college goers'))
-
-num_diversity_total = len(Advising.objects.all()) + len(Mentoring.objects.all())
-
-diversity_women_percent = math.ceil(num_women*100/num_diversity_total)
-diversity_african_american_percent = math.ceil(num_african_americans*100/num_diversity_total)
-diversity_international_percent = math.ceil(num_internationals*100/num_diversity_total)
-diversity_hispanic_percent = math.ceil(num_hispanics*100/num_diversity_total)
-diversity_first_gen_percent = math.ceil(num_first_gen*100/num_diversity_total)
-
-# create a diversity index dictionary here
-diversity_index = {
-                    'women': diversity_women_percent,
-                    'hispanics & latinos': diversity_hispanic_percent,
-                    'african americans': diversity_african_american_percent,
-                    'internationals': diversity_international_percent,
-                    'first-gen college goers': diversity_first_gen_percent,
-                  }
-
-#    Skills
-# ---------------------------------------------------------------------------- #
-
-# find skills with start_year > 2018 and order by start_year
-recent_skills = Skill.objects.filter(start_year__gt=2018).order_by('-start_year')
-
+def _get_common_context():
+    """Fetch all common database context fresh on each request to avoid caching issues."""
+    # Common straightforward database imports
+    basic_info = BasicInformation.objects.get(pk=1)
+    educations = Education.objects.order_by('-start_date') # reverse order
+    experiences = Experience.objects.order_by('-start_date') # reverse order
+    publications = Publication.objects.order_by('-status', '-date') # reverse order
+    presentations = Presentation.objects.order_by('-date') # reverse order
+    proposals = Proposal.objects.order_by('-year') # reverse order
+    skillsets = Skillset.objects.order_by('group', 'order')
+    # note the ordering by group is important for grouping in the template
+    skills_categories = SkillCategory.objects.order_by('group', 'order')
+    # get all skills ordered by score
+    skills = Skill.objects.order_by('-score')
+    # Get recent skills (last 3)
+    recent_skills = Skill.objects.order_by('-id')[:3]
+    leaderships = Leadership.objects.order_by('-start_date') # reverse order
+    honor_and_awards = HonorAndAward.objects.order_by('-start_date') # reverse order
+    advisings = Advising.objects.order_by('-start_date') # reverse order
+    mentorings = Mentoring.objects.order_by('degree_type', '-start_date') # reverse order
+    teachings = Teaching.objects.order_by('-year') # reverse order, TODO add semester ordering
+    work_highlights = WorkHighlight.objects.order_by('-start_year')
+    references = Reference.objects.order_by('start_year')
+    reviews = Review.objects.order_by('publication') # reverse order
+    
+    # imports from other apps
+    # import a maximum of six featured posts from the blog app ordered by most recent first
+    posts_featured = Post.objects.filter(featured=True).order_by('-publication_date')[:6]
+    
+    # Common but calculated things
+    publications_published = Publication.objects.filter(status='published').order_by('-date')
+    publications_featured = Publication.objects.filter(featured=True).order_by('-date')
+    # query database to find publications where author starts with Verma
+    publications_first_author = Publication.objects.filter(authors__startswith='P Verma')
+    publications_published_or_submitted = Publication.objects.filter(status='published').order_by('-date') | Publication.objects.filter(status='under review / submitted').order_by('-date')
+    
+    presentations_featured = Presentation.objects.filter(featured=True).order_by('-date')
+    honor_and_awards_featured = HonorAndAward.objects.filter(featured=True).order_by('-start_date')
+    leaderships_featured = Leadership.objects.filter(featured=True).order_by('-start_date')
+    reviews_featured = Review.objects.filter(featured=True).order_by('publication')
+    # calculate the number of advisings where the name field ends in a certain string
+    count_direct_advising = len(Advising.objects.filter(name__endswith='*'))
+    # get the distinct program values from the mentorings table
+    mentorings_programs = Mentoring.objects.values_list('program', flat=True).distinct()
+    # add the length of advisings and mentorings
+    total_advisings_mentorings = len(advisings) + len(mentorings)
+    
+    # Diversity index calculation
+    # get the distinct program values from the mentorings table and count them
+    mentorings_programs_count = len(mentorings_programs)
+    # get the count of advisings
+    advisings_count = len(advisings)
+    # calculate the diversity index
+    diversity_index = math.ceil(math.sqrt(mentorings_programs_count * advisings_count))
+    
+    return {
+        # Basic info
+        'basic_info': basic_info,
+        # Education and experiences
+        'educations': educations,
+        'experiences': experiences,
+        # Publications
+        'publications': publications,
+        'publications_published': publications_published,
+        'publications_featured': publications_featured,
+        'publications_first_author': publications_first_author,
+        'publications_published_or_submitted': publications_published_or_submitted,
+        # Presentations
+        'presentations': presentations,
+        'presentations_featured': presentations_featured,
+        # Proposals
+        'proposals': proposals,
+        # Skills
+        'skillsets': skillsets,
+        'skills_categories': skills_categories,
+        'skills': skills,
+        'recent_skills': recent_skills,
+        # Leadership
+        'leaderships': leaderships,
+        'leaderships_featured': leaderships_featured,
+        # Honors and awards
+        'honor_and_awards': honor_and_awards,
+        'honor_and_awards_featured': honor_and_awards_featured,
+        # Advising and mentoring
+        'advisings': advisings,
+        'count_direct_advising': count_direct_advising,
+        'mentorings': mentorings,
+        'mentorings_programs': mentorings_programs,
+        'total_advisings_mentorings': total_advisings_mentorings,
+        # Teaching
+        'teachings': teachings,
+        # Diversity index
+        'diversity_index': diversity_index,
+        # Work highlights
+        'work_highlights': work_highlights,
+        # References
+        'references': references,
+        # Reviews
+        'reviews': reviews,
+        'reviews_featured': reviews_featured,
+        # Blog posts
+        'posts_featured': posts_featured,
+    }
 
 #    Index page
 # -------------------------------------------------------------------- #
@@ -111,17 +133,11 @@ def index(request):
     debug_info = None
 
     # create a context here
-    context = {
-        # basic information
-        'basic_info': basic_info,
-        'first_name': basic_info.first_name,
-        'last_name': basic_info.last_name,
-        'educations': educations,
-        'work_highlights': work_highlights,
-        'posts_featured': posts_featured,
-        'skills_categories': skills_categories,
-        'debug_info': debug_info,
-    }
+    context = _get_common_context()
+    # Override with homepage-specific values if needed
+    context['first_name'] = context['basic_info'].first_name
+    context['last_name'] = context['basic_info'].last_name
+    context['debug_info'] = debug_info
 
     # For later use: this is how to raise 404
     # pk = 1 will not raise error, but pk = 2 will because the table has only one row
@@ -151,24 +167,12 @@ def professional(request):
     # Gather information from the database here
 
     # create a context here
-    context = {
-        # basic information
-        'basic_info': basic_info,
-        'first_name': basic_info.first_name,
-        'last_name': basic_info.last_name,
-        'experiences': experiences,
-        'publications': publications,
-        'publications_published': publications_published,
-        'publications_first_author': publications_first_author,
-        'publications_published_or_submitted': publications_published_or_submitted,
-        'presentations': presentations,
-        'advisings': advisings,
-        'mentorings': mentorings,
-        'teachings': teachings,
-        'honor_and_awards': honor_and_awards,
-        'cv_mod': cv_mod,
-        'resume_mod': resume_mod,
-    }
+    context = _get_common_context()
+    # Add professional page specific values
+    context['first_name'] = context['basic_info'].first_name
+    context['last_name'] = context['basic_info'].last_name
+    context['cv_mod'] = cv_mod
+    context['resume_mod'] = resume_mod
 
     # return the rendered page here
     return render(request, 'base/professional.html', context)
@@ -187,12 +191,10 @@ def contact(request):
     messages_object = Message()
 
     # create a context here
-    context = {
-        # basic information
-        'basic_info': basic_info,
-        'first_name': basic_info.first_name,
-        'last_name': basic_info.last_name,
-    }
+    context = _get_common_context()
+    # Add contact page specific values
+    context['first_name'] = context['basic_info'].first_name
+    context['last_name'] = context['basic_info'].last_name
 
     # process incoming data
     if request.method == 'POST':
@@ -222,8 +224,8 @@ def contact(request):
             return render(request, 'base/contact.html', context)
         
 
-        MY_NAME = basic_info.first_name + ' ' + basic_info.last_name
-        MY_EMAIL = basic_info.contact_email
+        MY_NAME = context['basic_info'].first_name + ' ' + context['basic_info'].last_name
+        MY_EMAIL = context['basic_info'].contact_email
 
         # add posted data to the database, whether spam or not
         messages_object.hidden_field = HIDDEN_FIELD
@@ -277,39 +279,6 @@ def contact(request):
     return render(request, 'base/contact.html', context)
 
 
-resume_cv_context = {
-        'basic_info': basic_info,
-        'educations': educations,
-        'experiences': experiences,
-        'publications': publications,
-        'publications_featured': publications_featured,
-        'publications_published': publications_published,
-        'publications_first_author': publications_first_author,
-        'publications_published_or_submitted': publications_published_or_submitted,
-        'presentations': presentations,
-        'presentations_featured': presentations_featured,
-        'proposals': proposals,
-        'skillsets': skillsets,
-        'skills_categories': skills_categories,
-        'skills': skills,
-        'recent_skills': recent_skills,
-        'leaderships': leaderships,
-        'leaderships_featured': leaderships_featured,
-        'honor_and_awards': honor_and_awards,
-        'honor_and_awards_featured': honor_and_awards_featured,
-        'advisings': advisings,
-        'count_direct_advising': count_direct_advising,
-        'mentorings': mentorings,
-        'mentorings_programs': mentorings_programs,
-        'total_advisings_mentorings': total_advisings_mentorings,
-        'teachings': teachings,
-        'diversity_index': diversity_index,
-        'references': references,
-        'reviews': reviews,
-        'reviews_featured': reviews_featured,
-    }
-
-
 #    CV page
 # ---------------------------------------------------------------------------- #
 
@@ -319,7 +288,7 @@ def cv(request):
     # -------------------------------------------#
     core.add_user_info_to_database(Analytic(), request, '/cv')
 
-    context = resume_cv_context
+    context = _get_common_context()
     return render(request, 'base/cv.html', context)
 
 
@@ -332,5 +301,5 @@ def resume(request):
     # -------------------------------------------#
     core.add_user_info_to_database(Analytic(), request, '/resume')
 
-    context = resume_cv_context
+    context = _get_common_context()
     return render(request, 'base/resume.html', context)
