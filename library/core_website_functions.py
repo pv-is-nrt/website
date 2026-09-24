@@ -36,15 +36,15 @@ def get_last_modified_date(file_path:str):
 #    DATABASE RELATED
 # ============================================================================ #
 
-def insert_dict_to_model(dict:dict, model:object):
+def insert_dict_to_model(dict:dict, model:object, using=None):
     """
     This function inserts a dictionary into a model. The model must have already been instantiated.
     """
     # iterate through the dictionary and set the values
     for k, v in dict.items():
         setattr(model, k, v)
-        # save the model
-        model.save()
+    # save the model
+    model.save(using=using)
 
 
 # ============================================================================ #
@@ -101,4 +101,4 @@ def add_user_info_to_database(model:object, request:object, visitedPage:str):
     # add the dict to the database. See the helper functions for details
     # Ony if the visit is not by the 127.0.0.1
     if request.META.get('REMOTE_ADDR') != '127.0.0.1':
-        insert_dict_to_model(user_info, model)
+        insert_dict_to_model(user_info, model, using='analytics')

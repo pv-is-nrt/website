@@ -91,13 +91,13 @@ WSGI_APPLICATION = 'djangosite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+# djangosite/settings.py
 DATABASES = {
-    # Databases can have any alias you choose. However, the alias default has special significance. Django uses the database with the alias of default when no other database has been selected.
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default':   {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'},
+    'analytics': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db_analytics.sqlite3'},
+    'messages':  {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db_messages.sqlite3'},
 }
+DATABASE_ROUTERS = ['djangosite.routing.DatabaseRouter']
 
 
 # Password validation

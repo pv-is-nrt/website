@@ -26,6 +26,8 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('senders_name', 'senders_email', 'message', 'timestamp', 'hidden_field')
     list_filter = ['timestamp', 'senders_name']
     search_fields = ['senders_name', 'senders_email', 'message']
+    def save_model(self, request, obj, form, change):
+        obj.save(using='messages')
 
 class PublicationsAdmin(admin.ModelAdmin):
     list_display = ('date', 'featured', 'title', 'status', 'publisher')
@@ -61,7 +63,9 @@ class AnalyticAdmin(admin.ModelAdmin):
     list_display = ('remote_addr', 'visited_page', 'http_host', 'http_referer', 'timestamp')
     # sort by timestamp
     ordering = ('-timestamp',)
-    search_fields = ['http_user_agent', 'page']
+    search_fields = ['http_user_agent', 'visited_page']
+    def save_model(self, request, obj, form, change):
+        obj.save(using='analytics')
 
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('featured', 'publication')

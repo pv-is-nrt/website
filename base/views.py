@@ -231,7 +231,7 @@ def contact(request):
         messages_object.senders_name = SENDERS_NAME
         messages_object.senders_email = SENDERS_EMAIL
         messages_object.message = SENDERS_MESSAGE
-        messages_object.save()
+        messages_object.save(using='messages')
 
         # has a spam been detected?
         SPAM_DETECTED = True
@@ -265,7 +265,7 @@ def contact(request):
         messages_object.email_in_success = email_in_success
         messages_object.email_out_success = email_out_success
         # note that this second save does not create a new row or throw an error. It updates the existing row.
-        messages_object.save()
+        messages_object.save(using='messages')
         
         # create a message to display to the user
         contact_status_message = "Your message was sent successfully!"
