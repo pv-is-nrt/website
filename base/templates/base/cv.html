@@ -5,12 +5,12 @@
 
 	<head>
 
-		<title>{{ basic_info.first_name }} {{ basic_info.last_name }} - CV classic</title>
+		<title>{{ basic_info.first_name }} {{ basic_info.last_name }} - CV</title>
 
 		<!-- CSS -->
 		{% load static %}
 		<link rel="stylesheet" type="text/css" href="{% static 'base/normalize.css' %}">
-		<link rel="stylesheet" type="text/css" href="{% static 'base/resume-classic.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'base/resume.css' %}">
 		<link href='https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed|Roboto+Serif' rel='stylesheet' type='text/css'>
 
         <!-- FAVICONS -->
@@ -81,17 +81,17 @@
     <!-- Publications
     # --------------------------------------------------------------------->
     <h2>Publications</h2>
-    <p>In the list of {{ publications|length }} total, {{ publications_published_or_submitted|length }} are published or submitted and {{ publications_first_author|length }} are first-author papers. <a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank">Google Scholar link</a></p>
+    <p><a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank">Google Scholar Link</a></p>
     {% regroup publications by status as publications_status_groups %}
     {% for group in publications_status_groups %}
     <h3>{{ group.grouper|capfirst }}</h3>
-    <ul>
+    <ol reversed>
         {% for publication in group.list %}
         <li>
             {% for author in publication.authors_list_short %}{% if author == "P Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.publisher }}</i>{% if publication.issue_etc %}; {{ publication.issue_etc }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
         </li>
         {% endfor %}
-    </ul>
+    </ol>
     {% endfor %}
     
 

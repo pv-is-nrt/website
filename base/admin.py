@@ -30,7 +30,7 @@ class MessageAdmin(admin.ModelAdmin):
         obj.save(using='messages')
 
 class PublicationsAdmin(admin.ModelAdmin):
-    list_display = ('date', 'featured', 'title', 'status', 'publisher')
+    list_display = ('date', 'featured', 'title', 'status', 'doi','publisher')
     search_fields = ['title', 'authors', 'publisher']
 
 class PresentationAdmin(admin.ModelAdmin):
