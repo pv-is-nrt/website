@@ -1,6 +1,10 @@
 # django related imports
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.urls import reverse
+from datetime import date
+import json
 from .models import BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, Analytic
 # import models from other apps
 from blog.models import Post
@@ -10,6 +14,7 @@ from django.core.mail import send_mail
 # non-django imports
 import library.core_website_functions as core
 import math
+from .crossref import fetch_many
 
 #    Helper function to get common context (fetches fresh data per request)
 # ---------------------------------------------------------------------------- #
@@ -117,6 +122,126 @@ def _get_common_context():
         # Blog posts
         'posts_featured': posts_featured,
     }
+
+#    Index page
+# -------------------------------------------------------------------- #
+
+@staff_member_required(login_url='/admin/models/login/')
+def admin_dashboard(request):
+    return render(request, 'base/admin_dashboard.html')
+
+
+@staff_member_required(login_url='/admin/models/login/')
+def admin_crossref(request):
+    publications = Publication.objects.exclude(doi='').order_by('-date')
+    records = [
+        {'key': 'publication-{}'.format(record.pk), 'type': 'publication', 'id': record.pk, 'doi': record.doi, 'record': record}
+        for record in publications
+    ]
+    records.sort(key=lambda item: item['record'].information_confirmed)
+    for item in records:
+        record = item['record']
+        abstract_words = len(record.abstract.split())
+        item['status_tags'] = []
+        item['listing_alert'] = not record.information_confirmed
+        if not record.information_confirmed:
+            item['status_tags'].append({'label': 'Information not confirmed', 'kind': 'alert'})
+        if not record.abstract:
+            item['status_tags'].append({'label': 'Abstract missing', 'kind': 'alert'})
+        elif abstract_words < 50:
+            item['status_tags'].append({'label': 'Abstract too short', 'kind': 'alert'})
+        if not record.date:
+            item['status_tags'].append({'label': 'Date missing', 'kind': 'alert'})
+        item['status_tags'].append({'label': 'Last updated: {}'.format(record.updated_at.strftime('%Y-%m-%d')), 'kind': 'updated'})
+    context = {'records': records, 'preview': [], 'message': request.session.pop('crossref_message', None)}
+
+    if request.method == 'POST' and request.POST.get('action') == 'preview':
+        selected = [record for record in records if record['key'] == request.POST.get('record_key')]
+        mailto = getattr(settings, 'EMAIL_HOST_USER', '')
+        context['preview'] = fetch_many(selected, mailto)
+        for item in context['preview']:
+            item['record'] = next(record['record'] for record in records if record['key'] == item['record_key'])
+            item['fields'] = []
+            if item['ok']:
+                field_names = ('doi', 'title', 'authors', 'container_title', 'publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
+                for field in field_names:
+                    crossref_field = field
+                    current_value = getattr(item['record'], field, '')
+                    proposed_value = item['metadata'].get(crossref_field, '')
+                    item['fields'].append({
+                        'name': field,
+                        'label': (
+                            'Date ({})'.format(item['metadata'].get('date_source'))
+                            if field == 'date' and item['metadata'].get('date_source')
+                            else field.replace('_', ' ').title()
+                        ),
+                        'current': current_value.isoformat() if hasattr(current_value, 'isoformat') else current_value,
+                        'proposed': proposed_value,
+                        'changed': str(current_value) != str(proposed_value),
+                        'apply_by_default': (
+                            field == 'abstract'
+                            and bool(proposed_value)
+                            and len(str(proposed_value).split()) >= len(str(current_value).split())
+                        ) or (
+                            field == 'date'
+                            and not current_value
+                            and bool(proposed_value)
+                        ) or (
+                            field not in ('abstract', 'date')
+                            and str(current_value) != str(proposed_value)
+                            and bool(proposed_value)
+                        ),
+                        'editable': field in ('title', 'abstract'),
+                        'input_name': 'apply_{}_{}'.format(item['record_key'], field),
+                        'value_input_name': 'value_{}_{}'.format(item['record_key'], field),
+                    })
+                item['fields'].append({
+                    'name': 'information_confirmed',
+                    'label': 'Information confirmed',
+                    'current': 'Yes' if item['record'].information_confirmed else 'No',
+                    'proposed': 'Manual setting',
+                    'changed': False,
+                    'manual': True,
+                    'input_name': 'information_action_{}'.format(item['record_key']),
+                })
+        request.session['crossref_preview'] = [
+            {'record_key': item['record_key'], 'record_type': item['record_type'], 'record_id': item['record_id'], 'metadata': item['metadata']}
+            for item in context['preview'] if item['ok']
+        ]
+
+    elif request.method == 'POST' and request.POST.get('action') == 'discard':
+        request.session.pop('crossref_preview', None)
+        return redirect('admin-crossref')
+
+    elif request.method == 'POST' and request.POST.get('action') == 'apply':
+        preview = request.session.pop('crossref_preview', [])
+        applied = 0
+        for item in preview:
+            record = Publication.objects.filter(pk=item['record_id']).first()
+            if not record:
+                continue
+            fields = ('doi', 'title', 'authors', 'container_title', 'publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
+            for field in fields:
+                if 'apply_{}_{}'.format(item['record_key'], field) not in request.POST:
+                    continue
+                value = request.POST.get('value_{}_{}'.format(item['record_key'], field), '')
+                if field not in ('title', 'abstract'):
+                    value = item['metadata'].get(field, getattr(record, field))
+                if field == 'date' and isinstance(value, str) and len(value) == 10:
+                    value = date.fromisoformat(value)
+                setattr(record, field, value)
+            information_action = request.POST.get('information_action_{}'.format(item['record_key']))
+            if information_action == 'confirmed':
+                record.information_confirmed = True
+            elif information_action == 'unconfirmed':
+                record.information_confirmed = False
+            record.save()
+            applied += 1
+        request.session['crossref_message'] = '{} publication{} confirmed against Crossref.'.format(applied, '' if applied == 1 else 's')
+        return redirect('admin-crossref')
+
+    return render(request, 'base/admin_crossref.html', context)
+
 
 #    Index page
 # -------------------------------------------------------------------- #

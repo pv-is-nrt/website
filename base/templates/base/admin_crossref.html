@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crossref DOI check | Administration</title>
+    <link rel="stylesheet" href="{% static 'base/admin-dashboard.css' %}">
+</head>
+<body>
+    <main class="dashboard-shell">
+        <header class="dashboard-header">
+            <div>
+                <p class="eyebrow">Metadata</p>
+                <h1>Crossref DOI check</h1>
+                <p class="intro">Fetch metadata politely, inspect the differences, and choose exactly which records to update.</p>
+            </div>
+            <a class="text-link" href="{% url 'admin-dashboard' %}">Back to dashboard</a>
+        </header>
+
+        {% if message %}<p class="notice">{{ message }}</p>{% endif %}
+
+        <section class="task-panel">
+            <div class="section-heading">
+                <div><p class="eyebrow">Publications</p><h2>Validate DOI records</h2></div>
+                <span class="status">{{ records|length }} available</span>
+            </div>
+            {% for item in records %}
+            <article class="publication-entry {% if item.listing_alert %}listing-alert{% endif %}">
+                <div class="publication-row">
+                    <div class="listing-content">{{ item.record.title }}<small><a class="record-link" href="https://doi.org/{{ item.doi }}" target="_blank" rel="noopener">DOI</a>{% if item.record.link %}<a class="record-link" href="{{ item.record.link }}" target="_blank" rel="noopener">Source</a>{% endif %}</small><span class="status-tags">{% for tag in item.status_tags %}<span class="status-tag {{ tag.kind }}">{{ tag.label }}</span>{% endfor %}</span>
+                        <form method="post" class="validate-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="preview">
+                            <input type="hidden" name="record_key" value="{{ item.key }}">
+                            <button class="button" type="submit">Validate</button>
+                        </form>
+                    </div>
+                </div>
+                {% for preview_item in preview %}{% if preview_item.record_key == item.key %}
+                <form method="post" class="inline-preview">
+                    {% csrf_token %}
+                    {% if preview_item.ok %}
+                    <p class="eyebrow">Crossref response</p>
+                    {% for field in preview_item.fields %}
+                        <label class="change {% if field.changed %}is-changed{% endif %}">
+                        {% if field.manual %}<select name="{{ field.input_name }}"><option value="confirmed" selected>Mark confirmed</option><option value="">Leave unchanged</option><option value="unconfirmed">Mark unconfirmed</option></select>{% else %}<input type="checkbox" name="{{ field.input_name }}" {% if field.apply_by_default %}checked{% endif %}>{% endif %}
+                        <strong>{{ field.label }}</strong><span class="current-value">{{ field.current|default:'(empty)' }}</span>
+                        {% if field.editable %}<textarea class="proposed-value" name="{{ field.value_input_name }}" rows="{% if field.name == 'abstract' %}3{% else %}2{% endif %}">{{ field.proposed }}</textarea>{% else %}<span class="proposed-value">{{ field.proposed|default:'(empty)' }}</span>{% endif %}
+                    </label>
+                    {% endfor %}
+                    <div class="review-actions">
+                        <button class="button" type="submit" name="action" value="apply">Apply selected changes</button>
+                        <button class="button button-secondary" type="submit" name="action" value="discard">Discard updates</button>
+                    </div>
+                    {% else %}<p class="error">Could not fetch this publication: {{ preview_item.error }}</p>{% endif %}
+                </form>
+                {% endif %}{% endfor %}
+            </article>
+            {% empty %}<p>No publications currently have a DOI.</p>{% endfor %}
+        </section>
+    </main>
+</body>
+</html>

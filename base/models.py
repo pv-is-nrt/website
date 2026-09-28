@@ -151,21 +151,30 @@ class Publication(models.Model):
     # define the fields
     title = models.CharField(max_length=500)
     authors = models.CharField(max_length=500)
-    publisher = models.CharField(max_length=200)
-    issue_etc = models.CharField(max_length=200, blank=True)
-    date = models.DateField()
+    publisher = models.CharField(max_length=200, blank=True)
+    container_title = models.CharField(max_length=500, blank=True)
+    volume = models.CharField(max_length=100, blank=True)
+    issue = models.CharField(max_length=100, blank=True)
+    date = models.DateField(null=True, blank=True)
     doi = models.CharField(max_length=200, blank=True)
+    pages = models.CharField(max_length=100, blank=True)
+    article_number = models.CharField(max_length=100, blank=True)
+    publication_type = models.CharField(max_length=100, blank=True)
+    abstract = models.TextField(blank=True)
+    keywords = models.TextField(blank=True)
+    information_confirmed = models.BooleanField(default=False, blank=True)
     link = models.URLField(blank=True)
-    featured = models.BooleanField(default=False)
+    featured = models.BooleanField(default=False, blank=True)
     citations = models.CharField(max_length=10, blank=True)
-    status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published"), ("in progress", "in progress"), ("preprint", "preprint")], default="in progress")
+    status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published"), ("in progress", "in progress"), ("preprint", "preprint")], default="published", blank=True)
     comment = models.CharField(max_length=200, blank=True)
     tags = models.ManyToManyField(PublicationTag, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     # return a string representation of the object
     def __str__(self):
         # return date year and title
-        return str(self.date.year) + " - " + self.title
+        return (str(self.date.year) if self.date else "Undated") + " - " + self.title
     # return authors as a list of authors
     def authors_list(self):
         return self.authors.split(", ")
@@ -194,16 +203,24 @@ class Presentation(models.Model):
     # define the fields
     title = models.CharField(max_length=500)
     authors = models.CharField(max_length=500)
-    speaker_index = models.PositiveSmallIntegerField()
+    speaker_index = models.PositiveSmallIntegerField(null=True, blank=True)
     conference = models.CharField(max_length=200)
     date = models.DateField()
+    doi = models.CharField(max_length=200, blank=True)
+    abstract = models.TextField(blank=True)
+    information_confirmed = models.BooleanField(default=False, blank=True)
     city = models.CharField(max_length=200)
     state = models.CharField(max_length=200, blank=True)
     country = models.CharField(max_length=200)
     link = models.URLField(blank=True)
     featured = models.BooleanField(default=False)
     citations = models.CharField(max_length=10, blank=True)
-    issue_etc = models.CharField(max_length=200, blank=True)
+    container_title = models.CharField(max_length=500, blank=True)
+    volume = models.CharField(max_length=100, blank=True)
+    issue = models.CharField(max_length=100, blank=True)
+    pages = models.CharField(max_length=100, blank=True)
+    article_number = models.CharField(max_length=100, blank=True)
+    publication_type = models.CharField(max_length=100, blank=True)
     comment = models.CharField(max_length=200, blank=True)
     tags = models.ManyToManyField(PublicationTag, blank=True)
 

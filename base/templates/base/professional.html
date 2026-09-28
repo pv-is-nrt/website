@@ -142,7 +142,7 @@
 						{{ publication.title }}
 					</p>
 					<p class="color-subtle">
-						<span class="uppercase color-accent2">{{ publication.publisher }}</span>{% if publication.issue_etc %} / <span>{{ publication.issue_etc }}</span>{% endif %} / <span class="bold">{{ publication.date|date:"Y" }}</span>{% if publication.comment %} / <span class="italic">({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} class="color-link" target="blank"><span class="material-icons">open_in_new</span> link</a>{% endif %}
+						<span class="uppercase color-accent2">{{ publication.container_title|default:publication.publisher }}</span>{% if publication.volume %} / <span>Vol. {{ publication.volume }}</span>{% endif %}{% if publication.issue %} <span>No. {{ publication.issue }}</span>{% endif %} / <span class="bold">{{ publication.date|date:"Y" }}</span>{% if publication.comment %} / <span class="italic">({{ publication.comment }})</span>{% endif %}{% if publication.link %} <a href={{ publication.link }} class="color-link" target="blank"><span class="material-icons">open_in_new</span> link</a>{% endif %}
 					</p>
 				</div>
 				{% if not forloop.last %}<hr class="narrow">{% endif %}

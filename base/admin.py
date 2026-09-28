@@ -30,12 +30,21 @@ class MessageAdmin(admin.ModelAdmin):
         obj.save(using='messages')
 
 class PublicationsAdmin(admin.ModelAdmin):
-    list_display = ('date', 'featured', 'title', 'status', 'doi','publisher')
-    search_fields = ['title', 'authors', 'publisher']
+    list_display = ('date', 'featured', 'title', 'status', 'doi', 'container_title')
+    search_fields = ['title', 'authors', 'publisher', 'doi']
+    fieldsets = (
+        (None, {'fields': ('title', 'authors', 'container_title', 'publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'doi', 'abstract', 'information_confirmed', 'citations', 'link')}),
+        ('Website', {'fields': ('featured', 'status', 'comment', 'tags')}),
+    )
 
 class PresentationAdmin(admin.ModelAdmin):
-    list_display = ('date', 'featured', 'title', 'city')
-    search_fields = ['title', 'presenter', 'city']
+    list_display = ('date', 'featured', 'information_confirmed', 'title', 'city', 'doi')
+    search_fields = ['title', 'authors', 'city', 'doi']
+    fieldsets = (
+        (None, {'fields': ('title', 'authors', 'conference', 'container_title', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'date', 'doi', 'abstract', 'citations', 'link')}),
+        ('Presentation', {'fields': ('speaker_index', 'city', 'state', 'country')}),
+        ('Website', {'fields': ('featured', 'information_confirmed', 'comment', 'tags')}),
+    )
 
 class ProposalAdmin(admin.ModelAdmin):
     list_display = ('year', 'title', 'status', 'pi')
