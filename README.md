@@ -6,7 +6,7 @@ Hi! If you haven't looked at the actual website, it's hosted at [prateekverma.co
 The following tech was used to build this website:
 1. Backend: Django (a Python framework)
 2. Frontend: HTML/CSS and a tiny bit of JavaScript
-This website has several Django apps. At the time of writing, there was a `base` and a `blog` app.
+This website has several Django apps, including `base`, `blog`, and the private `tasks` app.
 
 ## Table of contents
 Not applicable.

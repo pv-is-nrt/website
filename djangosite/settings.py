@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'base.apps.BaseConfig',
     'blog.apps.BlogConfig',
+    'tasks.apps.TasksConfig',
 ]
 
 MIDDLEWARE = [
@@ -96,6 +97,7 @@ DATABASES = {
     'default':   {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'},
     'analytics': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db_analytics.sqlite3'},
     'messages':  {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db_messages.sqlite3'},
+    'tasks':     {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'tasks.sqlite3'},
 }
 DATABASE_ROUTERS = ['djangosite.routing.DatabaseRouter']
 
@@ -159,6 +161,7 @@ EMAIL_PORT = 587
 # on server only
 EMAIL_HOST_USER = config_dict['EMAIL_HOST_USER']
 EMAIL_HOST_PASSWORD = config_dict['EMAIL_HOST_PASSWORD']
+TASKS_REMINDER_EMAIL = EMAIL_HOST_USER
 
 EMAIL_USE_TLS = True
 # only one of SSL or TLS should be used, and SSL does not work for now. Throws ConnectionResetError [WinError 10054] An existing connection was forcibly closed by the remote host

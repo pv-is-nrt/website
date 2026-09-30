@@ -1,0 +1,46 @@
+<article class="task-row{% if task.completed %} is-complete{% endif %}" data-task-id="{{ task.pk|default:'' }}" data-update-url="{% if task.pk %}{% url 'tasks:update' task.pk %}{% endif %}">
+    <label class="completion-control" title="Mark task complete">
+        <input class="task-complete" type="checkbox" data-field="completed"{% if task.completed %} checked{% endif %} aria-label="Mark task complete">
+        <span aria-hidden="true"></span>
+    </label>
+    <div class="task-content">
+        <div class="task-main">
+            <input class="task-title" data-field="title" value="{{ task.title|default:'' }}" maxlength="240" aria-label="Task title">
+            {% if not task.completed %}
+                <select class="priority-select" data-field="priority" aria-label="Priority">
+                    {% for value, label in priority_choices %}
+                        <option value="{{ value }}"{% if task.priority == value %} selected{% elif not task.pk and value == 3 %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <div class="due-picker">
+                    <button class="icon-button due-button" type="button" aria-label="Set due date and time" title="Set due date and time">
+                        <i data-lucide="calendar-clock"></i><span class="due-label">{% if task.due_at %}{{ task.due_at|date:'M j' }}{% endif %}</span>
+                    </button>
+                    <input class="due-input" type="datetime-local" data-field="due_at" value="{{ task.due_at|date:'Y-m-d\TH:i' }}" aria-label="Due date and time" tabindex="-1">
+                </div>
+                <button class="icon-button reminder-toggle{% if task.reminder_enabled %} is-enabled{% endif %}" type="button" data-field="reminder_enabled" aria-pressed="{{ task.reminder_enabled|yesno:'true,false' }}" aria-label="Toggle reminder" title="Toggle reminder"><i data-lucide="bell-ring"></i></button>
+            {% endif %}
+        </div>
+        {% if not task.completed %}
+            <div class="task-category-line">
+                <div class="task-category-chips">
+                    {% for category in task.categories.all %}
+                        <span class="category-chip" style="--category-color: {{ category.color }}">
+                            <span>{{ category.name }}</span>
+                            <button class="category-remove" type="button" data-category-id="{{ category.pk }}" aria-label="Remove {{ category.name }}"><i data-lucide="x"></i></button>
+                        </span>
+                    {% endfor %}
+                    <button class="icon-button category-add" type="button" aria-label="Add category" title="Add category" aria-expanded="false"><i data-lucide="plus"></i></button>
+                    <div class="category-menu" hidden>
+                        {% for category in categories %}
+                            <label><input type="checkbox" class="category-choice" value="{{ category.pk }}" data-name="{{ category.name }}" data-color="{{ category.color }}"{% if category in task.categories.all %} checked{% endif %}><span>{{ category.name }}</span></label>
+                        {% empty %}
+                            <span class="menu-empty">Add categories in preferences</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <span class="row-status" aria-live="polite"></span>
+</article>

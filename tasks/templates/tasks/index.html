@@ -1,0 +1,61 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tasks</title>
+    <link rel="stylesheet" href="{% static 'base/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'base/base.css' %}">
+    <link rel="stylesheet" href="{% static 'tasks/tasks.css' %}?v=3">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script src="{% static 'tasks/tasks.js' %}?v=3" defer></script>
+</head>
+<body class="tasks-page">
+    <main class="tasks-shell">
+        <header class="tasks-header">
+            <div>
+                <p class="eyebrow">PERSONAL WORKSPACE</p>
+                <h1>Tasks</h1>
+            </div>
+            <div class="header-actions">
+                <p class="tasks-count"><span id="active-count">{{ open_tasks|length }}</span> open</p>
+                <a class="icon-button" href="{% url 'tasks:preferences' %}" aria-label="Task preferences" title="Task preferences"><i data-lucide="settings-2"></i></a>
+            </div>
+        </header>
+
+        <form class="quick-entry" id="quick-entry" action="{% url 'tasks:create' %}" method="post">
+            {% csrf_token %}
+            <label class="visually-hidden" for="new-task-title">Add a task</label>
+            <input id="new-task-title" name="title" maxlength="240" placeholder="Add a task..." autocomplete="off" required>
+            <button class="icon-button add-button" type="submit" aria-label="Add task" title="Add task"><i data-lucide="plus"></i></button>
+        </form>
+        <p class="page-status" id="page-status" aria-live="polite"></p>
+
+        <section class="task-section" aria-labelledby="open-heading">
+            <h2 id="open-heading">Open</h2>
+            <div class="task-list" id="open-tasks">
+                {% for task in open_tasks %}
+                    {% include 'tasks/task_row.html' %}
+                {% empty %}
+                    <p class="empty-state" id="empty-open">Nothing on the list yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="task-section completed-section" aria-labelledby="completed-heading">
+            <h2 id="completed-heading">Completed</h2>
+            <div class="task-list" id="completed-tasks">
+                {% for task in completed_tasks %}
+                    {% include 'tasks/task_row.html' %}
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+    <template id="task-row-template">
+        {% with task=None %}
+            {% include 'tasks/task_row.html' %}
+        {% endwith %}
+    </template>
+</body>
+</html>

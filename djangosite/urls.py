@@ -25,4 +25,5 @@ urlpatterns = [
     path('admin/models/', admin.site.urls),
     path('', include('base.urls')),
     path('blog/', include('blog.urls')),
+    path('tasks/', include('tasks.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

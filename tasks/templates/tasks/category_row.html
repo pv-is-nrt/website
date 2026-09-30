@@ -1,0 +1,9 @@
+<div class="managed-category" data-update-url="{% if category.pk %}{% url 'tasks:update-category' category.pk %}{% endif %}" data-delete-url="{% if category.pk %}{% url 'tasks:delete-category' category.pk %}{% endif %}">
+    <input class="category-name" value="{{ category.name|default:'' }}" maxlength="80" aria-label="Category name">
+    <div class="category-colors" role="radiogroup" aria-label="Category color">
+        {% for color, label in category_colors %}
+            <button class="color-option{% if category.color == color or not category.pk and color == '#c5dfc5' %} is-selected{% endif %}" type="button" role="radio" aria-label="{{ label }}" aria-checked="{% if category.color == color or not category.pk and color == '#c5dfc5' %}true{% else %}false{% endif %}" title="{{ label }}" data-color="{{ color }}" style="--swatch-color: {{ color }}"></button>
+        {% endfor %}
+    </div>
+    <button class="icon-button delete-category" type="button" aria-label="Delete {{ category.name }}" title="Delete category"><i data-lucide="trash-2"></i></button>
+</div>

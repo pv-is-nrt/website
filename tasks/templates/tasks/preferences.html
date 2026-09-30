@@ -1,0 +1,62 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Task preferences</title>
+    <link rel="stylesheet" href="{% static 'base/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'base/base.css' %}">
+    <link rel="stylesheet" href="{% static 'tasks/tasks.css' %}?v=3">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script src="{% static 'tasks/preferences.js' %}?v=3" defer></script>
+</head>
+<body class="tasks-page">
+    <main class="tasks-shell preferences-shell">
+        <header class="tasks-header">
+            <div>
+                <p class="eyebrow">PERSONAL WORKSPACE</p>
+                <h1>Preferences</h1>
+            </div>
+            <a class="icon-button" href="{% url 'tasks:index' %}" aria-label="Back to tasks" title="Back to tasks"><i data-lucide="arrow-left"></i></a>
+        </header>
+
+        <section class="preferences-section">
+            <h2>Reminders</h2>
+            <label class="preference-row" for="default-reminder">
+                <span>Default time before due</span>
+                <select id="default-reminder" name="default_reminder_minutes" data-save-url="{% url 'tasks:update-preferences' %}">
+                    {% for value, label in reminder_choices %}
+                        <option value="{{ value }}"{% if preferences.default_reminder_minutes == value %} selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </section>
+
+        <section class="preferences-section">
+            <div class="section-heading">
+                <h2>Categories</h2>
+                <form id="new-category-form" action="{% url 'tasks:create-category' %}" method="post">
+                    {% csrf_token %}
+                    <label class="visually-hidden" for="new-category-name">New category name</label>
+                    <input id="new-category-name" name="name" maxlength="80" placeholder="New category" required>
+                    <button class="icon-button" type="submit" aria-label="Add category" title="Add category"><i data-lucide="plus"></i></button>
+                </form>
+            </div>
+            <div class="category-list" id="category-list">
+                {% for category in categories %}
+                    {% include 'tasks/category_row.html' %}
+                {% empty %}
+                    <p class="empty-state" id="empty-categories">No categories yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+        <p class="page-status" id="page-status" aria-live="polite"></p>
+    </main>
+    <template id="category-row-template">
+        {% with category=None %}
+            {% include 'tasks/category_row.html' %}
+        {% endwith %}
+    </template>
+</body>
+</html>

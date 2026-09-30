@@ -2,13 +2,16 @@
 class DatabaseRouter:
     ANALYTICS = {'base': {'Analytic'}}
     MESSAGES  = {'base': {'Message'}}
+    TASKS = {'tasks': {'Task', 'Category', 'TasksPreference'}}
 
     def _hit(self, sets, model):
         return model.__name__ in sets.get(model._meta.app_label, set())
 
     def db_for_read(self, model, **hints):
+        if model._meta.app_label == 'tasks': return 'tasks'
         if self._hit(self.ANALYTICS, model): return 'analytics'
         if self._hit(self.MESSAGES, model):  return 'messages'
+        if self._hit(self.TASKS, model):     return 'tasks'
         return 'default'
 
     def db_for_write(self, model, **hints):
@@ -23,10 +26,14 @@ class DatabaseRouter:
         return None
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
+        if app_label == 'tasks': return db == 'tasks'
         model = hints.get('model')
         name = model.__name__ if model else model_name
         is_analytic = name in self.ANALYTICS.get(app_label, set())
         is_message  = name in self.MESSAGES.get(app_label, set())
+        is_task     = name in self.TASKS.get(app_label, set())
+        if db == 'tasks': return is_task
+        if is_task: return False
         if db == 'analytics': return is_analytic
         if db == 'messages':  return is_message
         if db == 'default':   return not (is_analytic or is_message)   # keep these two OFF default
