@@ -11,6 +11,7 @@ app_name = 'base'
 urlpatterns = [
     path('', views.index, name='index'),
     path('professional/', views.professional, name='professional'),
+    path('publications/', views.publications, name='publications'),
     path('contact/', views.contact, name='contact'),
     path('cv/', views.cv, name='cv'),
     path('resume/', views.resume, name='resume'),

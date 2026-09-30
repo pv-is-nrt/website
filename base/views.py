@@ -303,6 +303,15 @@ def professional(request):
     return render(request, 'base/professional.html', context)
 
 
+def publications(request):
+    context = _get_common_context()
+    context['publications'] = Publication.objects.order_by('-date', 'title')
+    context['presentations'] = Presentation.objects.order_by('-date', 'title')
+    context['first_name'] = context['basic_info'].first_name
+    context['last_name'] = context['basic_info'].last_name
+    return render(request, 'base/publications.html', context)
+
+
 #    Contact page
 # -------------------------------------------------------------------- #
 

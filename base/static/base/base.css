@@ -214,6 +214,9 @@ code {
 .spacer20 {
   height: 20px;
 }
+.spacer10 {
+  height: 10px;
+}
 
 .inline {
   display: inline-block;
@@ -235,6 +238,9 @@ code {
 }
 .smaller-text {
   font-size: 90%;
+}
+.larger-text {
+  font-size: 110%;
 }
 .tiny-text {
   font-size: 80%;

@@ -38,7 +38,7 @@ class PublicationsAdmin(admin.ModelAdmin):
     )
 
 class PresentationAdmin(admin.ModelAdmin):
-    list_display = ('date', 'featured', 'information_confirmed', 'title', 'city', 'doi')
+    list_display = ('date', 'featured', 'title', 'conference', 'city')
     search_fields = ['title', 'authors', 'city', 'doi']
     fieldsets = (
         (None, {'fields': ('title', 'authors', 'conference', 'container_title', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'date', 'doi', 'abstract', 'citations', 'link')}),

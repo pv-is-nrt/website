@@ -180,18 +180,18 @@ class Publication(models.Model):
         return self.authors.split(", ")
     def authors_list_short(self):
         if len(self.authors_list()) > 5:
-            if 'P Verma' in self.authors_list()[0:5]:
+            if 'Prateek Verma' in self.authors_list()[0:5]:
                 return self.authors_list()[0:5] + ["et al."]
             else:
-                return self.authors_list()[0:3] + ["...", "P Verma", "et al."]
+                return self.authors_list()[0:3] + ["...", "Prateek Verma", "et al."]
         else:
             return self.authors_list()
     def authors_list_very_short(self):
         if len(self.authors_list()) > 3:
-            if 'P Verma' in self.authors_list()[0:3]:
+            if 'Prateek Verma' in self.authors_list()[0:3]:
                 return self.authors_list()[0:3] + ["et al."]
             else:
-                return self.authors_list()[0:2] + ["...", "P Verma", "et al."]
+                return self.authors_list()[0:2] + ["...", "Prateek Verma", "et al."]
         else:
             return self.authors_list()
 
@@ -238,10 +238,10 @@ class Presentation(models.Model):
             return self.authors_list()
     def authors_list_very_short(self):
         if len(self.authors_list()) > 3:
-            if 'P Verma' in self.authors_list()[0:3]:
+            if 'Prateek Verma' in self.authors_list()[0:3]:
                 return self.authors_list()[0:3] + ["et al."]
             else:
-                return self.authors_list()[0:2] + ["...", "P Verma", "et al."]
+                return self.authors_list()[0:2] + ["...", "Prateek Verma", "et al."]
         else:
             return self.authors_list()
 
