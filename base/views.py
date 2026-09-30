@@ -425,6 +425,15 @@ def cv(request):
     context = _get_common_context()
     return render(request, 'base/cv.html', context)
 
+def cv_chen(request):
+
+    # ADD USER VISIT INFO TO DATABASE
+    # -------------------------------------------#
+    core.add_user_info_to_database(Analytic(), request, '/cv-chen')
+
+    context = _get_common_context()
+    return render(request, 'base/cv-chen.html', context)
+
 
 #    Resume page
 # ---------------------------------------------------------------------------- #

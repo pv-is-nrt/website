@@ -60,51 +60,28 @@
 <!-- DETAILED PUBLICATIONS LIST
 # --------------------------------------------------------------------->
 
-<section class="detailed-publications" id="detailed-publications">
-	<h1>Detailed List of Publications and Presentations</h1>
-
-	<div class="publications">
-		<h2>Publications</h2>
-		<hr>
-		{% for publication in publications %}
-		<div class="smaller-text">
-			<h3>{{ publication.title }}{% if publication.status == 'preprint' %} (preprint){% endif %}</h3>
-			<p>{{ publication.authors }}</p>
-			<div class="spacer10"></div>
-			<p>
-				<span class="uppercase color-accent2">{{ publication.container_title|default:publication.publisher }}</span>
-				{% if publication.date %} / <span class="bold larger-text">{{ publication.date|date:"Y" }}</span>{% endif %}
-			</p>
-			<div class="spacer10"></div>
-			<p><b>Cited by:</b> {{ publication.citations }}</p>
-			<div class="spacer10"></div>
-			<p><b>Abstract:</b> {{ publication.abstract|default:"(No abstract available.)" }}</p>
-			{% if publication.link %}
-			<div class="spacer10"></div>
-			<p><b>Link:</b> <a href="{{ publication.link }}" class="color-link" target="blank">{{ publication.link }}</a></p>{% endif %}
-		</div>
-		{% if not forloop.last %}<hr>{% endif %}
-		{% empty %}<p>No publications available.</p>
-		{% endfor %}
+<section>
+	<h1>Detailed List of Publications</h1>
+	<hr>
+	{% for publication in publications %}
+	<div class="smaller-text">
+		<h3>{{ publication.title }}{% if publication.status == 'preprint' %} (preprint){% endif %}</h3>
+		<p>{{ publication.authors }}</p>
+		<div class="spacer10"></div>
+		<p>
+			<span class="uppercase color-accent2">{{ publication.container_title|default:publication.publisher }}</span>
+			{% if publication.date %} / <span class="bold larger-text">{{ publication.date|date:"Y" }}</span>{% endif %}
+		</p>
+		<div class="spacer10"></div>
+		<p><b>Cited by:</b> {{ publication.citations }}</p>
+		<div class="spacer10"></div>
+		<p><b>Abstract:</b> {{ publication.abstract|default:"(No abstract available.)" }}</p>
+		{% if publication.link %}
+		<div class="spacer10"></div>
+		<p><b>Link:</b> <a href="{{ publication.link }}" class="color-link" target="blank">{{ publication.link }}</a></p>{% endif %}
 	</div>
+	{% if not forloop.last %}<hr>{% endif %}
+	{% endfor %}
 
-	<div class="presentations">
-		<h2>Presentations</h2>
-		<hr>
-		{% for presentation in presentations %}
-		<div class="smaller-text">
-			<h3>{{ presentation.title }}</h3>
-			<p>{{ presentation.authors }}</p>
-			<p class="color-subtle">
-				<span class="uppercase color-accent2">{{ presentation.container_title|default:presentation.conference }}</span>
-				{% if presentation.date %} / <span class="bold">{{ presentation.date|date:"Y" }}</span>{% endif %}
-			</p>
-			<p><b>Abstract:</b> {{ presentation.abstract|default:"(No abstract available.)" }}</p>
-			{% if presentation.link %}<p><a href="{{ presentation.link }}" class="color-link" target="blank">{{ presentation.link }}</a></p>{% endif %}
-		</div>
-		{% if not forloop.last %}<hr class="narrow">{% endif %}
-		{% empty %}<p>No presentations available.</p>
-		{% endfor %}
-	</div>
 </section>
 {% endblock except-nav %}
