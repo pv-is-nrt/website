@@ -2,7 +2,10 @@
 from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
 from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 from datetime import date
 import json
 from .models import BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, Analytic
@@ -15,6 +18,12 @@ from django.core.mail import send_mail
 import library.core_website_functions as core
 import math
 from .crossref import fetch_many
+from .scholar_citations import (
+    ScholarCitationLookupError,
+    lookup_profile_citation_counts,
+    normalize_title,
+    scholar_user_id,
+)
 
 #    Helper function to get common context (fetches fresh data per request)
 # ---------------------------------------------------------------------------- #
@@ -38,7 +47,7 @@ def _get_common_context():
     leaderships = Leadership.objects.order_by('-start_date') # reverse order
     honor_and_awards = HonorAndAward.objects.order_by('-start_date') # reverse order
     advisings = Advising.objects.order_by('-start_date') # reverse order
-    mentorings = Mentoring.objects.order_by('degree_type', '-start_date') # reverse order
+    mentorings = Mentoring.objects.order_by('-start_date') # reverse order
     teachings = Teaching.objects.order_by('-year') # reverse order, TODO add semester ordering
     work_highlights = WorkHighlight.objects.order_by('-start_year')
     references = Reference.objects.order_by('start_year')
@@ -128,7 +137,78 @@ def _get_common_context():
 
 @staff_member_required(login_url='/admin/models/login/')
 def admin_dashboard(request):
-    return render(request, 'base/admin_dashboard.html')
+    citation_records = list(Publication.objects.order_by('date', 'pk').values('id', 'title', 'citations', 'updated_at'))
+    return render(request, 'base/admin_dashboard.html', {'citation_records': citation_records})
+
+
+def _database_citation_total():
+    total = 0
+    for value in Publication.objects.values_list('citations', flat=True):
+        try:
+            total += int((value or '').replace(',', '').strip())
+        except ValueError:
+            continue
+    return total
+
+
+@staff_member_required(login_url='/admin/models/login/')
+@require_POST
+def admin_update_scholar_citations(request):
+    publications = list(Publication.objects.order_by('date', 'pk'))
+    profile_counts = {}
+    fetch_error = None
+
+    if publications:
+        try:
+            profile_url = BasicInformation.objects.get(pk=1).scholar_url
+            profile_counts = lookup_profile_citation_counts(scholar_user_id(profile_url))
+        except (BasicInformation.DoesNotExist, ScholarCitationLookupError) as error:
+            fetch_error = str(error)
+
+    results = []
+    updated_counts = []
+    for publication in publications:
+        old_count = publication.citations
+        updated_on = timezone.localtime(publication.updated_at).date().isoformat() if publication.updated_at else ''
+        result = {
+            'id': publication.pk,
+            'title': publication.title,
+            'old_count': old_count,
+            'new_count': old_count,
+            'updated_on': updated_on,
+        }
+
+        if fetch_error:
+            result['status'] = fetch_error
+        else:
+            key = normalize_title(publication.title)
+            if key not in profile_counts:
+                result['status'] = 'Not found in Scholar profile'
+            else:
+                citation_count = profile_counts[key]
+                publication.citations = str(citation_count)
+                publication.save(update_fields=['citations', 'updated_at'])
+                result.update({
+                    'new_count': citation_count,
+                    'updated_on': timezone.localtime(publication.updated_at).date().isoformat(),
+                    'status': 'Updated',
+                })
+                updated_counts.append(citation_count)
+        results.append(result)
+
+    if not publications:
+        message = 'No publication records to update.'
+    elif fetch_error:
+        message = fetch_error
+    else:
+        message = 'Matched {} publication(s) from the Scholar profile.'.format(len(updated_counts))
+
+    return JsonResponse({
+        'results': results,
+        'scholar_total': sum(updated_counts),
+        'database_total': _database_citation_total(),
+        'message': message,
+    })
 
 
 @staff_member_required(login_url='/admin/models/login/')

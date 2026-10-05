@@ -22,6 +22,7 @@ from base import views as base_views
 urlpatterns = [
     path('admin/', base_views.admin_dashboard, name='admin-dashboard'),
     path('admin/crossref/', base_views.admin_crossref, name='admin-crossref'),
+    path('admin/scholar-citations/', base_views.admin_update_scholar_citations, name='admin-scholar-citations-update'),
     path('admin/models/', admin.site.urls),
     path('', include('base.urls')),
     path('blog/', include('blog.urls')),

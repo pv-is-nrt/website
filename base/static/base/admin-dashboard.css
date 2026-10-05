@@ -234,6 +234,92 @@ h3 {
     border: 1px solid var(--line);
 }
 
+.citation-task {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+}
+
+.play-button {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    place-items: center;
+    border-radius: 50%;
+}
+
+.play-button span {
+    margin-left: 3px;
+}
+
+.play-button:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
+#citation-progress {
+    width: 100%;
+    height: 10px;
+    accent-color: var(--accent);
+}
+
+#citation-current {
+    grid-column: 2;
+    margin: 0;
+}
+
+.citation-scholar-total {
+    margin: 24px 0 0;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+}
+
+.citation-scholar-total strong {
+    color: var(--accent);
+    font-size: 20px;
+}
+
+.citation-results {
+    margin-top: 28px;
+    overflow-x: auto;
+    font-family: Arial, sans-serif;
+}
+
+.citation-results table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.citation-results th,
+.citation-results td {
+    padding: 12px 10px;
+    border-top: 1px solid var(--line);
+}
+
+.citation-results th:nth-child(n + 2),
+.citation-results td:nth-child(n + 2) {
+    white-space: nowrap;
+}
+
+.citation-results .citation-error {
+    color: #8b3028;
+}
+
+.citation-results .citation-total th,
+.citation-results .citation-total td {
+    color: #234a35;
+    background: #e5eee6;
+    border-top: 2px solid #557c5b;
+    font-weight: 700;
+}
+
+.citation-results[hidden] {
+    display: none;
+}
+
 .review-actions {
     display: flex;
     gap: 10px;

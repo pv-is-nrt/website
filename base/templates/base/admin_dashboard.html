@@ -24,15 +24,25 @@
                     <p class="eyebrow">Workspace</p>
                     <h2 id="tasks-heading">Custom admin tasks</h2>
                 </div>
-                <span class="status">0 tasks</span>
             </div>
-            <div class="empty-state">
-                <span class="empty-mark" aria-hidden="true">+</span>
-                <div>
-                    <h3>No custom tasks yet</h3>
-                    <p>This is the place for site-specific workflows as they are added.</p>
-                </div>
+            <div class="citation-task">
+                <form id="citation-update-form" action="{% url 'admin-scholar-citations-update' %}" method="post">
+                    {% csrf_token %}
+                    <button class="button play-button" type="submit" aria-label="Update publication citation counts" title="Update citation counts"><span aria-hidden="true">&#9654;</span></button>
+                </form>
+                <progress id="citation-progress" max="{{ citation_records|length }}" value="0" hidden></progress>
+                <p id="citation-current" class="intro" hidden></p>
             </div>
+            <p id="citation-scholar-total" class="citation-scholar-total" hidden>Google Scholar citations updated this run: <strong>0</strong></p>
+            <div id="citation-results" class="citation-results" hidden>
+                <table>
+                    <thead><tr><th>Publication</th><th>Previous</th><th>Current</th><th>Updated on</th><th>Status</th></tr></thead>
+                    <tbody id="citation-results-body"></tbody>
+                    <tfoot><tr class="citation-total"><th>Total (from database)</th><td id="citation-previous-total">0</td><td id="citation-current-total">0</td><td colspan="2"></td></tr></tfoot>
+                </table>
+            </div>
+            {{ citation_records|json_script:"citation-records" }}
+            <script src="{% static 'base/scholar-citations.js' %}" defer></script>
         </section>
 
         <section class="quick-links" aria-labelledby="links-heading">
