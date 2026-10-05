@@ -84,4 +84,59 @@
 	{% endfor %}
 
 </section>
+
+<section>
+<h1>Chen stuff</h1>
+<p>I used Google Sheets (the latest budget sheet because that was the quickest) to copy both the numbers and text from HTML to Chen's portal. The formula you can use is CONCAT(TEXT(E2, "0"), ".")</p>
+<h2>List of Publications</h2>
+<!-- [Reversed numbers in span]. “[Paper title],” [journal name], [publication year], [author list]. Link:  [link] -->
+ <!-- grouping does not work here because it is not being passed as a context for sorting -->
+<h3>Peer-reviewed journal articles</h3>
+<!-- publication.status = "published" and publication.publication_type != conference-proceeding and publication.authors does not contain "Jappar" -->
+<ol reversed>
+	{% for publication in publications %}
+	{% if publication.status == "published" and publication.publication_type != "conference-proceeding" and not "Jappar" in publication.authors %}
+	<li>
+		{{ publication.title|safe }}, <i>{{ publication.container_title|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
+	</li>
+	{% endif %}
+	{% endfor %}
+</ol>
+
+<h3>Peer-reviewed conference proceedings</h3>
+<!-- publication.status = "published" and publication.publication_type = "conference-proceeding" -->
+<ol reversed>
+	{% for publication in publications %}
+	{% if publication.status == "published" and publication.publication_type == "conference-proceeding" and not "Jappar" in publication.authors %}
+	<li>
+		{{ publication.title|safe }}, <i>{{ publication.container_title|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
+	</li>
+	{% endif %}
+	{% endfor %}
+</ol>
+
+<h3>Preprints</h3>
+<!-- publication.status = "preprint" -->
+<ol reversed>
+	{% for publication in publications %}
+	{% if publication.status == "preprint" and not "Jappar" in publication.authors %}
+	<li>
+		{{ publication.title|safe }}, <i>{{ publication.container_title|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
+	</li>
+	{% endif %}
+	{% endfor %}
+</ol>
+
+<h3>Conference abstracts</h3>
+<!-- same as presentations -->
+<ol reversed>
+	{% for presentation in presentations %}
+	<li>
+		{{ presentation.title|safe }}, <i>{{ presentation.container_title|default:presentation.conference }}</i>, {{ presentation.city }} ({{ presentation.country }}), <b>{{ presentation.date|date:"Y" }}</b>, {{ presentation.authors }}{% if presentation.link %}. Link: {{ presentation.link }}{% endif %}
+	</li>
+	{% endfor %}
+</ol>
+
+</section>
+
 {% endblock except-nav %}

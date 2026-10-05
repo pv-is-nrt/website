@@ -142,27 +142,31 @@
     {% endfor %}
     </ol>
 
-
-    <!-- Research advising
+    <!-- Professional Service
     # --------------------------------------------------------------------->
-    <h2>Research advising</h2>
+    <h2>Professional service</h2>
+
+    <h3>Editorial</h3>
+    <p>Guest Editor for <i>Biomaterials: Recent Advances and Applications</i> in Applied Sciences (MDPI), 2025 &ndash; present <a href="https://www.mdpi.com/journal/applsci/special_issues/FMRZM63JVG" target="_blank">(link)</a></p>
+    
+    <h3>Scientific reviewing</h3>
+    <p>Reviewed manuscripts for the following journals:</p>
+    <ul>
+        {% for review in reviews %}
+        <li>{{ review.publication }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Research advising</h3>
     <p>Direct supervisor for members marked with an * {% if request.META.REMOTE_ADDR != '127.0.0.1' %}. Last name has been hidden for the sake of privacy online.{% endif %}</p>
     {% for advising in advisings %}
-        <p><b>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ advising.name }}{% else %}{{ advising.get_first_name }}{% endif %}</b>, {{ advising.title|safe }}, {{ advising.start_date|date:"Y" }} &ndash; {{ advising.end_date|date:"Y"|default:"present" }}. <span class="smaller">Journey &ndash; {{ advising.journey_short }}</span></p>
+        <p><i>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ advising.name }}{% else %}{{ advising.get_first_name }}{% endif %}</i>, {{ advising.title|safe }}, {{ advising.start_date|date:"Y" }} &ndash; {{ advising.end_date|date:"Y"|default:"present" }}. <span class="smaller">Journey &ndash; {{ advising.journey_short }}</span></p>
     {% endfor %}
 
-
-    <!-- Mentoring
-    # --------------------------------------------------------------------->
-    <h2>Mentorship</h2>
-    <p>Serving as a mentor for GT Mentor Jackets, GT MSE Industry Mentorship Program and IITR Alumni Mentorship Program. {% if request.META.REMOTE_ADDR != '127.0.0.1' %}Last name has been hidden for the sake of privacy online.{% endif %}</p>
-    {% regroup mentorings by degree_type as mentoring_groups %}
-    {% for group in mentoring_groups %}
-    <h3>{{ group.grouper }}</h3>
-        {% for mentoring in group.list %}
-        <p><b>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ mentoring.name }}{% else %}{{ mentoring.get_first_name }}{% endif %}</b> from {{ mentoring.start_date|date:"Y" }} &ndash; {{ mentoring.end_date|date:"Y"|default:"present" }}. Journey &ndash; {{ mentoring.journey_short }}</p>
-        {% endfor %}
-    </div>
+    <h3>Mentorship</h3>
+    <p>Served as a mentor for GT Mentor Jackets, GT MSE Industry Mentorship Program and IITR Alumni Mentorship Program. {% if request.META.REMOTE_ADDR != '127.0.0.1' %}Last name has been hidden for the sake of privacy online.{% endif %}</p>
+    {% for mentoring in mentorings %}
+        <p><i>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ mentoring.name }}{% else %}{{ mentoring.get_first_name }}{% endif %}</i> from {{ mentoring.start_date|date:"Y" }} &ndash; {{ mentoring.end_date|date:"Y"|default:"present" }}. Journey &ndash; {{ mentoring.journey_short }}</p>
     {% endfor %}
 
 
@@ -174,17 +178,6 @@
         {% for leadership in leaderships %}
         <li>{{ leadership.title|safe }}, {{ leadership.organization.short_name }}, <b>{{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</b>  
         </li>
-        {% endfor %}
-    </ul>
-
-
-    <!-- Scientific Reviewing
-    # --------------------------------------------------------------------->
-    <h2>Scientific reviewing</h2>
-    <p>Reviewed manuscripts for the following journals:</p>
-    <ul>
-        {% for review in reviews %}
-        <li>{{ review.publication }}</li>
         {% endfor %}
     </ul>
 
