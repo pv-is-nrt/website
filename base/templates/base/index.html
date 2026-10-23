@@ -87,18 +87,11 @@
 		<h2>Skills</h2>
 		<div class="grid-container">
 			{% for category in skills_categories %}
-			<div class="padded clickable card-very-thin" onClick="showdiv('skillset-{{ category }}');">
-				<h4>{{ category }}</h4>
-				<div class="skillset hidden-at-first" id="skillset-{{ category }}">
+			<div class="padded clickable card-very-thin" onClick="showdiv('skillset-{{ category.pk }}');">
+				<h4>{{ category.name }}</h4>
+				<div class="skillset hidden-at-first" id="skillset-{{ category.pk }}">
 					<hr>
-					{% for skill in category.skill_set.all %}
-					<div class="progress-item">
-						<h5>{{ skill.name }}</h5>
-						<div class="progress-bar-container">
-							<div class="progress-bar" style="width: {{ skill.score }}%"></div>
-						</div>
-					</div>
-					{% endfor %}
+					<p>{{ category.skills }}</p>
 				</div>
 			</div>
 			{% endfor %}

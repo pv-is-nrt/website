@@ -9,7 +9,7 @@ class ScholarCitationLookupError(Exception):
 
 
 def normalize_title(title):
-	return re.sub(r'\W+', '', title.casefold())
+	return re.sub(r'\W+', ' ', title.casefold()).strip()
 
 
 def scholar_user_id(profile_url):
@@ -19,21 +19,35 @@ def scholar_user_id(profile_url):
 	return user_id
 
 
-def lookup_profile_citation_counts(user_id):
+def lookup_profile_data(user_id):
 	try:
 		scholarly.set_retries(1)
 		scholarly.set_timeout(20)
 		author = scholarly.search_author_id(user_id, filled=False)
-		author = scholarly.fill(author, sections=['publications'], publication_limit=100)
+		author = scholarly.fill(author, sections=['indices', 'publications'], publication_limit=100)
 	except Exception as error:
 		raise ScholarCitationLookupError(
 			'Google Scholar profile request failed ({})'.format(type(error).__name__)
 		) from error
 
+	if not author:
+		raise ScholarCitationLookupError('Google Scholar returned an empty profile.')
+
+	try:
+		profile_data = {
+			'citations': int(author['citedby']),
+			'h_index': int(author['hindex']),
+			'i10_index': int(author['i10index']),
+		}
+	except (KeyError, TypeError, ValueError) as error:
+		raise ScholarCitationLookupError('Google Scholar profile metrics were incomplete.') from error
+
 	counts = {}
-	for publication in (author or {}).get('publications', []):
+	for publication in author.get('publications', []):
 		title = publication.get('bib', {}).get('title', '')
 		count = publication.get('num_citations')
 		if title and count is not None:
-			counts[normalize_title(title)] = int(count)
-	return counts
+			key = normalize_title(title)
+			counts[key] = max(counts.get(key, 0), int(count))
+	profile_data['publication_counts'] = counts
+	return profile_data

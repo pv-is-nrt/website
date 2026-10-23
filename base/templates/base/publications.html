@@ -65,11 +65,11 @@
 	<hr>
 	{% for publication in publications %}
 	<div class="smaller-text">
-		<h3>{{ publication.title }}{% if publication.status == 'preprint' %} (preprint){% endif %}</h3>
+		<h3>{{ publication.title }}{% if publication.is_preprint %} (preprint){% endif %}</h3>
 		<p>{{ publication.authors }}</p>
 		<div class="spacer10"></div>
 		<p>
-			<span class="uppercase color-accent2">{{ publication.container_title|default:publication.publisher }}</span>
+			<span class="uppercase color-accent2">{{ publication.venue.name|default:publication.publisher }}</span>
 			{% if publication.date %} / <span class="bold larger-text">{{ publication.date|date:"Y" }}</span>{% endif %}
 		</p>
 		<div class="spacer10"></div>
@@ -92,12 +92,12 @@
 <!-- [Reversed numbers in span]. “[Paper title],” [journal name], [publication year], [author list]. Link:  [link] -->
  <!-- grouping does not work here because it is not being passed as a context for sorting -->
 <h3>Peer-reviewed journal articles</h3>
-<!-- publication.status = "published" and publication.publication_type != conference-proceeding and publication.authors does not contain "Jappar" -->
+<!-- publication.status = "published" and not preprint and publication.publication_type != conference-proceeding and publication.authors does not contain "Jappar" -->
 <ol reversed>
 	{% for publication in publications %}
-	{% if publication.status == "published" and publication.publication_type != "conference-proceeding" and not "Jappar" in publication.authors %}
+	{% if publication.status == "published" and not publication.is_preprint and not publication.is_conference_proceeding and not "Jappar" in publication.authors %}
 	<li>
-		{{ publication.title|safe }}, <i>{{ publication.container_title|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
+		{{ publication.title|safe }}, <i>{{ publication.venue.name|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
 	</li>
 	{% endif %}
 	{% endfor %}
@@ -107,21 +107,21 @@
 <!-- publication.status = "published" and publication.publication_type = "conference-proceeding" -->
 <ol reversed>
 	{% for publication in publications %}
-	{% if publication.status == "published" and publication.publication_type == "conference-proceeding" and not "Jappar" in publication.authors %}
+	{% if publication.status == "published" and publication.is_conference_proceeding and not "Jappar" in publication.authors %}
 	<li>
-		{{ publication.title|safe }}, <i>{{ publication.container_title|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
+		{{ publication.title|safe }}, <i>{{ publication.venue.name|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
 	</li>
 	{% endif %}
 	{% endfor %}
 </ol>
 
 <h3>Preprints</h3>
-<!-- publication.status = "preprint" -->
+<!-- publication.is_preprint -->
 <ol reversed>
 	{% for publication in publications %}
-	{% if publication.status == "preprint" and not "Jappar" in publication.authors %}
+	{% if publication.is_preprint and not "Jappar" in publication.authors %}
 	<li>
-		{{ publication.title|safe }}, <i>{{ publication.container_title|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
+		{{ publication.title|safe }}, <i>{{ publication.venue.name|default:publication.publisher }}</i>, <b>{{ publication.date|date:"Y" }}</b>, {{ publication.authors }}{% if publication.link %}. Link: {{ publication.link }}{% endif %}
 	</li>
 	{% endif %}
 	{% endfor %}

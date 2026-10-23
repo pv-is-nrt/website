@@ -11,6 +11,7 @@ class ReferenceAdmin(admin.ModelAdmin):
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'featured', 'publication_date')
+    list_editable = ('featured',)
     search_fields = ['title', 'body', 'categories', 'tags', 'author']
     ordering = ['-publication_date']
 

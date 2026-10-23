@@ -3,8 +3,9 @@
     --page-width: 8.5in;
     --page-height: 11in;
     --page-side-margin: 0.6in;
-    --xs-gap: 0.05in;
-    --s-gap: 0.075in;
+    --xxs-gap: 0.015in;
+    --xs-gap: 0.025in;
+    --s-gap: 0.05in;
     --m-gap: 0.1in;
     --l-gap: 0.15in;
     --xl-gap: 0.2in;
@@ -14,9 +15,8 @@ body {
     width: var(--page-width); /* setting this property to page class hides the shadow and centering etc., so it's better here */
     margin: 0 auto;
     padding: 0 var(--page-side-margin); /* set these while printing the document for automatic page breaks */
-    font-family: sans-serif;
-    /* font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif; */
-    font-size: 9pt;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    font-size: 8.4pt;
     line-height: 1.3em; /* lesser than resume.css */
 }
 
@@ -27,53 +27,81 @@ header {
 }
 
 h1, h2, h3 {
-    font-family: sans-serif;
-    /* font-family: 'Roboto Serif', 'Times', serif; */
+    font-family: 'Roboto Serif', 'Times', serif;
 }
 
 h1 {
+    /* font-size: 1.5em; default is 2em */
+    /* text-transform: uppercase; */
+    /* letter-spacing: 0.2em; */
     font-size: 1.8em; /* default is 2em */
+    font-weight: 500;
     margin: 0;
-    /* color: var(--accent-color); */
+    color: var(--accent-color);
 }
 
 h2 {
-    font-size: 1.2em; /* default is 1.5em */
-    margin: var(--l-gap) -0.1in var(--s-gap);
+    font-size: 1.0em; /* default is 1.5em */
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    margin: var(--xl-gap) -0.1in var(--m-gap);
     padding: 0 0.1in var(--s-gap);
     border-bottom: solid 1px var(--accent-color);
 }
 
 h3 {
-    font-size: 1em; /* default is 1.17em */
+    font-size: 0.95em; /* default is 1.17em */
+    /* text-transform: uppercase; */
+    font-weight: 600;
     margin-top: var(--m-gap);
     margin-bottom: var(--xs-gap);
 }
 
+h4 {
+    font-size: 0.9em; /* default is 1.17em */
+    font-weight: normal;
+    font-style: italic;
+    margin-top: var(--xs-gap);
+    margin-bottom: var(--xs-gap);
+}
+
 ol {
-    margin-top: 0.03in;
+    /* margin-top: var(--xs-gap); */
     padding-left: 0.2in; /* 0.18in aligns it with the 0.05 left padding */
 }
 
 ul {
-    margin-top: 0.03in;
+    /* margin-top: var(--xs-gap); */
     list-style-type: '−'; /* this is a minus sign U2212 */
     padding-left: 0.1in;
 }
 
 li {
     padding-left: 0.05in;
-    margin-bottom: 0.1em; /* better than line height, because this keeps multi-lines in a list together */
+    margin-bottom: var(--xxs-gap); /* better than line height, because this keeps multi-lines in a list together */
+}
+
+p {
+    margin-bottom: var(--xxs-gap);
 }
 
 a {
     color: #000;
 }
 
+b {
+    font-weight: 500;
+}
+
 .tagline {
-    font-size: 1.0em;
-    font-style: italic;
-    margin: var(--m-gap) 0;
+    font-size: 0.9em;
+    /* font-style: italic; */
+    margin: var(--m-gap) 0 var(--xl-gap);
+}
+
+.uppercase {
+    text-transform: uppercase;
 }
 
 .small-uppercase {

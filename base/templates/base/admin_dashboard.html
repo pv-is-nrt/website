@@ -28,17 +28,22 @@
             <div class="citation-task">
                 <form id="citation-update-form" action="{% url 'admin-scholar-citations-update' %}" method="post">
                     {% csrf_token %}
-                    <button class="button play-button" type="submit" aria-label="Update publication citation counts" title="Update citation counts"><span aria-hidden="true">&#9654;</span></button>
+                    Update Google Scholar data <button class="button" type="submit">Go</button>
                 </form>
-                <progress id="citation-progress" max="{{ citation_records|length }}" value="0" hidden></progress>
+                <progress id="citation-progress" max="{{ citation_records|length|default:1 }}" value="0" hidden></progress>
                 <p id="citation-current" class="intro" hidden></p>
             </div>
-            <p id="citation-scholar-total" class="citation-scholar-total" hidden>Google Scholar citations updated this run: <strong>0</strong></p>
+            <p class="scholar-metrics">
+                <span>Citations: <strong id="scholar-citations">{% if google_scholar and google_scholar.citations != None %}{{ google_scholar.citations }}{% else %}Not yet available{% endif %}</strong></span>
+                <span>h-index: <strong id="scholar-h-index">{% if google_scholar and google_scholar.h_index != None %}{{ google_scholar.h_index }}{% else %}Not yet available{% endif %}</strong></span>
+                <span>i10-index: <strong id="scholar-i10-index">{% if google_scholar and google_scholar.i10_index != None %}{{ google_scholar.i10_index }}{% else %}Not yet available{% endif %}</strong></span>
+            </p>
+            <p id="scholar-updated-on" class="intro">{% if google_scholar.updated_at %}Last updated {{ google_scholar.updated_at|date:"M j, Y g:i A" }}{% else %}No cached Google Scholar data yet.{% endif %}</p>
             <div id="citation-results" class="citation-results" hidden>
                 <table>
                     <thead><tr><th>Publication</th><th>Previous</th><th>Current</th><th>Updated on</th><th>Status</th></tr></thead>
                     <tbody id="citation-results-body"></tbody>
-                    <tfoot><tr class="citation-total"><th>Total (from database)</th><td id="citation-previous-total">0</td><td id="citation-current-total">0</td><td colspan="2"></td></tr></tfoot>
+                    <tfoot><tr class="citation-total"><th>Unique-title total (from database)</th><td id="citation-previous-total">0</td><td id="citation-current-total">0</td><td colspan="2"></td></tr></tfoot>
                 </table>
             </div>
             {{ citation_records|json_script:"citation-records" }}

@@ -1,14 +1,15 @@
 # django related imports
 from django.conf import settings
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from datetime import date
+from datetime import date, timedelta
 import json
-from .models import BasicInformation, Education, Experience, Publication, Presentation, Proposal, Skillset, Skill, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, Analytic
+from .models import BasicInformation, Education, Experience, GoogleScholar, Venue, VenueMetric, Publication, PublicationType, Presentation, Proposal, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, Analytic
 # import models from other apps
 from blog.models import Post
 # Email
@@ -20,7 +21,7 @@ import math
 from .crossref import fetch_many
 from .scholar_citations import (
     ScholarCitationLookupError,
-    lookup_profile_citation_counts,
+    lookup_profile_data,
     normalize_title,
     scholar_user_id,
 )
@@ -34,24 +35,18 @@ def _get_common_context():
     basic_info = BasicInformation.objects.get(pk=1)
     educations = Education.objects.order_by('-start_date') # reverse order
     experiences = Experience.objects.order_by('-start_date') # reverse order
-    publications = Publication.objects.order_by('-status', '-date') # reverse order
+    publications = Publication.objects.select_related('venue').order_by('-status', '-date') # reverse order
     presentations = Presentation.objects.order_by('-date') # reverse order
     proposals = Proposal.objects.order_by('-year') # reverse order
-    skillsets = Skillset.objects.order_by('group', 'order')
-    # note the ordering by group is important for grouping in the template
-    skills_categories = SkillCategory.objects.order_by('group', 'order')
-    # get all skills ordered by score
-    skills = Skill.objects.order_by('-score')
-    # Get recent skills (last 3)
-    recent_skills = Skill.objects.order_by('-id')[:3]
+    skills_categories = SkillCategory.objects.order_by('id')
     leaderships = Leadership.objects.order_by('-start_date') # reverse order
     honor_and_awards = HonorAndAward.objects.order_by('-start_date') # reverse order
     advisings = Advising.objects.order_by('-start_date') # reverse order
     mentorings = Mentoring.objects.order_by('-start_date') # reverse order
     teachings = Teaching.objects.order_by('-year') # reverse order, TODO add semester ordering
     work_highlights = WorkHighlight.objects.order_by('-start_year')
-    references = Reference.objects.order_by('start_year')
-    reviews = Review.objects.order_by('publication') # reverse order
+    references = Reference.objects.filter(is_favorite=True).order_by('start_year')
+    reviews = Review.objects.select_related('venue').prefetch_related('venue__metrics').order_by('venue__name')
     
     # imports from other apps
     # import a maximum of six featured posts from the blog app ordered by most recent first
@@ -59,7 +54,7 @@ def _get_common_context():
     
     # Common but calculated things
     publications_published = Publication.objects.filter(status='published').order_by('-date')
-    publications_featured = Publication.objects.filter(featured=True).order_by('-date')
+    publications_featured = Publication.objects.select_related('venue').prefetch_related('venue__metrics').filter(featured=True).order_by('-date')
     # query database to find publications where author starts with Verma
     publications_first_author = Publication.objects.filter(authors__startswith='P Verma')
     publications_published_or_submitted = Publication.objects.filter(status='published').order_by('-date') | Publication.objects.filter(status='under review / submitted').order_by('-date')
@@ -67,7 +62,7 @@ def _get_common_context():
     presentations_featured = Presentation.objects.filter(featured=True).order_by('-date')
     honor_and_awards_featured = HonorAndAward.objects.filter(featured=True).order_by('-start_date')
     leaderships_featured = Leadership.objects.filter(featured=True).order_by('-start_date')
-    reviews_featured = Review.objects.filter(featured=True).order_by('publication')
+    reviews_featured = Review.objects.filter(featured=True).select_related('venue').order_by('venue__name')
     # calculate the number of advisings where the name field ends in a certain string
     count_direct_advising = len(Advising.objects.filter(name__endswith='*'))
     # get the distinct program values from the mentorings table
@@ -101,10 +96,7 @@ def _get_common_context():
         # Proposals
         'proposals': proposals,
         # Skills
-        'skillsets': skillsets,
         'skills_categories': skills_categories,
-        'skills': skills,
-        'recent_skills': recent_skills,
         # Leadership
         'leaderships': leaderships,
         'leaderships_featured': leaderships_featured,
@@ -132,80 +124,277 @@ def _get_common_context():
         'posts_featured': posts_featured,
     }
 
+
+def _get_cv_publications():
+    publications = list(Publication.objects.select_related('venue').prefetch_related('venue__metrics').exclude(
+        publication_types__name='preprint'
+    ).order_by('-status', '-date'))
+    preprints = Publication.objects.select_related('venue').prefetch_related('venue__metrics').filter(
+        publication_types__name='preprint',
+        published_version__isnull=True,
+    ).order_by('-date')
+    publication_sections = []
+    for publication in publications:
+        if not publication_sections or publication_sections[-1]['grouper'] != publication.status:
+            publication_sections.append({'grouper': publication.status, 'list': []})
+        publication_sections[-1]['list'].append(publication)
+
+    if preprints:
+        under_review_index = next(
+            (index for index, section in enumerate(publication_sections)
+             if section['grouper'] == 'under review / submitted'),
+            None,
+        )
+        if under_review_index is not None:
+            insert_index = under_review_index + 1
+        else:
+            insert_index = next(
+                (index for index, section in enumerate(publication_sections)
+                 if section['grouper'] == 'published'),
+                len(publication_sections),
+            )
+        publication_sections.insert(insert_index, {'is_preprints': True})
+
+    return publications, preprints, publication_sections
+
+
+def _group_cv_teachings(teachings):
+    semester_order = {'Spring': 1, 'Summer': 2, 'Fall': 3}
+    grouped_teachings = {}
+    for teaching in teachings:
+        key = (
+            teaching.organization_id,
+            teaching.position,
+            teaching.course_code,
+            teaching.topic,
+            teaching.course_name,
+        )
+        if key not in grouped_teachings:
+            grouped_teachings[key] = {'teaching': teaching, 'offerings': set()}
+        grouped_teachings[key]['offerings'].add((
+            teaching.year,
+            semester_order.get(teaching.semester, 0),
+            teaching.semester,
+        ))
+
+    grouped = []
+    for item in grouped_teachings.values():
+        teaching = item['teaching']
+        offerings = sorted(item['offerings'], reverse=True)
+        teaching.cv_offering_labels = [
+            str(year) for year in sorted({year for year, _, _ in offerings})
+        ]
+        teaching.cv_latest_year = offerings[0][0]
+        teaching.cv_latest_semester_order = offerings[0][1]
+        grouped.append(teaching)
+    return grouped
+
+
+def _get_cv_teachings():
+    teachings = list(Teaching.objects.select_related('organization'))
+    semester_order = {'Spring': 1, 'Summer': 2, 'Fall': 3}
+    latest_by_organization = {}
+    for teaching in teachings:
+        teaching_date = (teaching.year, semester_order.get(teaching.semester, 0))
+        latest_by_organization[teaching.organization_id] = max(
+            latest_by_organization.get(teaching.organization_id, teaching_date),
+            teaching_date,
+        )
+
+    teachings = _group_cv_teachings(teachings)
+    teachings.sort(key=lambda teaching: (
+        -latest_by_organization[teaching.organization_id][0],
+        -latest_by_organization[teaching.organization_id][1],
+        teaching.organization.full_name.casefold(),
+        teaching.position.casefold(),
+        -teaching.cv_latest_year,
+        -teaching.cv_latest_semester_order,
+        teaching.pk,
+    ))
+    return teachings
+
+
+def _get_cv_review_groups(reviews):
+    grouped_reviews = {}
+    for review in reviews:
+        venue = review.venue
+        impact_factor = next(
+            (metric for metric in venue.latest_metrics if metric.metric_type == 'impact_factor'),
+            None,
+        )
+        publisher = venue.publisher.strip()
+        if publisher.casefold() in venue.name.casefold():
+            publisher = ''
+        grouped_reviews.setdefault(venue.kind, []).append({
+            'venue': venue,
+            'publisher': publisher,
+            'impact_factor': impact_factor,
+        })
+
+    groups = []
+    for kind, label in Venue.KIND_CHOICES:
+        kind_reviews = grouped_reviews.get(kind, [])
+        kind_reviews.sort(key=lambda item: (
+            item['impact_factor'] is None,
+            -item['impact_factor'].value if item['impact_factor'] else 0,
+            item['venue'].name.casefold(),
+        ))
+        if kind_reviews:
+            groups.append({'label': label, 'reviews': kind_reviews})
+    return groups
+
 #    Index page
 # -------------------------------------------------------------------- #
 
 @staff_member_required(login_url='/admin/models/login/')
 def admin_dashboard(request):
-    citation_records = list(Publication.objects.order_by('date', 'pk').values('id', 'title', 'citations', 'updated_at'))
-    return render(request, 'base/admin_dashboard.html', {'citation_records': citation_records})
+    citation_records = list(Publication.objects.order_by('date', 'pk').values('id', 'title', 'citations', 'citations_updated_on'))
+    google_scholar = GoogleScholar.objects.filter(pk=1).first()
+    return render(request, 'base/admin_dashboard.html', {
+        'citation_records': citation_records,
+        'google_scholar': google_scholar,
+    })
+
+
+GOOGLE_SCHOLAR_REFRESH_INTERVAL = timedelta(hours=24)
 
 
 def _database_citation_total():
-    total = 0
-    for value in Publication.objects.values_list('citations', flat=True):
+    counts_by_title = {}
+    publications = Publication.objects.exclude(
+        publication_types__name='preprint',
+        published_version__isnull=False,
+    )
+    for title, value in publications.values_list('title', 'citations'):
         try:
-            total += int((value or '').replace(',', '').strip())
+            count = int((value or '').replace(',', '').strip())
         except ValueError:
             continue
-    return total
+        title_key = normalize_title(title)
+        if title_key:
+            counts_by_title[title_key] = max(counts_by_title.get(title_key, 0), count)
+    return sum(counts_by_title.values())
+
+
+def _match_scholar_publications(publications, profile_counts):
+    available_counts = profile_counts.copy()
+    ordered_publications = sorted(
+        publications,
+        key=lambda publication: (publication.is_preprint(), publication.pk),
+    )
+    matched_counts = {}
+    matched_titles = set()
+    for publication in ordered_publications:
+        title_key = normalize_title(publication.title)
+        if title_key in available_counts:
+            matched_counts[publication.pk] = available_counts.pop(title_key)
+            matched_titles.add(title_key)
+    return matched_counts, matched_titles
 
 
 @staff_member_required(login_url='/admin/models/login/')
 @require_POST
 def admin_update_scholar_citations(request):
     publications = list(Publication.objects.order_by('date', 'pk'))
-    profile_counts = {}
+    today = timezone.localdate()
+    now = timezone.now()
+    google_scholar, _ = GoogleScholar.objects.get_or_create(pk=1)
+    is_fresh = (
+        google_scholar.updated_at is not None
+        and now - google_scholar.updated_at < GOOGLE_SCHOLAR_REFRESH_INTERVAL
+    )
+    results = []
+    refreshed = False
     fetch_error = None
 
-    if publications:
+    if is_fresh:
+        for publication in publications:
+            results.append({
+                'id': publication.pk,
+                'title': publication.title,
+                'old_count': publication.citations,
+                'new_count': publication.citations,
+                'updated_on': publication.citations_updated_on.isoformat() if publication.citations_updated_on else '',
+                'status': 'Skipped (profile data is less than 24 hours old)',
+            })
+        message = 'Google Scholar data is current; no request was made.'
+    else:
         try:
             profile_url = BasicInformation.objects.get(pk=1).scholar_url
-            profile_counts = lookup_profile_citation_counts(scholar_user_id(profile_url))
+            profile_data = lookup_profile_data(scholar_user_id(profile_url))
         except (BasicInformation.DoesNotExist, ScholarCitationLookupError) as error:
             fetch_error = str(error)
-
-    results = []
-    updated_counts = []
-    for publication in publications:
-        old_count = publication.citations
-        updated_on = timezone.localtime(publication.updated_at).date().isoformat() if publication.updated_at else ''
-        result = {
-            'id': publication.pk,
-            'title': publication.title,
-            'old_count': old_count,
-            'new_count': old_count,
-            'updated_on': updated_on,
-        }
-
         if fetch_error:
-            result['status'] = fetch_error
-        else:
-            key = normalize_title(publication.title)
-            if key not in profile_counts:
-                result['status'] = 'Not found in Scholar profile'
-            else:
-                citation_count = profile_counts[key]
-                publication.citations = str(citation_count)
-                publication.save(update_fields=['citations', 'updated_at'])
-                result.update({
-                    'new_count': citation_count,
-                    'updated_on': timezone.localtime(publication.updated_at).date().isoformat(),
-                    'status': 'Updated',
+            for publication in publications:
+                results.append({
+                    'id': publication.pk,
+                    'title': publication.title,
+                    'old_count': publication.citations,
+                    'new_count': publication.citations,
+                    'updated_on': publication.citations_updated_on.isoformat() if publication.citations_updated_on else '',
+                    'status': fetch_error,
                 })
-                updated_counts.append(citation_count)
-        results.append(result)
+            message = fetch_error
+        else:
+            google_scholar.citations = profile_data['citations']
+            google_scholar.h_index = profile_data['h_index']
+            google_scholar.i10_index = profile_data['i10_index']
+            google_scholar.updated_at = now
 
-    if not publications:
-        message = 'No publication records to update.'
-    elif fetch_error:
-        message = fetch_error
-    else:
-        message = 'Matched {} publication(s) from the Scholar profile.'.format(len(updated_counts))
+            publications_to_update = []
+            profile_counts = profile_data['publication_counts']
+            matched_profile_counts, matched_title_keys = _match_scholar_publications(
+                publications,
+                profile_counts,
+            )
+            for publication in publications:
+                old_count = publication.citations
+                key = normalize_title(publication.title)
+                citation_count = matched_profile_counts.get(publication.pk)
+                if citation_count is None:
+                    status = (
+                        'Duplicate title (Scholar item matched to another record)'
+                        if key in matched_title_keys
+                        else 'Not found in Scholar profile'
+                    )
+                    new_count = old_count
+                    updated_on = publication.citations_updated_on.isoformat() if publication.citations_updated_on else ''
+                else:
+                    publication.citations = str(citation_count)
+                    publication.citations_updated_on = today
+                    publication.updated_at = now
+                    publications_to_update.append(publication)
+                    status = 'Updated'
+                    new_count = citation_count
+                    updated_on = today.isoformat()
+                results.append({
+                    'id': publication.pk,
+                    'title': publication.title,
+                    'old_count': old_count,
+                    'new_count': new_count,
+                    'updated_on': updated_on,
+                    'status': status,
+                })
+            with transaction.atomic():
+                google_scholar.save(update_fields=('citations', 'h_index', 'i10_index', 'updated_at'))
+                if publications_to_update:
+                    Publication.objects.bulk_update(
+                        publications_to_update,
+                        ('citations', 'citations_updated_on', 'updated_at'),
+                    )
+            refreshed = True
+            message = 'Updated Scholar metrics and matched {} publication(s).'.format(len(publications_to_update))
 
     return JsonResponse({
         'results': results,
-        'scholar_total': sum(updated_counts),
+        'google_scholar': {
+            'citations': google_scholar.citations,
+            'h_index': google_scholar.h_index,
+            'i10_index': google_scholar.i10_index,
+            'updated_at': google_scholar.updated_at.isoformat() if google_scholar.updated_at else None,
+        },
+        'refreshed': refreshed,
+        'scholar_total': google_scholar.citations,
         'database_total': _database_citation_total(),
         'message': message,
     })
@@ -213,7 +402,7 @@ def admin_update_scholar_citations(request):
 
 @staff_member_required(login_url='/admin/models/login/')
 def admin_crossref(request):
-    publications = Publication.objects.exclude(doi='').order_by('-date')
+    publications = Publication.objects.select_related('venue').exclude(doi='').order_by('-date')
     records = [
         {'key': 'publication-{}'.format(record.pk), 'type': 'publication', 'id': record.pk, 'doi': record.doi, 'record': record}
         for record in publications
@@ -243,11 +432,18 @@ def admin_crossref(request):
             item['record'] = next(record['record'] for record in records if record['key'] == item['record_key'])
             item['fields'] = []
             if item['ok']:
-                field_names = ('doi', 'title', 'authors', 'container_title', 'publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
+                field_names = ('doi', 'title', 'authors', 'container_title', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
                 for field in field_names:
-                    crossref_field = field
+                    crossref_field = 'publisher' if field == 'venue_publisher' else field
                     current_value = getattr(item['record'], field, '')
+                    if field == 'container_title':
+                        current_value = item['record'].venue.name if item['record'].venue else ''
+                    elif field == 'venue_publisher':
+                        current_value = item['record'].venue.publisher if item['record'].venue else ''
                     proposed_value = item['metadata'].get(crossref_field, '')
+                    if field == 'publication_type':
+                        type_names = list(item['record'].publication_types.values_list('name', flat=True))
+                        current_value = ', '.join(type_names)
                     item['fields'].append({
                         'name': field,
                         'label': (
@@ -257,8 +453,12 @@ def admin_crossref(request):
                         ),
                         'current': current_value.isoformat() if hasattr(current_value, 'isoformat') else current_value,
                         'proposed': proposed_value,
-                        'changed': str(current_value) != str(proposed_value),
+                        'changed': proposed_value not in type_names if field == 'publication_type' else str(current_value) != str(proposed_value),
                         'apply_by_default': (
+                            field == 'venue_publisher'
+                            and not current_value
+                            and bool(proposed_value)
+                        ) or (
                             field == 'abstract'
                             and bool(proposed_value)
                             and len(str(proposed_value).split()) >= len(str(current_value).split())
@@ -267,7 +467,7 @@ def admin_crossref(request):
                             and not current_value
                             and bool(proposed_value)
                         ) or (
-                            field not in ('abstract', 'date')
+                            field not in ('abstract', 'date', 'venue_publisher')
                             and str(current_value) != str(proposed_value)
                             and bool(proposed_value)
                         ),
@@ -300,13 +500,34 @@ def admin_crossref(request):
             record = Publication.objects.filter(pk=item['record_id']).first()
             if not record:
                 continue
-            fields = ('doi', 'title', 'authors', 'container_title', 'publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
+            fields = ('doi', 'title', 'authors', 'container_title', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
             for field in fields:
                 if 'apply_{}_{}'.format(item['record_key'], field) not in request.POST:
                     continue
                 value = request.POST.get('value_{}_{}'.format(item['record_key'], field), '')
                 if field not in ('title', 'abstract'):
-                    value = item['metadata'].get(field, getattr(record, field))
+                    metadata_field = 'publisher' if field == 'venue_publisher' else field
+                    value = item['metadata'].get(metadata_field, getattr(record, field, ''))
+                if field == 'container_title':
+                    venue_name = str(value).strip()
+                    if venue_name:
+                        venue = Venue.objects.filter(name__iexact=venue_name).first()
+                        if venue is None:
+                            venue = Venue.objects.create(name=venue_name)
+                        record.venue = venue
+                    else:
+                        record.venue = None
+                    continue
+                if field == 'venue_publisher':
+                    if record.venue:
+                        record.venue.publisher = value
+                        record.venue.save(update_fields=('publisher',))
+                    continue
+                if field == 'publication_type':
+                    if value:
+                        publication_type, _ = PublicationType.objects.get_or_create(name=value)
+                        record.publication_types.add(publication_type)
+                    continue
                 if field == 'date' and isinstance(value, str) and len(value) == 10:
                     value = date.fromisoformat(value)
                 setattr(record, field, value)
@@ -385,7 +606,7 @@ def professional(request):
 
 def publications(request):
     context = _get_common_context()
-    context['publications'] = Publication.objects.order_by('-date', 'title')
+    context['publications'] = Publication.objects.select_related('venue').order_by('-date', 'title')
     context['presentations'] = Presentation.objects.order_by('-date', 'title')
     context['first_name'] = context['basic_info'].first_name
     context['last_name'] = context['basic_info'].last_name
@@ -503,6 +724,14 @@ def cv(request):
     core.add_user_info_to_database(Analytic(), request, '/cv')
 
     context = _get_common_context()
+    context['cv_teachings'] = _get_cv_teachings()
+    context['review_groups'] = _get_cv_review_groups(context['reviews'])
+    context['google_scholar'] = GoogleScholar.objects.filter(pk=1).first()
+    (
+        context['publications'],
+        context['preprints'],
+        context['publication_sections'],
+    ) = _get_cv_publications()
     return render(request, 'base/cv.html', context)
 
 def cv_chen(request):
@@ -512,6 +741,14 @@ def cv_chen(request):
     core.add_user_info_to_database(Analytic(), request, '/cv-chen')
 
     context = _get_common_context()
+    context['cv_teachings'] = _get_cv_teachings()
+    context['review_groups'] = _get_cv_review_groups(context['reviews'])
+    context['google_scholar'] = GoogleScholar.objects.filter(pk=1).first()
+    (
+        context['publications'],
+        context['preprints'],
+        context['publication_sections'],
+    ) = _get_cv_publications()
     return render(request, 'base/cv-chen.html', context)
 
 
@@ -525,4 +762,11 @@ def resume(request):
     core.add_user_info_to_database(Analytic(), request, '/resume')
 
     context = _get_common_context()
+    context['google_scholar'] = GoogleScholar.objects.filter(pk=1).first()
     return render(request, 'base/resume.html', context)
+
+
+def resume_old(request):
+    core.add_user_info_to_database(Analytic(), request, '/resume-old')
+    context = _get_common_context()
+    return render(request, 'base/resume-old.html', context)

@@ -77,33 +77,45 @@
     <!-- Skills
     # --------------------------------------------------------------------->
     <h2>Skills</h2>
-    {% regroup skills_categories by group as category_groups %}
-    {% for group in category_groups %}
-        {% for category in group.list %}
-            <p>
-            <b>{{ category }}</b> &ndash; 
-            {% for skill in category.skill_set.all|dictsortreversed:"start_year" %}
-                {{ skill|capfirst }}{% if not forloop.last %}, {% else %}.{% endif %}
-            {% endfor %}
-            </p>
-        {% endfor %}
+    {% for category in skills_categories %}
+        <p><b>{{ category.name }}</b> &ndash; {{ category.skills }}</p>
     {% endfor %}
     
 
     <!-- Publications
     # --------------------------------------------------------------------->
     <h2>Publications</h2>
-    <p><a href="https://scholar.google.com/citations?user=UX6lFSoAAAAJ&hl=en" target="blank">Google Scholar Link</a></p>
-    {% regroup publications by status as publications_status_groups %}
-    {% for group in publications_status_groups %}
+    <h3>Google Scholar</h3>
+    <p>
+        Citations: <b>{% if google_scholar and google_scholar.citations != None %}{{ google_scholar.citations }}{% else %}Not yet available{% endif %}</b>,
+        h-index: <b>{% if google_scholar and google_scholar.h_index != None %}{{ google_scholar.h_index }}{% else %}Not yet available{% endif %}</b>,
+        i10-index: <b>{% if google_scholar and google_scholar.i10_index != None %}{{ google_scholar.i10_index }}{% else %}Not yet available{% endif %}</b>
+        {% if google_scholar and google_scholar.updated_at %}as of {{ google_scholar.updated_at|date:"F j, Y" }}{% endif %}
+        (<a href="{{ basic_info.scholar_url }}" target="blank">link</a>)
+    </p>
+    {% for group in publication_sections %}
+    {% if group.is_preprints %}
+    {% if preprints %}
+    <h3>Preprint</h3>
+    <p>Only preprints without an associated final publication are listed here.</p>
+    <ol reversed>
+        {% for publication in preprints %}
+        <li>
+            {% for author in publication.authors_list_short %}{% if author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor: {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %} ({{ metric.year }}){% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+    {% endif %}
+    {% elif group.list %}
     <h3>{{ group.grouper|capfirst }}</h3>
     <ol reversed>
         {% for publication in group.list %}
         <li>
-            {% for author in publication.authors_list_short %}{% if author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.container_title|default:publication.publisher }}</i>{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+            {% for author in publication.authors_list_short %}{% if author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor: {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %} ({{ metric.year }}){% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
         </li>
         {% endfor %}
     </ol>
+    {% endif %}
     {% endfor %}
     
 
@@ -123,12 +135,19 @@
     <!-- Teaching
     # --------------------------------------------------------------------->
     <h2>Teaching experience</h2>
+    {% regroup cv_teachings by organization as teaching_organizations %}
+    {% for organization in teaching_organizations %}
+    <h3>{{ organization.grouper.full_name }}</h3>
+    {% regroup organization.list by position as teaching_positions %}
+    {% for position in teaching_positions %}
+    <p><i>{{ position.grouper }}</i></p>
     <ul>
-        {% for teaching in teachings %}
-        <li>{{ teaching.position }} for {{ teaching.topic|default:teaching.course_name|safe }} at {{ teaching.organization.short_name }} ({{ teaching.course_code }}) in <b>{{ teaching.year }}</b>
-        </li>
+        {% for teaching in position.list %}
+        <li>{% if teaching.topic or teaching.course_name %}{{ teaching.topic|default:teaching.course_name|safe }}{% if teaching.course_code %}, {{ teaching.course_code }}{% endif %}{% else %}{{ teaching.course_code }}{% endif %}, <b>{% for offering in teaching.cv_offering_labels %}{{ offering }}{% if not forloop.last %}, {% endif %}{% endfor %}</b></li>
         {% endfor %}
     </ul>
+    {% endfor %}
+    {% endfor %}
 
 
     <!-- Awards
@@ -163,11 +182,14 @@
     
     <h3>Scientific reviewing</h3>
     <p>Reviewed manuscripts for the following journals:</p>
+    {% for group in review_groups %}
+    <h4>{{ group.label }}</h4>
     <ul>
-        {% for review in reviews %}
-        <li>{{ review.publication }}</li>
+        {% for review in group.reviews %}
+        <li>{{ review.venue.name }}{% if review.publisher %}, {{ review.publisher }}{% endif %}{% if review.impact_factor %} <span class="smaller">(impact factor = {{ review.impact_factor.display_value }})</span>{% endif %}</li>
         {% endfor %}
     </ul>
+    {% endfor %}
 
     <h3>Research advising</h3>
     <p>Direct supervisor for members marked with an * {% if request.META.REMOTE_ADDR != '127.0.0.1' %}. Last name has been hidden for the sake of privacy online.{% endif %}</p>

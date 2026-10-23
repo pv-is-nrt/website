@@ -6,10 +6,12 @@
     const current = document.querySelector('#citation-current');
     const results = document.querySelector('#citation-results');
     const resultsBody = document.querySelector('#citation-results-body');
-    const scholarTotal = document.querySelector('#citation-scholar-total');
-    const scholarTotalValue = scholarTotal.querySelector('strong');
     const previousTotal = document.querySelector('#citation-previous-total');
     const currentTotal = document.querySelector('#citation-current-total');
+    const scholarCitations = document.querySelector('#scholar-citations');
+    const scholarHIndex = document.querySelector('#scholar-h-index');
+    const scholarI10Index = document.querySelector('#scholar-i10-index');
+    const scholarUpdatedOn = document.querySelector('#scholar-updated-on');
     let previousTotalCount = 0;
 
     function formatDate(value) {
@@ -34,7 +36,7 @@
             record.title,
             result.old_count ?? record.citations ?? 'N/A',
             result.new_count === undefined ? (record.citations || 'N/A') : result.new_count,
-            formatDate(result.updated_on || record.updated_at),
+            formatDate(result.updated_on || record.citations_updated_on),
             result.status || 'Updated',
         ];
         values.forEach((value, index) => {
@@ -48,22 +50,28 @@
         resultsBody.append(row);
     }
 
+    function updateProfile(profile) {
+        scholarCitations.textContent = profile.citations ?? 'Not yet available';
+        scholarHIndex.textContent = profile.h_index ?? 'Not yet available';
+        scholarI10Index.textContent = profile.i10_index ?? 'Not yet available';
+        scholarUpdatedOn.textContent = profile.updated_at
+            ? `Last updated ${formatDate(profile.updated_at)}`
+            : 'No cached Google Scholar data yet.';
+    }
+
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
-        if (!records.length) return;
 
         button.disabled = true;
         progress.hidden = false;
         progress.removeAttribute('value');
         current.hidden = false;
         results.hidden = false;
-        scholarTotal.hidden = false;
-        scholarTotalValue.textContent = '0';
         previousTotalCount = records.reduce((total, record) => total + citationCount(record.citations), 0);
         previousTotal.textContent = previousTotalCount.toLocaleString();
         currentTotal.textContent = previousTotalCount.toLocaleString();
         resultsBody.replaceChildren();
-        current.textContent = 'Fetching the Scholar profile and matching publications...';
+        current.textContent = 'Checking the Scholar profile cache...';
 
         try {
             const response = await fetch(form.action, {
@@ -77,13 +85,13 @@
                 const result = resultsById.get(record.id) || {
                     old_count: record.citations,
                     new_count: record.citations,
-                    updated_on: record.updated_at,
+                    updated_on: record.citations_updated_on,
                     status: data.error || 'No result returned',
                 };
                 addResult(record, result);
             }
 
-            scholarTotalValue.textContent = citationCount(data.scholar_total).toLocaleString();
+            updateProfile(data.google_scholar || {});
             currentTotal.textContent = Number(data.database_total ?? previousTotalCount).toLocaleString();
             current.textContent = data.message || `Processed ${records.length} publications.`;
         } catch {
@@ -91,15 +99,15 @@
                 addResult(record, {
                     old_count: record.citations,
                     new_count: record.citations,
-                    updated_on: record.updated_at,
+                    updated_on: record.citations_updated_on,
                     status: 'Request failed; database counts were left unchanged.',
                 });
             }
             current.textContent = 'The profile request failed; database counts were left unchanged.';
         }
 
-        progress.max = records.length;
-        progress.value = records.length;
+        progress.max = Math.max(records.length, 1);
+        progress.value = Math.max(records.length, 1);
         button.disabled = false;
     });
 })();

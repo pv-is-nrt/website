@@ -1,5 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.db import models
-
+ 
 #    Organizations
 # ---------------------------------------------------------------------------- #
 
@@ -36,12 +37,17 @@ class PublicationTag(models.Model):
         return self.name
 
 
-#    Basic information
-# ---------------------------------------------------------------------------- #
+class PublicationType(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
 
 class BasicInformation(models.Model):
-    
-    # define the fields
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
     birth_date = models.DateField()
@@ -56,6 +62,7 @@ class BasicInformation(models.Model):
     country = models.CharField(max_length=200)
     zip_code = models.CharField(max_length=20)
     website_tagline = models.CharField(max_length=100, blank=True)
+    cv_tagline = models.CharField(max_length=100, blank=True)
     resume_tagline = models.CharField(max_length=100, blank=True)
     personal_statement = models.TextField(blank=True)
     resume_statement = models.TextField(blank=True)
@@ -80,6 +87,19 @@ class BasicInformation(models.Model):
     # return a string representation of the object
     def __str__(self):
         return self.first_name + " " + self.last_name
+
+
+class GoogleScholar(models.Model):
+    citations = models.PositiveBigIntegerField(null=True, blank=True)
+    h_index = models.PositiveIntegerField(null=True, blank=True)
+    i10_index = models.PositiveIntegerField(null=True, blank=True)
+    updated_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'google_scholar'
+
+    def __str__(self):
+        return 'Google Scholar profile metrics'
 
 
 #    Education
@@ -143,6 +163,75 @@ class Message(models.Model):
         return self.senders_name
 
 
+class Venue(models.Model):
+    KIND_CHOICES = [
+        ('journal', 'Journal'),
+        ('conference', 'Conference'),
+        ('conference_proceeding', 'Conference proceeding'),
+        ('conference_workshop', 'Conference workshop'),
+        ('book_series', 'Book series'),
+        ('other', 'Other'),
+    ]
+
+    name = models.CharField(max_length=500, unique=True)
+    publisher = models.CharField(max_length=200, blank=True)
+    kind = models.CharField(max_length=21, choices=KIND_CHOICES, default='other')
+    issn = models.CharField(max_length=20, blank=True)
+    eissn = models.CharField(max_length=20, blank=True)
+    acronym = models.CharField(max_length=50, blank=True)
+    url = models.URLField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def latest_metrics(self):
+        latest = {}
+        for metric in self.metrics.all():
+            latest.setdefault(metric.metric_type, metric)
+        return list(latest.values())
+
+    @property
+    def cv_metrics(self):
+        return [
+            metric for metric in self.latest_metrics
+            if (metric.metric_type == 'impact_factor' and metric.value > 4)
+            or (metric.metric_type == 'acceptance_rate' and metric.value < 40)
+        ]
+
+
+class VenueMetric(models.Model):
+    METRIC_TYPES = [
+        ('impact_factor', 'Impact factor'),
+        ('acceptance_rate', 'Acceptance rate'),
+    ]
+
+    venue = models.ForeignKey(Venue, related_name='metrics', on_delete=models.CASCADE)
+    metric_type = models.CharField(max_length=30, choices=METRIC_TYPES)
+    year = models.PositiveSmallIntegerField()
+    value = models.DecimalField(max_digits=10, decimal_places=3)
+    accepted_count = models.PositiveIntegerField(null=True, blank=True)
+    submission_count = models.PositiveIntegerField(null=True, blank=True)
+    source_url = models.URLField(blank=True)
+    verified_on = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ('metric_type', '-year')
+        constraints = [
+            models.UniqueConstraint(
+                fields=('venue', 'metric_type', 'year'),
+                name='unique_venue_metric_year',
+            ),
+        ]
+
+    def __str__(self):
+        return '{} {} ({})'.format(self.venue, self.get_metric_type_display(), self.year)
+
+    @property
+    def display_value(self):
+        return format(self.value.normalize(), 'f')
+
+
 #    Publications
 # ---------------------------------------------------------------------------- #
 
@@ -152,21 +241,24 @@ class Publication(models.Model):
     title = models.CharField(max_length=500)
     authors = models.CharField(max_length=500)
     publisher = models.CharField(max_length=200, blank=True)
-    container_title = models.CharField(max_length=500, blank=True)
+    venue = models.ForeignKey(Venue, null=True, blank=True, related_name='publications', on_delete=models.SET_NULL)
     volume = models.CharField(max_length=100, blank=True)
     issue = models.CharField(max_length=100, blank=True)
     date = models.DateField(null=True, blank=True)
     doi = models.CharField(max_length=200, blank=True)
     pages = models.CharField(max_length=100, blank=True)
     article_number = models.CharField(max_length=100, blank=True)
-    publication_type = models.CharField(max_length=100, blank=True)
+    publication_types = models.ManyToManyField(PublicationType, blank=True)
     abstract = models.TextField(blank=True)
     keywords = models.TextField(blank=True)
     information_confirmed = models.BooleanField(default=False, blank=True)
     link = models.URLField(blank=True)
     featured = models.BooleanField(default=False, blank=True)
     citations = models.CharField(max_length=10, blank=True)
-    status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published"), ("in progress", "in progress"), ("preprint", "preprint")], default="published", blank=True)
+    citations_updated_on = models.DateField(null=True, blank=True)
+    # set on the preprint; the final publication reaches it through `preprint`
+    published_version = models.OneToOneField('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='preprint', limit_choices_to=~models.Q(publication_types__name='preprint'))
+    status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published"), ("in progress", "in progress")], default="published", blank=True)
     comment = models.CharField(max_length=200, blank=True)
     tags = models.ManyToManyField(PublicationTag, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -175,6 +267,13 @@ class Publication(models.Model):
     def __str__(self):
         # return date year and title
         return (str(self.date.year) if self.date else "Undated") + " - " + self.title
+    def clean(self):
+        if self.published_version_id and self.published_version_id == self.pk:
+            raise ValidationError({'published_version': 'A publication cannot be its own published version.'})
+    def is_conference_proceeding(self):
+        return self.publication_types.filter(name='conference-proceeding').exists()
+    def is_preprint(self):
+        return self.publication_types.filter(name='preprint').exists()
     # return authors as a list of authors
     def authors_list(self):
         return self.authors.split(", ")
@@ -266,70 +365,13 @@ class Proposal(models.Model):
         return str(self.year) + " - " + self.title
 
 
-#    Skillsets
-# ---------------------------------------------------------------------------- #
-
-class Skillset(models.Model):
-
-    # define the fields
-    category = models.CharField(max_length=200)
-    category_full = models.CharField(max_length=200, blank=True)
-    score = models.PositiveSmallIntegerField(blank=True)
-    skills = models.TextField()
-    order = models.PositiveSmallIntegerField(default=1)
-    group = models.CharField(max_length=200, choices=[("1", "1"), ("2", "2"), ("3", "3"), ("4", "4")])
-
-    # return a string representation of the object
-    def __str__(self):
-        return self.category
-    # return the skills as a list of skills
-    def skills_list_with_score(self):
-        skills_list = self.skills.split(", ")
-        # sort the skills_list alphabetically
-        skills_list.sort(key=str.lower) # so that uppercase does not come before lowercase
-        score_list = [item.split('#')[1].strip().strip('*') for item in skills_list]
-        skills_list_without_score = [item.split('#')[0].strip() for item in skills_list]
-        # zip the lists together
-        return list(zip(skills_list_without_score, score_list))
-    def skills_list_abbr(self):
-        skills_list = self.skills.split(", ")
-        # remove the score from the list
-        skills_list = [item.split('#')[0].strip().strip('*') for item in skills_list]
-        return [item.split(' (')[0] for item in skills_list]
-    def skills_list_abbr_with_score(self):
-        skills_list = self.skills.split(", ")
-        # sort the skills_list alphabetically
-        skills_list.sort(key=str.lower) # so that uppercase does not come before lowercase
-        score_list = [item.split('#')[1].strip().strip('*') for item in skills_list]
-        skills_list_without_score = [item.split('#')[0].strip() for item in skills_list]
-        skills_list_abbr = [item.split(' (')[0] for item in skills_list_without_score]
-        # zip the lists together
-        return list(zip(skills_list_abbr, score_list))
-
-
 #    Skills
 # ---------------------------------------------------------------------------- #
-
 class SkillCategory(models.Model):
-    # define the fields
     name = models.CharField(max_length=100)
-    score = models.PositiveSmallIntegerField(default=50)
-    group = models.CharField(max_length=100, choices=[("1", "1"), ("2", "2"), ("3", "3"), ("4", "4")])
-    order = models.PositiveSmallIntegerField(default=1)
-    hidden = models.BooleanField(default=False)
-    # define the methods
-    # return a string representation of the object
-    def __str__(self):
-        return self.name
+    skills = models.TextField(verbose_name='Skills (CV and website)')
+    skills_short = models.TextField(verbose_name='Skills (resume)')
 
-class Skill(models.Model):
-    name = models.CharField(max_length=200)
-    short_name = models.CharField(max_length=100, blank=True)
-    category = models.ManyToManyField(SkillCategory)
-    score = models.PositiveSmallIntegerField(default=50)
-    start_year = models.PositiveSmallIntegerField(default=2006) # used to gauge the newness of the skill
-    # define the methods
-    # return a string representation of the object
     def __str__(self):
         return self.name
 
@@ -338,8 +380,6 @@ class Skill(models.Model):
 # ---------------------------------------------------------------------------- #
 
 class Leadership(models.Model):
-
-    # define the fields
     title = models.CharField(max_length=500)
     short_title = models.CharField(max_length=200)
     featured = models.BooleanField(default=False)
@@ -347,7 +387,6 @@ class Leadership(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
 
-    # return a string representation of the object
     def __str__(self):
         return self.title + " at " + self.organization.short_name
 
@@ -356,8 +395,6 @@ class Leadership(models.Model):
 # ---------------------------------------------------------------------------- #
 
 class HonorAndAward(models.Model):
-
-    # define the fields
     title = models.CharField(max_length=500)
     short_title = models.CharField(max_length=200, blank=True)
     featured = models.BooleanField(default=False)
@@ -365,7 +402,6 @@ class HonorAndAward(models.Model):
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
 
-    # return a string representation of the object
     def __str__(self):
         return self.title
 
@@ -374,33 +410,29 @@ class HonorAndAward(models.Model):
 # ---------------------------------------------------------------------------- #
 
 class Advising(models.Model):
-
-    # define the fields
     name = models.CharField(max_length=200)
     title = models.CharField(max_length=500)
     degree_type = models.CharField(max_length=200, choices=[("Doctoral", "Doctoral"), ("Master's", "Master's"), ("Bachelor's", "Bachelor's"), ("Other", "Other")])
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
-    # list of positions, starting from under me to present, comma separated
     positions = models.CharField(max_length=200)
-    # create a multi-select field for diversity tags
     diversity_tags = models.ManyToManyField(DiversityTag, blank=True)
-    # match the positions list
     organizations = models.CharField(max_length=200)
     facebook_url = models.URLField(blank=True)
     linkedin_url = models.URLField(blank=True)
     instagram_url = models.URLField(blank=True)
     twitter_url = models.URLField(blank=True)
 
-    # return a string representation of the object
     def __str__(self):
         return self.name
+
     def journey(self):
         journey = []
         for item in zip(self.positions.split(", "), self.organizations.split(", ")):
             string = item[0] + (" (" + item[1] + ")" if item[1] != '*' else '')
             journey.append(string)
         return ' > '.join(journey)
+
     def journey_short(self):
         journey = []
         for item in zip(self.positions.split(", "), self.organizations.split(", ")):
@@ -410,6 +442,7 @@ class Advising(models.Model):
             return ' > '.join(journey)
         else:
             return journey[0] + " >>> " + journey[-1]
+
     def get_first_name(self):
         if self.name[-1] == '*':
             return self.name.split(' ')[0] + '*'
@@ -421,26 +454,19 @@ class Advising(models.Model):
 # ---------------------------------------------------------------------------- #
 
 class Mentoring(models.Model):
-
-    # define the fields
     name = models.CharField(max_length=200)
-    # add program choices
     program = models.CharField(max_length=200, choices=[("MSE Industry Mentoring", "MSE Industry Mentoring"), ("Mentor Jackets", "Mentor Jackets"), ("IITR AMP", "IITR AMP"), ("Other", "Other")])
     degree_type = models.CharField(max_length=200, choices=[("Doctoral", "Doctoral"), ("Master's", "Master's"), ("Bachelor's", "Bachelor's"), ("Other", "Other")])
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
-    # list of positions, starting from under me to present, comma separated
     positions = models.CharField(max_length=200)
-    # create a multi-select field for diversity tags
     diversity_tags = models.ManyToManyField(DiversityTag, blank=True)
-    # match the positions list
     organizations = models.CharField(max_length=200)
     facebook_url = models.URLField(blank=True)
     linkedin_url = models.URLField(blank=True)
     instagram_url = models.URLField(blank=True)
     twitter_url = models.URLField(blank=True)
 
-    # return a string representation of the object
     def __str__(self):
         return self.name
     def journey(self):
@@ -516,6 +542,7 @@ class Reference(models.Model):
     start_year = models.PositiveSmallIntegerField()
     linkedin_url = models.URLField(blank=True)
     website_url = models.URLField(blank=True)
+    is_favorite = models.BooleanField(default=False)
 
     # return a string representation of the object
     def __str__(self):
@@ -528,12 +555,13 @@ class Reference(models.Model):
 class Review(models.Model):
     
         # define the fields
-        publication = models.CharField(max_length=200)
+        venue = models.ForeignKey(Venue, related_name='reviews', on_delete=models.CASCADE)
         featured = models.BooleanField(default=False)
+        articles_reviewed = models.PositiveIntegerField(default=1)
     
         # return a string representation of the object
         def __str__(self):
-            return self.publication
+            return self.venue.name
 
 
 #    ANALYTICS
