@@ -11,21 +11,27 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
-# on server only
 import json
+import os
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+DJANGO_ENV = os.environ.get('DJANGO_ENV', 'development' if os.name == 'nt' else 'production')
+if DJANGO_ENV not in ('development', 'production'):
+    raise ImproperlyConfigured("DJANGO_ENV must be 'development' or 'production'.")
+ON_REMOTE = DJANGO_ENV == 'production'
+CONFIG_FILE = Path(os.environ.get(
+    'DJANGO_CONFIG_FILE',
+    '/etc/pv-website-config.json' if ON_REMOTE else BASE_DIR / 'pv-website-config.json',
+))
 try:
-    with open('/etc/pv-website-config.json') as f:
+    with CONFIG_FILE.open() as f:
         config_dict = json.load(f)
-        ON_REMOTE = True
-except:
-    with open(BASE_DIR / 'pv-website-config.json') as f:
-        config_dict = json.load(f)
-        ON_REMOTE = False
+except (OSError, json.JSONDecodeError) as exc:
+    raise ImproperlyConfigured(f'Could not load Django config from {CONFIG_FILE}.') from exc
 
 
 # Quick-start development settings - unsuitable for production
@@ -34,11 +40,33 @@ except:
 # SECURITY WARNING: keep the secret key used in production secret!
 # on server only
 SECRET_KEY = config_dict['SECRET_KEY']
+if ON_REMOTE and (
+    not isinstance(SECRET_KEY, str)
+    or len(SECRET_KEY) < 50
+    or len(set(SECRET_KEY)) < 5
+    or SECRET_KEY.startswith('django-insecure-')
+):
+    raise ImproperlyConfigured('Production SECRET_KEY must be long and randomly generated.')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# on server only (must contain the domain name too!
+# Production hosts can be provided via DJANGO_ALLOWED_HOSTS or the legacy config keys.
 DEBUG = False if ON_REMOTE else True
-ALLOWED_HOSTS = [config_dict['ALLOWED_HOST1'], config_dict['ALLOWED_HOST2']] if ON_REMOTE else []
+if ON_REMOTE:
+    hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '')
+    ALLOWED_HOSTS = [host.strip() for host in hosts.split(',') if host.strip()]
+    if not ALLOWED_HOSTS:
+        ALLOWED_HOSTS = [config_dict.get(key, '') for key in ('ALLOWED_HOST1', 'ALLOWED_HOST2')]
+        ALLOWED_HOSTS = [host for host in ALLOWED_HOSTS if host]
+    if not ALLOWED_HOSTS:
+        raise ImproperlyConfigured('Set DJANGO_ALLOWED_HOSTS to the production hostnames.')
+else:
+    ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS] if ON_REMOTE else []
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') if ON_REMOTE else None
+SECURE_SSL_REDIRECT = ON_REMOTE
+SESSION_COOKIE_SECURE = ON_REMOTE
+CSRF_COOKIE_SECURE = ON_REMOTE
+SECURE_HSTS_SECONDS = int(config_dict.get('SECURE_HSTS_SECONDS', 0)) if ON_REMOTE else 0
 
 
 # Application definition
@@ -139,7 +167,7 @@ USE_TZ = True
 # on server only
 STATIC_ROOT = BASE_DIR / 'static'
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
