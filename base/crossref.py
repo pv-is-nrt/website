@@ -120,6 +120,7 @@ def fetch_metadata(doi, mailto, timeout=15):
         ),
         'publisher': html.unescape(item.get('publisher', '')),
         'container_title': html.unescape((item.get('container-title') or [''])[0]),
+        'short_container_title': html.unescape((item.get('short-container-title') or [''])[0]),
         'volume': item.get('volume', ''),
         'issue': item.get('issue', ''),
         'pages': item.get('page', ''),

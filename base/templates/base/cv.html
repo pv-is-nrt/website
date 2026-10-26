@@ -82,7 +82,9 @@
     <p>Only preprints without an associated final publication are listed here.</p>
     <ol reversed>
         {% for publication in preprints %}
-        {% include "./publication-list-item.html" with publication=publication %}
+        <li>
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+        </li>
         {% endfor %}
     </ol>
     {% endif %}
@@ -90,7 +92,9 @@
     <h3>{{ group.grouper|capfirst }}</h3>
     <ol reversed>
         {% for publication in group.list %}
-        {% include "./publication-list-item.html" with publication=publication %}
+        <li>
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+        </li>
         {% endfor %}
     </ol>
     {% endif %}
@@ -103,7 +107,9 @@
     <p>Speakers are shown in bold. Only presentations without an associated publication are listed here.</p>
     <ol reversed>
         {% for presentation in presentations %}
-        {% include "./presentation-list-item.html" with presentation=presentation %}
+        <li>
+            {% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}; {{ presentation.title|safe }}; {{ presentation.container_title|default:presentation.conference }}{% if presentation.volume %}; Vol. {{ presentation.volume }}{% endif %}{% if presentation.issue %}, No. {{ presentation.issue }}{% endif %}; {{ presentation.city }} (<span class="small-uppercase">{{ presentation.country }}</span>); <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; (<i>{{ presentation.comment }}</i>){% endif %}{% if presentation.link %} <a href="{{ presentation.link }}" target="blank">(link)</a>{% endif %}
+        </li>
         {% endfor %}
     </ol>
 
@@ -202,7 +208,7 @@
 
     <!-- Skills
     # --------------------------------------------------------------------->
-    <h2>Skills</h2>
+    <h2>Technical Skills</h2>
     {% for category in skills_categories %}
         <p><b>{{ category.name }}</b> &ndash; {{ category.skills }}</p>
     {% endfor %}

@@ -31,25 +31,29 @@
         </p>
         {% endfor %}
 
-        <h2>ProfessionalExperience</h2>
+        <h2>Professional Experience</h2>
         {% for experience in experiences|slice:":4" %}
         <h3>{{ experience.position }}, {{ experience.organization.full_name }}, {{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}</h3>
-        {% if experience.supervisor %}<p>{{ experience.supervisor }} {% if 'AIMRC' not in experience.supervisor %}{% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}{% endif %}</p>{% endif %}
+        {% if forloop.first %}
+        <h4>{{ experience.supervisor }}</h4>
+        {% endif %}
         <div>{% if experience.short_description %}{{ experience.short_description|safe }}{% else %}{{ experience.description|safe }}{% endif %}</div>
         {% endfor %}
 
-        <h2>Skillset</h2>
+        <h2>Technical Skills</h2>
         {% for category in skills_categories %}
-        <p><b>{{ category.name }}</b> &ndash; {{ category.skills_short }}</p>
+        <p class="spaced"><b>{{ category.name }}</b> &ndash; {{ category.skills_short }}</p>
         {% endfor %}
 
         <h2>Selected Publications</h2>
         <p>
-            Citations: <b>{{ google_scholar.citations }}</b>, h-index: <b>{{ google_scholar.h_index }}</b>. Full list of {{ publications|length }} articles is available on my <a href="{{ basic_info.scholar_url }}" target="_blank">Google Scholar</a> page.
+            Citations: <b>{{ google_scholar.citations }}</b>, h-index: <b>{{ google_scholar.h_index }}</b>. Full list of <b>{{ publications|length }}</b> articles is available on my <a href="{{ basic_info.scholar_url }}" target="_blank">Google Scholar</a> page.
         </p>
         <ol>
             {% for publication in publications_featured %}
-            {% include "./publication-list-item.html" with publication=publication %}
+            <li>
+                {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{% if publication.venue %}{{ publication.venue.short_name|default:publication.venue.name }}{% else %}{{ publication.publisher }}{% endif %}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+            </li>
             {% endfor %}
         </ol>
 
@@ -57,20 +61,22 @@
         <p>Full list is available on my <a href="{% url 'base:professional' %}#research">website</a>.</p>
         <ol>
             {% for presentation in presentations_featured %}
-            {% include "./presentation-list-item.html" with presentation=presentation %}
+            <li>
+                {% for author in presentation.authors_list_short %}{% if forloop.counter == presentation.speaker_index %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != presentation.authors_list_short|last %}, {% endif %}{% endfor %}; {{ presentation.title|safe }}; {{ presentation.container_title|default:presentation.conference }}{% if presentation.volume %}; Vol. {{ presentation.volume }}{% endif %}{% if presentation.issue %}, No. {{ presentation.issue }}{% endif %}; {{ presentation.city }} (<span class="small-uppercase">{{ presentation.country }}</span>); <b>{{ presentation.date|date:"Y" }}</b>{% if presentation.comment %}; (<i>{{ presentation.comment }}</i>){% endif %}{% if presentation.link %} <a href="{{ presentation.link }}" target="blank">(link)</a>{% endif %}
+            </li>
             {% endfor %}
         </ol>
 
-        <h2>Leadership experience</h2>
+        <h2>Other leadership experience</h2>
         <p>{% for leadership in leaderships_featured %}<b>({{ forloop.counter }})</b> {{ leadership.title|safe }}, {{ leadership.organization.short_name }}, {{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}{% if not forloop.last %}; {% else %}.{% endif %}{% endfor %}</p>
 
         <h2>Professional Service</h2>
         <p><b>Scientific reviewing</b> &ndash; Reviewed 50+ manuscripts for {{ reviews|length }}+ scientific journals.</p>
         <p><b>Research advising</b> &ndash; Advised {{ advisings|length }} undergraduate and graduate students and industry members.</p>
         <p><b>Mentorship</b> &ndash; Mentored {{ mentorings|length }} members through Mentor Jackets, MSE Industry Mentoring, and IITR's Alumni Mentorship Program.</p>
-        <p><b>Teaching</b> &ndash; Taught {{ teachings|length }}+ lectures, labs, and workshops.</p>
+        <p><b>Teaching</b> &ndash; 15+ years of experience teaching {{ teachings|length }}+ lectures, labs, and workshops.</p>
 
-        <h2>Honors and awards</h2>
+        <h2>Selected honors and awards</h2>
         <p>{% for award in honor_and_awards_featured %}<b>({{ forloop.counter }})</b> {{ award.title|safe }}, {{ award.organization.short_name }}, {{ award.start_date|date:"Y" }}{% if award.end_date %} &ndash; {{ award.end_date|date:"Y" }}{% endif %}{% if not forloop.last %}; {% else %}.{% endif %}{% endfor %}</p>
 
     </body>

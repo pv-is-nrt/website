@@ -178,7 +178,7 @@ class Venue(models.Model):
     kind = models.CharField(max_length=21, choices=KIND_CHOICES, default='other')
     issn = models.CharField(max_length=20, blank=True)
     eissn = models.CharField(max_length=20, blank=True)
-    acronym = models.CharField(max_length=50, blank=True)
+    short_name = models.CharField(max_length=50, blank=True)
     url = models.URLField(blank=True)
 
     def __str__(self):
@@ -369,6 +369,7 @@ class Proposal(models.Model):
 # ---------------------------------------------------------------------------- #
 class SkillCategory(models.Model):
     name = models.CharField(max_length=100)
+    order = models.PositiveSmallIntegerField(default=100)
     skills = models.TextField(verbose_name='Skills (CV and website)')
     skills_short = models.TextField(verbose_name='Skills (resume)')
 

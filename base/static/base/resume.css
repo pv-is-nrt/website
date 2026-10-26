@@ -41,9 +41,10 @@ h1 {
 }
 
 h2 {
-    font-size: 1.0em; /* default is 1.5em */
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    font-size: 1.1em; /* default is 1.5em */
+    /* font-size: 1.0em; default is 1.5em */
+    /* text-transform: uppercase;
+    letter-spacing: 0.1em; */
     font-weight: 600;
     margin: var(--xl-gap) -0.1in var(--m-gap);
     padding: 0 0.1in var(--s-gap);
@@ -86,8 +87,17 @@ p {
     margin-bottom: var(--xxs-gap);
 }
 
+p.spaced {
+    margin-bottom: var(--xs-gap);
+}
+
 a {
     color: #000;
+}
+
+/* remove anchor underline from header tag only */
+header a {
+    text-decoration: none;
 }
 
 b {
@@ -97,7 +107,7 @@ b {
 .tagline {
     font-size: 0.9em;
     /* font-style: italic; */
-    margin: var(--m-gap) 0 var(--xl-gap);
+    margin: var(--xl-gap) 0 0;
 }
 
 .uppercase {

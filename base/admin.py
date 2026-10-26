@@ -58,8 +58,8 @@ class ReviewInline(admin.TabularInline):
 
 
 class VenueAdmin(admin.ModelAdmin):
-    list_display = ('name', 'publisher', 'kind', 'issn', 'eissn')
-    search_fields = ('name', 'publisher', 'issn', 'eissn', 'acronym')
+    list_display = ('name', 'short_name', 'publisher', 'kind', 'issn', 'eissn')
+    search_fields = ('name', 'short_name', 'publisher', 'issn', 'eissn')
     inlines = (VenueMetricInline, ReviewInline)
 
 
@@ -84,10 +84,11 @@ class ProposalAdmin(admin.ModelAdmin):
     search_fields = ['title', 'pi', 'agency']
 
 class SkillCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'order')
+    list_editable = ('order',)
     search_fields = ('name',)
-    ordering = ('id',)
-    fields = ('name', 'skills', 'skills_short')
+    ordering = ('order', 'id')
+    fields = ('order', 'name', 'skills', 'skills_short')
 
 class LeadershipAdmin(admin.ModelAdmin):
     list_display = ('title', 'featured', 'organization', 'start_date')

@@ -38,7 +38,7 @@ def _get_common_context():
     publications = Publication.objects.select_related('venue').order_by('-status', '-date') # reverse order
     presentations = Presentation.objects.order_by('-date') # reverse order
     proposals = Proposal.objects.order_by('-year') # reverse order
-    skills_categories = SkillCategory.objects.order_by('id')
+    skills_categories = SkillCategory.objects.order_by('order', 'id')
     leaderships = Leadership.objects.order_by('-start_date') # reverse order
     honor_and_awards = HonorAndAward.objects.order_by('-start_date') # reverse order
     advisings = Advising.objects.order_by('-start_date') # reverse order
@@ -432,12 +432,14 @@ def admin_crossref(request):
             item['record'] = next(record['record'] for record in records if record['key'] == item['record_key'])
             item['fields'] = []
             if item['ok']:
-                field_names = ('doi', 'title', 'authors', 'container_title', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
+                field_names = ('doi', 'title', 'authors', 'container_title', 'venue_short_name', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
                 for field in field_names:
-                    crossref_field = 'publisher' if field == 'venue_publisher' else field
+                    crossref_field = {'venue_publisher': 'publisher', 'venue_short_name': 'short_container_title'}.get(field, field)
                     current_value = getattr(item['record'], field, '')
                     if field == 'container_title':
                         current_value = item['record'].venue.name if item['record'].venue else ''
+                    elif field == 'venue_short_name':
+                        current_value = item['record'].venue.short_name if item['record'].venue else ''
                     elif field == 'venue_publisher':
                         current_value = item['record'].venue.publisher if item['record'].venue else ''
                     proposed_value = item['metadata'].get(crossref_field, '')
@@ -459,6 +461,10 @@ def admin_crossref(request):
                             and not current_value
                             and bool(proposed_value)
                         ) or (
+                            field == 'venue_short_name'
+                            and not current_value
+                            and bool(proposed_value)
+                        ) or (
                             field == 'abstract'
                             and bool(proposed_value)
                             and len(str(proposed_value).split()) >= len(str(current_value).split())
@@ -467,7 +473,7 @@ def admin_crossref(request):
                             and not current_value
                             and bool(proposed_value)
                         ) or (
-                            field not in ('abstract', 'date', 'venue_publisher')
+                            field not in ('abstract', 'date', 'venue_publisher', 'venue_short_name')
                             and str(current_value) != str(proposed_value)
                             and bool(proposed_value)
                         ),
@@ -500,13 +506,13 @@ def admin_crossref(request):
             record = Publication.objects.filter(pk=item['record_id']).first()
             if not record:
                 continue
-            fields = ('doi', 'title', 'authors', 'container_title', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
+            fields = ('doi', 'title', 'authors', 'container_title', 'venue_short_name', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
             for field in fields:
                 if 'apply_{}_{}'.format(item['record_key'], field) not in request.POST:
                     continue
                 value = request.POST.get('value_{}_{}'.format(item['record_key'], field), '')
                 if field not in ('title', 'abstract'):
-                    metadata_field = 'publisher' if field == 'venue_publisher' else field
+                    metadata_field = {'venue_publisher': 'publisher', 'venue_short_name': 'short_container_title'}.get(field, field)
                     value = item['metadata'].get(metadata_field, getattr(record, field, ''))
                 if field == 'container_title':
                     venue_name = str(value).strip()
@@ -522,6 +528,11 @@ def admin_crossref(request):
                     if record.venue:
                         record.venue.publisher = value
                         record.venue.save(update_fields=('publisher',))
+                    continue
+                if field == 'venue_short_name':
+                    if record.venue:
+                        record.venue.short_name = str(value).strip()
+                        record.venue.save(update_fields=('short_name',))
                     continue
                 if field == 'publication_type':
                     if value:
