@@ -19,7 +19,7 @@
         <header>
             <h1>{{ basic_info.first_name }} {{ basic_info.last_name }}</h1>
             <p class="tagline">{{ basic_info.resume_tagline|safe }}</p>
-            <p><b>Website</b>: <a href="{{ basic_info.website_url }}" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a>, <b>Email</b>: {{ basic_info.work_email }}, <b>Phone</b>: +{{ basic_info.country_phone_code }} {{ basic_info.phone }}</p>
+            <p class="smaller"><b>Website</b>: <a href="{{ basic_info.website_url }}" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a>, <b>Email</b>: {{ basic_info.work_email }}, <b>Phone</b>: +{{ basic_info.country_phone_code }} {{ basic_info.phone }}</p>
         </header>
 
         <p>{{ basic_info.resume_statement|safe }}</p>
@@ -71,12 +71,13 @@
         <p>{% for leadership in leaderships_featured %}<b>({{ forloop.counter }})</b> {{ leadership.title|safe }}, {{ leadership.organization.short_name }}, {{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}{% if not forloop.last %}; {% else %}.{% endif %}{% endfor %}</p>
 
         <h2>Professional Service</h2>
+        <p>Guest Editor for <i>Biomaterials: Recent Advances and Applications</i>,  Applied Sciences (MDPI), 2025 &ndash; present <a href="https://www.mdpi.com/journal/applsci/special_issues/FMRZM63JVG" target="_blank">(link)</a></p>
         <p><b>Scientific reviewing</b> &ndash; Reviewed 50+ manuscripts for {{ reviews|length }}+ scientific journals.</p>
         <p><b>Research advising</b> &ndash; Advised {{ advisings|length }} undergraduate and graduate students and industry members.</p>
         <p><b>Mentorship</b> &ndash; Mentored {{ mentorings|length }} members through Mentor Jackets, MSE Industry Mentoring, and IITR's Alumni Mentorship Program.</p>
         <p><b>Teaching</b> &ndash; 15+ years of experience teaching {{ teachings|length }}+ lectures, labs, and workshops.</p>
 
-        <h2>Selected honors and awards</h2>
+        <h2>Other honors and awards</h2>
         <p>{% for award in honor_and_awards_featured %}<b>({{ forloop.counter }})</b> {{ award.title|safe }}, {{ award.organization.short_name }}, {{ award.start_date|date:"Y" }}{% if award.end_date %} &ndash; {{ award.end_date|date:"Y" }}{% endif %}{% if not forloop.last %}; {% else %}.{% endif %}{% endfor %}</p>
 
     </body>
