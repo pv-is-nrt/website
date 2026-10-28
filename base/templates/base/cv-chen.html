@@ -11,7 +11,9 @@
 		{% load static %}
 		<link rel="stylesheet" type="text/css" href="{% static 'base/normalize.css' %}">
 		<link rel="stylesheet" type="text/css" href="{% static 'base/resume.css' %}">
-		<link href='https://fonts.googleapis.com/css?family=Roboto|Roboto+Condensed|Roboto+Serif' rel='stylesheet' type='text/css'>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Serif:opsz,wght@8..144,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
         <!-- FAVICONS -->
         {% include "./head-favicon.html" %}
@@ -31,9 +33,10 @@
     <header>
         <h1>{{ basic_info.first_name }} {{ basic_info.last_name }}</h1>
         
+        <!-- Chen-specific tagline for this application; keep separate from the general CV tagline. -->
         <p class="tagline">Machine Learning Scientist for Materials and Chemicals.</p>
         
-        <p><b>Website</b>: <a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a>, <b>Email</b>: {{ basic_info.work_email }}, <b>Phone</b>: +{{ basic_info.country_phone_code }} {{ basic_info.phone }}</p>
+        <p class="smaller"><b>Website</b>: <a href="https://www.prateekverma.com" target="_blank">{{ basic_info.website_url|cut:"https://" }}</a>, <b>Email</b>: {{ basic_info.work_email }}, <b>Phone</b>: +{{ basic_info.country_phone_code }} {{ basic_info.phone }}</p>
     </header>
    
     
@@ -47,8 +50,9 @@
     <h2>Education</h2>
     {% for education in educations %}
     <h3>{{ education.organization.full_name }}, {{ education.start_date|date:"Y" }} &ndash; {{ education.end_date|date:"Y" }}</h3>
+    <!-- Chen-specific: retain GPA on this application CV. -->
     <p>{{ education.degree }}, {{ education.major }}, GPA {{ education.gpa }}/{{ education.gpa_total }}</p>
-    <p class="thesis">Thesis &ndash; {{ education.thesis }}</p>
+    <p><i>Thesis</i> &ndash; {{ education.thesis }}</p>
     {% endfor %}
     
  
@@ -56,8 +60,7 @@
     # --------------------------------------------------------------------->
     <h2>Experience</h2>
 
-    <!-- Hack to combine the first two experiences -->
-    <!-- for Chen green card application -->
+    <!-- Chen-specific green-card formatting: keep the first two experiences combined. -->
     <h3>Postdoctoral Fellow, University of Arkansas, 2021 &ndash; present</h3>
     <p>and Manager, Data Science Core, Arkansas Integrative Metabolic Research Center (AIMRC)</p>
     <p>Wu, Nayani and Nakarmi groups</p>
@@ -68,24 +71,16 @@
     {% for experience in experiences|slice:"2:" %}
     <h3>{{ experience.position }}, {{ experience.organization.full_name }}, {{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}</h3>
     {% if experience.supervisor %}
-        <p>{{ experience.supervisor }} {% if 'AIMRC' not in experience.supervisor %}{% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}{% endif %}</p>
+        <h4>{{ experience.supervisor }} {% if 'AIMRC' not in experience.supervisor %}{% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}{% endif %}</h4>
     {% endif %}
     <div>{{ experience.description|safe }}</div>
-    {% endfor %}
-    
-
-    <!-- Skills
-    # --------------------------------------------------------------------->
-    <h2>Skills</h2>
-    {% for category in skills_categories %}
-        <p><b>{{ category.name }}</b> &ndash; {{ category.skills }}</p>
     {% endfor %}
     
 
     <!-- Publications
     # --------------------------------------------------------------------->
     <h2>Publications</h2>
-    <h3>Google Scholar</h3>
+    <h4>Google Scholar statistics</h4>
     <p>
         Citations: <b>{% if google_scholar and google_scholar.citations != None %}{{ google_scholar.citations }}{% else %}Not yet available{% endif %}</b>,
         h-index: <b>{% if google_scholar and google_scholar.h_index != None %}{{ google_scholar.h_index }}{% else %}Not yet available{% endif %}</b>,
@@ -101,7 +96,7 @@
     <ol reversed>
         {% for publication in preprints %}
         <li>
-            {% for author in publication.authors_list_short %}{% if author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor: {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %} ({{ metric.year }}){% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
         </li>
         {% endfor %}
     </ol>
@@ -111,7 +106,7 @@
     <ol reversed>
         {% for publication in group.list %}
         <li>
-            {% for author in publication.authors_list_short %}{% if author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor: {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %} ({{ metric.year }}){% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
         </li>
         {% endfor %}
     </ol>
@@ -121,8 +116,8 @@
 
     <!-- Presentations
     # --------------------------------------------------------------------->
-    <h2>Presentations</h2>
-    <p>Speakers are shown in bold.</p>
+    <h2>Conference Presentations</h2>
+    <p>Speakers are shown in bold. Only presentations without an associated publication are listed here.</p>
     <ol reversed>
         {% for presentation in presentations %}
         <li>
@@ -132,75 +127,70 @@
     </ol>
 
 
+    <!-- Research funding and grants
+    # --------------------------------------------------------------------->
+    <h2>Research Funding and Grants</h2>
+    <p>Contributed to the planning, writing, editing and/or review of the following research funding proposals.</p>
+    <ol>
+    {% for proposal in proposals %}
+        <li>
+            {{ proposal.title|safe }}, {{ proposal.agency }}, PI: {{ proposal.pi }}, <b>{{ proposal.year }}</b>{% if proposal.status == "awarded" %}. {{ proposal.status|capfirst }}.{% endif %}
+        </li>
+    {% endfor %}
+    </ol>
+
+
     <!-- Teaching
     # --------------------------------------------------------------------->
-    <h2>Teaching experience</h2>
+    <h2>Teaching Experience</h2>
     {% regroup cv_teachings by organization as teaching_organizations %}
     {% for organization in teaching_organizations %}
     <h3>{{ organization.grouper.full_name }}</h3>
     {% regroup organization.list by position as teaching_positions %}
     {% for position in teaching_positions %}
-    <p><i>{{ position.grouper }}</i></p>
+    <h4>{{ position.grouper }}</h4>
     <ul>
         {% for teaching in position.list %}
-        <li>{% if teaching.topic or teaching.course_name %}{{ teaching.topic|default:teaching.course_name|safe }}{% if teaching.course_code %}, {{ teaching.course_code }}{% endif %}{% else %}{{ teaching.course_code }}{% endif %}, <b>{% for offering in teaching.cv_offering_labels %}{{ offering }}{% if not forloop.last %}, {% endif %}{% endfor %}</b></li>
+        <li>{% if teaching.topic or teaching.course_name %}{{ teaching.topic|default:teaching.course_name|safe }}{% if teaching.course_code %}; {{ teaching.course_code }}{% endif %}{% else %}{{ teaching.course_code }}{% endif %}; {% for offering in teaching.cv_offering_labels %}<b>{{ offering }}</b>{% if not forloop.last %}, {% endif %}{% endfor %}</li>
         {% endfor %}
     </ul>
     {% endfor %}
     {% endfor %}
 
-
-    <!-- Awards
-    # --------------------------------------------------------------------->
-    <h2>Honors and awards</h2>
-    <ol>
-        {% for award in honor_and_awards %}
-        <li>{{ award.title|safe }}, <b>{{ award.organization.short_name }}</b>, {{ award.start_date|date:"Y" }}{% if award.end_date %} &ndash; {{ award.end_date|date:"Y" }}{% endif %}
-        </li>
-        {% endfor %}
-    </ol>
-
-
-    <!-- Research funding
-    # --------------------------------------------------------------------->
-    <h2>Research funding</h2>
-    <p>Contributed to the planning, writing, editing and/or review of the following research funding proposals.</p>
-    <ol>
-    {% for proposal in proposals %}
-        <li>
-            {% if proposal.status == "awarded" %}{{ proposal.status|capfirst }}, {% endif %}{{ proposal.title|safe }}, {{ proposal.agency }}, PI: {{ proposal.pi }}, {{ proposal.year }}
-        </li>
-    {% endfor %}
-    </ol>
 
     <!-- Professional Service
     # --------------------------------------------------------------------->
-    <h2>Professional service</h2>
+    <h2>Professional Services</h2>
 
-    <h3>Editorial</h3>
-    <p>Guest Editor for <i>Biomaterials: Recent Advances and Applications</i> in Applied Sciences (MDPI), 2025 &ndash; present <a href="https://www.mdpi.com/journal/applsci/special_issues/FMRZM63JVG" target="_blank">(link)</a></p>
+    <h3>Editorial Service</h3>
+    <p>Guest Editor for <i>Biomaterials: Recent Advances and Applications</i>,  Applied Sciences (MDPI), 2025 &ndash; present <a href="https://www.mdpi.com/journal/applsci/special_issues/FMRZM63JVG" target="_blank">(link)</a></p>
     
-    <h3>Scientific reviewing</h3>
-    <p>Reviewed manuscripts for the following journals:</p>
+    <h3>Scientific Reviewing</h3>
+    <p>Reviewed manuscripts for:</p>
     {% for group in review_groups %}
-    <h4>{{ group.label }}</h4>
+    <h4>{{ group.label }}s</h4>
     <ul>
         {% for review in group.reviews %}
-        <li>{{ review.venue.name }}{% if review.publisher %}, {{ review.publisher }}{% endif %}{% if review.impact_factor %} <span class="smaller">(impact factor = {{ review.impact_factor.display_value }})</span>{% endif %}</li>
+        <li>{{ review.venue.name }}{% if review.publisher %}, <span class="uppercase">{{ review.publisher }}</span>{% endif %}{% if review.impact_factor %} <span class="smaller">(impact factor = {{ review.impact_factor.display_value }})</span>{% endif %}</li>
         {% endfor %}
     </ul>
     {% endfor %}
 
-    <h3>Research advising</h3>
-    <p>Direct supervisor for members marked with an * {% if request.META.REMOTE_ADDR != '127.0.0.1' %}. Last name has been hidden for the sake of privacy online.{% endif %}</p>
+    <!-- Advising and Mentoring
+    # --------------------------------------------------------------------->
+    <h2>Advising and Mentoring</h2>
+
+    <h3>Research Supervision</h3>
+    <p>Direct supervision is indicated by * {% if request.META.REMOTE_ADDR != '127.0.0.1' %}. Last name has been hidden for the sake of privacy online.{% endif %}</p>
     <ul>
     {% for advising in advisings %}
-        <li>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ advising.name }}{% else %}{{ advising.get_first_name }}{% endif %} on <i>{{ advising.title|safe }}</i>, {{ advising.start_date|date:"Y" }} &ndash; {{ advising.end_date|date:"Y"|default:"present" }}. <span class="smaller">Journey &ndash; {{ advising.journey_short }}</span></li>
+        <li>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ advising.name }}{% else %}{{ advising.get_first_name }}{% endif %}. <i>{{ advising.title|safe }}</i>, {{ advising.start_date|date:"Y" }} &ndash; {{ advising.end_date|date:"Y"|default:"present" }}. <span class="smaller"><br />
+        Journey: {{ advising.journey_short }}</span></li>
     {% endfor %}
     </ul>
 
-    <h3>Mentorship</h3>
-    <p>Served as a mentor for GT Mentor Jackets, GT MSE Industry Mentorship Program and IITR Alumni Mentorship Program. {% if request.META.REMOTE_ADDR != '127.0.0.1' %}Last name has been hidden for the sake of privacy online.{% endif %}</p>
+    <h3>Professional Mentoring</h3>
+    <p>Served as a mentor through the Georgia Tech Mentor Jackets program, Georgia Tech MSE Industry Mentorship Program, and IIT Roorkee Alumni Mentorship Program. {% if request.META.REMOTE_ADDR != '127.0.0.1' %}Last name has been hidden for the sake of privacy online.{% endif %}</p>
     <ul>
     {% for mentoring in mentorings %}
         <li><i>{% if request.META.REMOTE_ADDR == '127.0.0.1' %}{{ mentoring.name }}{% else %}{{ mentoring.get_first_name }}{% endif %}</i> from {{ mentoring.start_date|date:"Y" }} &ndash; {{ mentoring.end_date|date:"Y"|default:"present" }}. Journey &ndash; {{ mentoring.journey_short }}</li>
@@ -211,7 +201,6 @@
     <!-- Leadership
     # --------------------------------------------------------------------->
     <h2>Leadership</h2>
-    <p>Leadership roles in various organizations and clubs.</p>
     <ul>
         {% for leadership in leaderships %}
         <li>{{ leadership.title|safe }}, {{ leadership.organization.short_name }}, <b>{{ leadership.start_date|date:"Y" }} &ndash; {{ leadership.end_date|date:"Y"|default:"present" }}</b>  
@@ -220,10 +209,29 @@
     </ul>
 
 
+    <!-- Awards
+    # --------------------------------------------------------------------->
+    <h2>Honors, Awards and Fellowships</h2>
+    <ol>
+        {% for award in honor_and_awards %}
+        <li>{{ award.title|safe }}, <b>{{ award.organization.short_name }}</b>, {{ award.start_date|date:"Y" }}{% if award.end_date %} &ndash; {{ award.end_date|date:"Y" }}{% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+    
+
+    <!-- Skills
+    # --------------------------------------------------------------------->
+    <h2>Technical Skills</h2>
+    {% for category in skills_categories %}
+        <p><b>{{ category.name }}</b> &ndash; {{ category.skills }}</p>
+    {% endfor %}
+
+
     <!-- References
     # --------------------------------------------------------------------->
     <h2>References</h2>
-    {% for reference in references|slice:":6" %}
+    {% for reference in references %}
         <p><b>{{ reference.name }}</b>, {{ reference.position }}, {{ reference.organization.short_name }}. Email: {{ reference.email }}{% if reference.website_url %} <a href="{{ reference.website_url }}" target="_blank">(Website)</a>{% endif %}</p>
     {% endfor %}
 
