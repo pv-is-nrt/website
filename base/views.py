@@ -55,8 +55,8 @@ def _get_common_context():
     # Common but calculated things
     publications_published = Publication.objects.filter(status='published').order_by('-date')
     publications_featured = Publication.objects.select_related('venue').prefetch_related('venue__metrics').filter(featured=True).order_by('-date')
-    # query database to find publications where author starts with Verma
-    publications_first_author = Publication.objects.filter(authors__startswith='P Verma')
+    # query database to find publications where author starts with P Verma or Prateek Verma (case insensitive)
+    publications_first_author = Publication.objects.filter(authors__startswith='Prateek Verma').order_by('-date') | Publication.objects.filter(authors__startswith='P Verma').order_by('-date')
     publications_published_or_submitted = Publication.objects.filter(status='published').order_by('-date') | Publication.objects.filter(status='under review / submitted').order_by('-date')
     
     presentations_featured = Presentation.objects.filter(featured=True).order_by('-date')
