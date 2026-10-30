@@ -1,3 +1,5 @@
+from datetime import date as datetime_date
+
 from django.core.exceptions import ValidationError
 from django.db import models
  
@@ -37,8 +39,16 @@ class PublicationTag(models.Model):
         return self.name
 
 
+PUBLICATION_TYPE_NAMES = (
+    'proceedings-article',
+    'journal-article',
+    'preprint',
+    'other',
+)
+
+
 class PublicationType(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, default='journal-article')
 
     class Meta:
         ordering = ['name']
@@ -256,6 +266,7 @@ class Publication(models.Model):
     featured = models.BooleanField(default=False, blank=True)
     citations = models.CharField(max_length=10, blank=True)
     citations_updated_on = models.DateField(null=True, blank=True)
+    crossref_updated_on = models.DateField(default=datetime_date(2026, 9, 30))
     # set on the preprint; the final publication reaches it through `preprint`
     published_version = models.OneToOneField('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='preprint', limit_choices_to=~models.Q(publication_types__name='preprint'))
     status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published"), ("in progress", "in progress")], default="published", blank=True)
@@ -271,7 +282,7 @@ class Publication(models.Model):
         if self.published_version_id and self.published_version_id == self.pk:
             raise ValidationError({'published_version': 'A publication cannot be its own published version.'})
     def is_conference_proceeding(self):
-        return self.publication_types.filter(name='conference-proceeding').exists()
+        return self.publication_types.filter(name='proceedings-article').exists()
     def is_preprint(self):
         return self.publication_types.filter(name='preprint').exists()
     # return authors as a list of authors

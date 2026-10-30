@@ -1,6 +1,8 @@
 from django.contrib import admin
+from django import forms
+from django.utils.html import format_html, format_html_join
 # import the model objects from the model file
-from .models import Organization, DiversityTag, PublicationTag, PublicationType, BasicInformation, Education, Experience, GoogleScholar, Venue, VenueMetric, Publication, Presentation, Proposal, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, WorkHighlight, Message, Reference, Review, Analytic
+from .models import Organization, DiversityTag, PublicationTag, PublicationType, PUBLICATION_TYPE_NAMES, BasicInformation, Education, Experience, GoogleScholar, Venue, VenueMetric, Publication, Presentation, Proposal, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, WorkHighlight, Message, Reference, Review, Analytic
 
 
 # ModelAdmin class definitions
@@ -45,6 +47,35 @@ class PublicationsAdmin(admin.ModelAdmin):
         elif db_field.name == 'venue':
             kwargs['queryset'] = Venue.objects.order_by('name')
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class PublicationTypeNameInput(forms.TextInput):
+    def render(self, name, value, attrs=None, renderer=None):
+        input_html = super().render(name, value, attrs, renderer)
+        options = format_html_join(
+            '',
+            '<option value="{}"></option>',
+            ((publication_type,) for publication_type in PUBLICATION_TYPE_NAMES),
+        )
+        return format_html(
+            '{}<datalist id="publication-type-name-suggestions">{}</datalist>',
+            input_html,
+            options,
+        )
+
+
+class PublicationTypeAdminForm(forms.ModelForm):
+    class Meta:
+        model = PublicationType
+        fields = '__all__'
+        widgets = {
+            'name': PublicationTypeNameInput(attrs={'list': 'publication-type-name-suggestions'}),
+        }
+
+
+class PublicationTypeAdmin(admin.ModelAdmin):
+    form = PublicationTypeAdminForm
+    search_fields = ('name',)
 
 
 class VenueMetricInline(admin.TabularInline):
@@ -141,7 +172,7 @@ class GoogleScholarAdmin(admin.ModelAdmin):
 admin.site.register(Organization)
 admin.site.register(DiversityTag)
 admin.site.register(PublicationTag)
-admin.site.register(PublicationType)
+admin.site.register(PublicationType, PublicationTypeAdmin)
 admin.site.register(BasicInformation, BasicInformationAdmin)
 admin.site.register(GoogleScholar, GoogleScholarAdmin)
 admin.site.register(Venue, VenueAdmin)

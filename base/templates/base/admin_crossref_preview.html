@@ -1,0 +1,48 @@
+{% if preview_item %}
+    {% if preview_item.ok %}
+    <form class="crossref-preview-form" action="{% url 'admin-dashboard' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="apply">
+        <input type="hidden" name="record_key" value="{{ record_key }}">
+        <table class="admin-data-table crossref-preview-table">
+            <colgroup>
+                <col>
+                <col>
+                <col>
+                <col>
+            </colgroup>
+            <thead><tr><th></th><th>Field</th><th>Current</th><th>New</th></tr></thead>
+            <tbody>
+                {% for field in preview_item.fields %}
+                <tr>
+                    <td>
+                        {% if field.manual %}
+                        <input type="hidden" name="{{ field.input_name }}" value="">
+                        <input type="checkbox" name="{{ field.input_name }}" value="confirmed" aria-label="Update {{ field.label }}">
+                        {% else %}
+                        <input type="checkbox" name="{{ field.input_name }}" aria-label="Update {{ field.label }}" {% if field.apply_by_default %}checked{% endif %}>
+                        {% endif %}
+                    </td>
+                    <th scope="row">{{ field.label }}</th>
+                    <td>{{ field.current|default:'(empty)' }}</td>
+                    <td>{{ field.proposed|default:'(empty)' }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4">No differing fields found.</td></tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"></td>
+                    <td><div class="admin-button admin-button2 inline" role="button" tabindex="0" data-admin-submit data-admin-action="discard">Discard updates</div></td>
+                    <td>{% if preview_item.fields %}<div class="admin-button admin-button2 inline" role="button" tabindex="0" data-admin-submit data-admin-action="apply">Apply selected changes</div>{% endif %}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </form>
+    {% else %}
+    <p class="server-message-minimal">Could not fetch this publication: {{ preview_item.error }}</p>
+    {% endif %}
+{% else %}
+    <p class="server-message-minimal">No Crossref preview was returned.</p>
+{% endif %}

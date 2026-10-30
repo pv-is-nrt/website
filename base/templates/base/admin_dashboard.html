@@ -4,77 +4,79 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Administration | Prateek Verma</title>
+    <title>Prateek Verma | Administration</title>
+    <link rel="stylesheet" href="{% static 'base/normalize.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700,900|Roboto+Condensed:300,400,700|Roboto+Serif:100,400,500,700,900|Fira+Mono:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'base/base.css' %}">
     <link rel="stylesheet" href="{% static 'base/admin-dashboard.css' %}">
 </head>
 <body>
-    <main class="dashboard-shell">
-        <header class="dashboard-header">
-            <div>
-                <p class="eyebrow">Prateek Verma</p>
-                <h1>Administration</h1>
-                <p class="intro">A workspace for maintaining the website and running custom tasks.</p>
-            </div>
-            <a class="text-link" href="{% url 'base:index' %}">View public site</a>
-        </header>
+    <header class="header">
+        <h1>Administration</h1>
+    </header>
 
-        <section class="task-panel" aria-labelledby="tasks-heading">
-            <div class="section-heading">
-                <div>
-                    <p class="eyebrow">Workspace</p>
-                    <h2 id="tasks-heading">Custom admin tasks</h2>
-                </div>
+    <nav aria-label="Site and administration links" class="admin-navbar">
+        <a class="admin-button admin-button1" href="{% url 'base:index' %}">Homepage</a>
+        <a class="admin-button admin-button1" href="{% url 'tasks:index' %}">Tasks</a>
+        <a class="admin-button admin-button1" href="{% url 'admin:index' %}">Django Admin</a>
+    </nav>
+
+    <section aria-labelledby="scholar-heading">
+        <h2 id="scholar-heading">Google Scholar</h2>
+        <form id="citation-update-form" action="{% url 'admin-scholar-citations-update' %}" method="post">
+            {% csrf_token %}
+            <div class="admin-button admin-button2 inline" id="citation-update-button" role="button" tabindex="0">Synchronize</div>
+        </form>
+        <div class="spacer20"></div>
+        <div id="citation-progress-container" class="progress-item progress-bar-container" role="progressbar" aria-label="Google Scholar synchronization" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
+            <div id="citation-progress" class="progress-bar" style="width: 0%"></div>
+        </div>
+        <p id="citation-current" class="server-message-minimal" hidden></p>
+        <p>Citations: <span id="scholar-citations" class="color-accent3 dotted larger-text mono">{{ google_scholar.citations }}</span></p>
+        <p>h-index: <span id="scholar-h-index" class="color-accent3 dotted larger-text mono">{{ google_scholar.h_index }}</span>
+        <p>i10-index: <span id="scholar-i10-index" class="color-accent3 dotted larger-text mono">{{ google_scholar.i10_index }}</span></p>
+        <p id="scholar-updated-on">Last updated: {{ google_scholar.updated_at|date:"M j, Y g:i A" }}</p>
+        <div id="citation-results" hidden>
+            <table class="admin-data-table">
+                <colgroup>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                </colgroup>
+                <thead><tr><th>Publication</th><th>Previous</th><th>Current</th><th>Updated on</th><th>Status</th></tr></thead>
+                <tbody id="citation-results-body"></tbody>
+                <tfoot><tr><th>Total (from database)</th><td id="citation-previous-total">0</td><td id="citation-current-total">0</td><td colspan="2"></td></tr></tfoot>
+            </table>
+        </div>
+        {{ citation_records|json_script:"citation-records" }}
+        <script src="{% static 'base/scholar-citations.js' %}" defer></script>
+    </section>
+
+    <section aria-labelledby="crossref-heading">
+        <h2 id="crossref-heading">Crossref</h2>
+        <p>Review DOI metadata for {{ crossref_records|length }} publications and choose which publication records to update.</p>
+        <hr>
+        {% for item in crossref_records %}
+        <div class="crossref-record" id="{{ item.key }}">
+            <div class="crossref-record-info">
+                <div>{% if item.record.date %}<strong>{{ item.record.date|date:"Y" }}</strong>{% else %}<strong>Year unknown</strong>{% endif %} {{ item.record.title }}</div>
+                <div class="smaller-text color-subtle">{{ item.record.venue.name|default:item.record.publisher }}. Last updated on {{ item.record.crossref_updated_on|date:"M j, Y" }}</div>
+                {% if crossref_message and crossref_message_record_key == item.key %}<p class="server-message-minimal">{{ crossref_message }}</p>{% endif %}
             </div>
-            <div class="citation-task">
-                <form id="citation-update-form" action="{% url 'admin-scholar-citations-update' %}" method="post">
+            <div class="crossref-record-action">
+                <form action="{% url 'admin-dashboard' %}" method="post" data-crossref-preview>
                     {% csrf_token %}
-                    Update Google Scholar data <button class="button" type="submit">Go</button>
+                    <input type="hidden" name="action" value="preview">
+                    <input type="hidden" name="record_key" value="{{ item.key }}">
+                    <div class="admin-button admin-button2 inline" role="button" tabindex="0" data-admin-submit>Go</div>
                 </form>
-                <progress id="citation-progress" max="{{ citation_records|length|default:1 }}" value="0" hidden></progress>
-                <p id="citation-current" class="intro" hidden></p>
             </div>
-            <p class="scholar-metrics">
-                <span>Citations: <strong id="scholar-citations">{% if google_scholar and google_scholar.citations != None %}{{ google_scholar.citations }}{% else %}Not yet available{% endif %}</strong></span>
-                <span>h-index: <strong id="scholar-h-index">{% if google_scholar and google_scholar.h_index != None %}{{ google_scholar.h_index }}{% else %}Not yet available{% endif %}</strong></span>
-                <span>i10-index: <strong id="scholar-i10-index">{% if google_scholar and google_scholar.i10_index != None %}{{ google_scholar.i10_index }}{% else %}Not yet available{% endif %}</strong></span>
-            </p>
-            <p id="scholar-updated-on" class="intro">{% if google_scholar.updated_at %}Last updated {{ google_scholar.updated_at|date:"M j, Y g:i A" }}{% else %}No cached Google Scholar data yet.{% endif %}</p>
-            <div id="citation-results" class="citation-results" hidden>
-                <table>
-                    <thead><tr><th>Publication</th><th>Previous</th><th>Current</th><th>Updated on</th><th>Status</th></tr></thead>
-                    <tbody id="citation-results-body"></tbody>
-                    <tfoot><tr class="citation-total"><th>Unique-title total (from database)</th><td id="citation-previous-total">0</td><td id="citation-current-total">0</td><td colspan="2"></td></tr></tfoot>
-                </table>
-            </div>
-            {{ citation_records|json_script:"citation-records" }}
-            <script src="{% static 'base/scholar-citations.js' %}" defer></script>
-        </section>
-
-        <section class="quick-links" aria-labelledby="links-heading">
-            <div class="section-heading">
-                <div>
-                    <p class="eyebrow">Tools</p>
-                    <h2 id="links-heading">Quick links</h2>
-                </div>
-            </div>
-            <div class="link-grid">
-                <a class="link-card" href="{% url 'admin-crossref' %}">
-                    <span class="card-kicker">Metadata</span>
-                    <strong>Check DOIs with Crossref</strong>
-                    <span>Preview publication metadata before applying updates.</span>
-                </a>
-                <a class="link-card" href="{% url 'admin:index' %}">
-                    <span class="card-kicker">Django</span>
-                    <strong>Manage models</strong>
-                    <span>Open the built-in model administration.</span>
-                </a>
-                <a class="link-card" href="{% url 'base:index' %}">
-                    <span class="card-kicker">Website</span>
-                    <strong>Open homepage</strong>
-                    <span>Return to the public website.</span>
-                </a>
-            </div>
-        </section>
-    </main>
+        </div>
+        <div id="crossref-preview-{{ item.key }}" aria-live="polite"></div>
+        <hr>
+        {% endfor %}
+    </section>
 </body>
 </html>

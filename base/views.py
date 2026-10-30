@@ -2,6 +2,7 @@
 from django.conf import settings
 from django.db import transaction
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.urls import reverse
@@ -246,13 +247,205 @@ def _get_cv_review_groups(reviews):
 #    Index page
 # -------------------------------------------------------------------- #
 
+def _crossref_records():
+    publications = Publication.objects.select_related('venue').exclude(doi='').order_by('-updated_at', '-date')
+    records = [
+        {'key': 'publication-{}'.format(record.pk), 'type': 'publication', 'id': record.pk, 'doi': record.doi, 'record': record}
+        for record in publications
+    ]
+    for item in records:
+        record = item['record']
+    return records
+
+
+def _build_crossref_preview(records, record_key, mailto):
+    selected = [record for record in records if record['key'] == record_key]
+    preview = fetch_many(selected, mailto)
+    for item in preview:
+        item['record'] = next(record['record'] for record in records if record['key'] == item['record_key'])
+        item['fields'] = []
+        if not item['ok']:
+            continue
+        field_names = ('doi', 'title', 'authors', 'container_title', 'venue_short_name', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
+        for field in field_names:
+            crossref_field = {'venue_publisher': 'publisher', 'venue_short_name': 'short_container_title'}.get(field, field)
+            current_value = getattr(item['record'], field, '')
+            if field == 'container_title':
+                current_value = item['record'].venue.name if item['record'].venue else ''
+            elif field == 'venue_short_name':
+                current_value = item['record'].venue.short_name if item['record'].venue else ''
+            elif field == 'venue_publisher':
+                current_value = item['record'].venue.publisher if item['record'].venue else ''
+            proposed_value = item['metadata'].get(crossref_field, '')
+            type_names = []
+            if field == 'publication_type':
+                type_names = list(item['record'].publication_types.values_list('name', flat=True))
+                current_value = ', '.join(type_names)
+            changed = (
+                bool(proposed_value) and proposed_value not in type_names
+                if field == 'publication_type'
+                else str(current_value) != str(proposed_value)
+            )
+            if not changed:
+                continue
+            item['fields'].append({
+                'name': field,
+                'label': (
+                    'Date ({})'.format(item['metadata'].get('date_source'))
+                    if field == 'date' and item['metadata'].get('date_source')
+                    else field.replace('_', ' ').title()
+                ),
+                'current': current_value.isoformat() if isinstance(current_value, date) else current_value,
+                'proposed': proposed_value,
+                'changed': changed,
+                'apply_by_default': (
+                    field == 'venue_publisher'
+                    and not current_value
+                    and bool(proposed_value)
+                ) or (
+                    field == 'venue_short_name'
+                    and not current_value
+                    and bool(proposed_value)
+                ) or (
+                    field == 'abstract'
+                    and bool(proposed_value)
+                    and len(str(proposed_value).split()) >= len(str(current_value).split())
+                ) or (
+                    field == 'date'
+                    and not current_value
+                    and bool(proposed_value)
+                ) or (
+                    field not in ('abstract', 'date', 'venue_publisher', 'venue_short_name')
+                    and str(current_value) != str(proposed_value)
+                    and bool(proposed_value)
+                ),
+                'editable': field in ('title', 'abstract'),
+                'input_name': 'apply_{}_{}'.format(item['record_key'], field),
+                'value_input_name': 'value_{}_{}'.format(item['record_key'], field),
+            })
+        if not item['record'].information_confirmed:
+            item['fields'].append({
+                'name': 'information_confirmed',
+                'label': 'Information confirmed',
+                'current': 'No',
+                'proposed': 'Yes',
+                'changed': True,
+                'manual': True,
+                'input_name': 'information_action_{}'.format(item['record_key']),
+            })
+    return preview
+
+
+def _apply_crossref_preview(request):
+    preview = request.session.pop('crossref_preview', [])
+    applied = 0
+    for item in preview:
+        record = Publication.objects.filter(pk=item['record_id']).first()
+        if not record:
+            continue
+        fields = ('doi', 'title', 'authors', 'container_title', 'venue_short_name', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
+        for field in fields:
+            if 'apply_{}_{}'.format(item['record_key'], field) not in request.POST:
+                continue
+            metadata_field = {'venue_publisher': 'publisher', 'venue_short_name': 'short_container_title'}.get(field, field)
+            value = item['metadata'].get(metadata_field, getattr(record, field, ''))
+            if field == 'container_title':
+                venue_name = str(value).strip()
+                if venue_name:
+                    venue = Venue.objects.filter(name__iexact=venue_name).first()
+                    if venue is None:
+                        venue = Venue.objects.create(name=venue_name)
+                    record.venue = venue
+                else:
+                    record.venue = None
+                continue
+            if field == 'venue_publisher':
+                if record.venue:
+                    record.venue.publisher = value
+                    record.venue.save(update_fields=('publisher',))
+                continue
+            if field == 'venue_short_name':
+                if record.venue:
+                    record.venue.short_name = str(value).strip()
+                    record.venue.save(update_fields=('short_name',))
+                continue
+            if field == 'publication_type':
+                if value:
+                    publication_type, _ = PublicationType.objects.get_or_create(name=value)
+                    record.publication_types.add(publication_type)
+                continue
+            if field == 'date' and isinstance(value, str) and len(value) == 10:
+                value = date.fromisoformat(value)
+            setattr(record, field, value)
+        information_action = request.POST.get('information_action_{}'.format(item['record_key']))
+        if information_action == 'confirmed':
+            record.information_confirmed = True
+        elif information_action == 'unconfirmed':
+            record.information_confirmed = False
+        record.crossref_updated_on = timezone.localdate()
+        record.save()
+        applied += 1
+    return applied
+
+
 @staff_member_required(login_url='/admin/models/login/')
 def admin_dashboard(request):
-    citation_records = list(Publication.objects.order_by('date', 'pk').values('id', 'title', 'citations', 'citations_updated_on'))
+    citation_records = list(Publication.objects.order_by('date', 'pk').values('id', 'title', 'citations', 'citations_updated_on', 'date', 'publisher', 'venue__name'))
     google_scholar = GoogleScholar.objects.filter(pk=1).first()
+    crossref_records = _crossref_records()
+    crossref_record_keys = {item['key'] for item in crossref_records}
+    crossref_preview = []
+    crossref_message = request.session.pop('crossref_message', None)
+    crossref_message_record_key = request.session.pop('crossref_message_record_key', None)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'preview':
+            record_key = request.POST.get('record_key')
+            mailto = getattr(settings, 'EMAIL_HOST_USER', '')
+            crossref_preview = _build_crossref_preview(
+                crossref_records,
+                record_key,
+                mailto,
+            )
+            request.session['crossref_preview'] = [
+                {'record_key': item['record_key'], 'record_type': item['record_type'], 'record_id': item['record_id'], 'metadata': item['metadata']}
+                for item in crossref_preview if item['ok']
+            ]
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                preview_item = crossref_preview[0] if crossref_preview else None
+                html = render_to_string('base/admin_crossref_preview.html', {
+                    'preview_item': preview_item,
+                    'record_key': record_key,
+                }, request=request)
+                return JsonResponse({'record_key': record_key, 'html': html})
+        elif action == 'discard':
+            request.session.pop('crossref_preview', None)
+            record_key = request.POST.get('record_key')
+            if record_key in crossref_record_keys:
+                request.session['crossref_message'] = 'Crossref preview discarded.'
+                request.session['crossref_message_record_key'] = record_key
+                return redirect('{}#{}'.format(reverse('admin-dashboard'), record_key))
+            return redirect('admin-dashboard')
+        elif action == 'apply':
+            record_key = request.POST.get('record_key')
+            if record_key not in crossref_record_keys:
+                record_key = ''
+            applied = _apply_crossref_preview(request)
+            if record_key:
+                request.session['crossref_message'] = 'Crossref updates saved.'
+                request.session['crossref_message_record_key'] = record_key
+                return redirect('{}#{}'.format(reverse('admin-dashboard'), record_key))
+            request.session['crossref_message'] = '{} publication{} confirmed against Crossref.'.format(applied, '' if applied == 1 else 's')
+            return redirect('admin-dashboard')
+
     return render(request, 'base/admin_dashboard.html', {
         'citation_records': citation_records,
         'google_scholar': google_scholar,
+        'crossref_records': crossref_records,
+        'crossref_preview': crossref_preview,
+        'crossref_message': crossref_message,
+        'crossref_message_record_key': crossref_message_record_key,
     })
 
 
@@ -402,157 +595,7 @@ def admin_update_scholar_citations(request):
 
 @staff_member_required(login_url='/admin/models/login/')
 def admin_crossref(request):
-    publications = Publication.objects.select_related('venue').exclude(doi='').order_by('-date')
-    records = [
-        {'key': 'publication-{}'.format(record.pk), 'type': 'publication', 'id': record.pk, 'doi': record.doi, 'record': record}
-        for record in publications
-    ]
-    records.sort(key=lambda item: item['record'].information_confirmed)
-    for item in records:
-        record = item['record']
-        abstract_words = len(record.abstract.split())
-        item['status_tags'] = []
-        item['listing_alert'] = not record.information_confirmed
-        if not record.information_confirmed:
-            item['status_tags'].append({'label': 'Information not confirmed', 'kind': 'alert'})
-        if not record.abstract:
-            item['status_tags'].append({'label': 'Abstract missing', 'kind': 'alert'})
-        elif abstract_words < 50:
-            item['status_tags'].append({'label': 'Abstract too short', 'kind': 'alert'})
-        if not record.date:
-            item['status_tags'].append({'label': 'Date missing', 'kind': 'alert'})
-        item['status_tags'].append({'label': 'Last updated: {}'.format(record.updated_at.strftime('%Y-%m-%d')), 'kind': 'updated'})
-    context = {'records': records, 'preview': [], 'message': request.session.pop('crossref_message', None)}
-
-    if request.method == 'POST' and request.POST.get('action') == 'preview':
-        selected = [record for record in records if record['key'] == request.POST.get('record_key')]
-        mailto = getattr(settings, 'EMAIL_HOST_USER', '')
-        context['preview'] = fetch_many(selected, mailto)
-        for item in context['preview']:
-            item['record'] = next(record['record'] for record in records if record['key'] == item['record_key'])
-            item['fields'] = []
-            if item['ok']:
-                field_names = ('doi', 'title', 'authors', 'container_title', 'venue_short_name', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
-                for field in field_names:
-                    crossref_field = {'venue_publisher': 'publisher', 'venue_short_name': 'short_container_title'}.get(field, field)
-                    current_value = getattr(item['record'], field, '')
-                    if field == 'container_title':
-                        current_value = item['record'].venue.name if item['record'].venue else ''
-                    elif field == 'venue_short_name':
-                        current_value = item['record'].venue.short_name if item['record'].venue else ''
-                    elif field == 'venue_publisher':
-                        current_value = item['record'].venue.publisher if item['record'].venue else ''
-                    proposed_value = item['metadata'].get(crossref_field, '')
-                    if field == 'publication_type':
-                        type_names = list(item['record'].publication_types.values_list('name', flat=True))
-                        current_value = ', '.join(type_names)
-                    item['fields'].append({
-                        'name': field,
-                        'label': (
-                            'Date ({})'.format(item['metadata'].get('date_source'))
-                            if field == 'date' and item['metadata'].get('date_source')
-                            else field.replace('_', ' ').title()
-                        ),
-                        'current': current_value.isoformat() if hasattr(current_value, 'isoformat') else current_value,
-                        'proposed': proposed_value,
-                        'changed': proposed_value not in type_names if field == 'publication_type' else str(current_value) != str(proposed_value),
-                        'apply_by_default': (
-                            field == 'venue_publisher'
-                            and not current_value
-                            and bool(proposed_value)
-                        ) or (
-                            field == 'venue_short_name'
-                            and not current_value
-                            and bool(proposed_value)
-                        ) or (
-                            field == 'abstract'
-                            and bool(proposed_value)
-                            and len(str(proposed_value).split()) >= len(str(current_value).split())
-                        ) or (
-                            field == 'date'
-                            and not current_value
-                            and bool(proposed_value)
-                        ) or (
-                            field not in ('abstract', 'date', 'venue_publisher', 'venue_short_name')
-                            and str(current_value) != str(proposed_value)
-                            and bool(proposed_value)
-                        ),
-                        'editable': field in ('title', 'abstract'),
-                        'input_name': 'apply_{}_{}'.format(item['record_key'], field),
-                        'value_input_name': 'value_{}_{}'.format(item['record_key'], field),
-                    })
-                item['fields'].append({
-                    'name': 'information_confirmed',
-                    'label': 'Information confirmed',
-                    'current': 'Yes' if item['record'].information_confirmed else 'No',
-                    'proposed': 'Manual setting',
-                    'changed': False,
-                    'manual': True,
-                    'input_name': 'information_action_{}'.format(item['record_key']),
-                })
-        request.session['crossref_preview'] = [
-            {'record_key': item['record_key'], 'record_type': item['record_type'], 'record_id': item['record_id'], 'metadata': item['metadata']}
-            for item in context['preview'] if item['ok']
-        ]
-
-    elif request.method == 'POST' and request.POST.get('action') == 'discard':
-        request.session.pop('crossref_preview', None)
-        return redirect('admin-crossref')
-
-    elif request.method == 'POST' and request.POST.get('action') == 'apply':
-        preview = request.session.pop('crossref_preview', [])
-        applied = 0
-        for item in preview:
-            record = Publication.objects.filter(pk=item['record_id']).first()
-            if not record:
-                continue
-            fields = ('doi', 'title', 'authors', 'container_title', 'venue_short_name', 'publisher', 'venue_publisher', 'volume', 'issue', 'pages', 'article_number', 'publication_type', 'keywords', 'date', 'abstract', 'link', 'citations')
-            for field in fields:
-                if 'apply_{}_{}'.format(item['record_key'], field) not in request.POST:
-                    continue
-                value = request.POST.get('value_{}_{}'.format(item['record_key'], field), '')
-                if field not in ('title', 'abstract'):
-                    metadata_field = {'venue_publisher': 'publisher', 'venue_short_name': 'short_container_title'}.get(field, field)
-                    value = item['metadata'].get(metadata_field, getattr(record, field, ''))
-                if field == 'container_title':
-                    venue_name = str(value).strip()
-                    if venue_name:
-                        venue = Venue.objects.filter(name__iexact=venue_name).first()
-                        if venue is None:
-                            venue = Venue.objects.create(name=venue_name)
-                        record.venue = venue
-                    else:
-                        record.venue = None
-                    continue
-                if field == 'venue_publisher':
-                    if record.venue:
-                        record.venue.publisher = value
-                        record.venue.save(update_fields=('publisher',))
-                    continue
-                if field == 'venue_short_name':
-                    if record.venue:
-                        record.venue.short_name = str(value).strip()
-                        record.venue.save(update_fields=('short_name',))
-                    continue
-                if field == 'publication_type':
-                    if value:
-                        publication_type, _ = PublicationType.objects.get_or_create(name=value)
-                        record.publication_types.add(publication_type)
-                    continue
-                if field == 'date' and isinstance(value, str) and len(value) == 10:
-                    value = date.fromisoformat(value)
-                setattr(record, field, value)
-            information_action = request.POST.get('information_action_{}'.format(item['record_key']))
-            if information_action == 'confirmed':
-                record.information_confirmed = True
-            elif information_action == 'unconfirmed':
-                record.information_confirmed = False
-            record.save()
-            applied += 1
-        request.session['crossref_message'] = '{} publication{} confirmed against Crossref.'.format(applied, '' if applied == 1 else 's')
-        return redirect('admin-crossref')
-
-    return render(request, 'base/admin_crossref.html', context)
+    return redirect('admin-dashboard')
 
 
 #    Index page

@@ -92,7 +92,7 @@
 <!-- [Reversed numbers in span]. “[Paper title],” [journal name], [publication year], [author list]. Link:  [link] -->
  <!-- grouping does not work here because it is not being passed as a context for sorting -->
 <h3>Peer-reviewed journal articles</h3>
-<!-- publication.status = "published" and not preprint and publication.publication_type != conference-proceeding and publication.authors does not contain "Jappar" -->
+<!-- publication.status = "published" and not preprint and publication.publication_type != proceedings-article and publication.authors does not contain "Jappar" -->
 <ol reversed>
 	{% for publication in publications %}
 	{% if publication.status == "published" and not publication.is_preprint and not publication.is_conference_proceeding and not "Jappar" in publication.authors %}
@@ -104,7 +104,7 @@
 </ol>
 
 <h3>Peer-reviewed conference proceedings</h3>
-<!-- publication.status = "published" and publication.publication_type = "conference-proceeding" -->
+<!-- publication.status = "published" and publication.publication_type = "proceedings-article" -->
 <ol reversed>
 	{% for publication in publications %}
 	{% if publication.status == "published" and publication.is_conference_proceeding and not "Jappar" in publication.authors %}
