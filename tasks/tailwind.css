@@ -1,7 +1,7 @@
 @import "tailwindcss";
-@source "../../templates/tasks";
-@source "./tasks.js";
-@source "./preferences.js";
+@source "./templates/tasks";
+@source "./static/tasks/tasks.js";
+@source "./static/tasks/preferences.js";
 
 @theme inline {
     --color-ink: var(--tasks-ink);
