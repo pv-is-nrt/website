@@ -1,57 +1,162 @@
 {% load static %}
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="{{ preferences.theme }}" style="{% for name, value in theme_palette.items %}--tasks-{{ name }}: {{ value }};{% endfor %}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <title>Task preferences</title>
-    <link rel="stylesheet" href="{% static 'base/normalize.css' %}">
-    <link rel="stylesheet" href="{% static 'base/base.css' %}">
-    <link rel="stylesheet" href="{% static 'tasks/tasks.css' %}?v=3">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'tasks/tasks.css' %}">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
-    <script src="{% static 'tasks/preferences.js' %}?v=3" defer></script>
+    <script src="{% static 'tasks/preferences.js' %}" defer></script>
 </head>
-<body class="tasks-page">
-    <main class="tasks-shell preferences-shell">
-        <header class="tasks-header">
-            <div>
-                <p class="eyebrow">PERSONAL WORKSPACE</p>
-                <h1>Preferences</h1>
-            </div>
-            <a class="icon-button" href="{% url 'tasks:index' %}" aria-label="Back to tasks" title="Back to tasks"><i data-lucide="arrow-left"></i></a>
+<body class="tasks-page min-h-screen bg-paper font-sans text-ink" data-pattern="{{ preferences.background_pattern }}">
+    <main class="mx-auto w-[calc(100%-24px)] max-w-[880px] py-8 pb-16 max-sm:pt-5">
+        <header class="mb-4 flex items-center justify-between border-b-2 border-task-accent pb-2.5">
+            <h1 class="m-0 text-[1.8rem] leading-none font-bold">Tasks</h1>
+            <a class="grid h-11 w-11 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-surface hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" href="{% url 'tasks:index' %}" aria-label="Back to tasks" title="Back to tasks"><i data-lucide="arrow-left"></i></a>
         </header>
 
-        <section class="preferences-section">
-            <h2>Reminders</h2>
-            <label class="preference-row" for="default-reminder">
-                <span>Default time before due</span>
-                <select id="default-reminder" name="default_reminder_minutes" data-save-url="{% url 'tasks:update-preferences' %}">
-                    {% for value, label in reminder_choices %}
-                        <option value="{{ value }}"{% if preferences.default_reminder_minutes == value %} selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </label>
+        <section class="mt-5 rounded-sm border border-paper-line bg-surface p-5 shadow-[3px_3px_0_rgba(23,36,29,0.12)] max-sm:p-3.5">
+            <h2 class="mb-3.5 text-base font-bold">Preferences</h2>
+            <div class="grid gap-3">
+                <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="default-priority">
+                    <span>Default priority</span>
+                    <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="default-priority" name="default_priority" data-save-url="{% url 'tasks:update-preferences' %}">
+                        {% for value, label in priority_choices %}
+                            <option value="{{ value }}"{% if preferences.default_priority == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="default-recurrence">
+                    <span>Default repeat</span>
+                    <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="default-recurrence" name="default_recurrence" data-save-url="{% url 'tasks:update-preferences' %}">
+                        {% for value, label in recurrence_choices %}
+                            <option value="{{ value }}"{% if preferences.default_recurrence == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="default-view">
+                    <span>Start view</span>
+                    <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="default-view" name="default_view" data-save-url="{% url 'tasks:update-preferences' %}">
+                        {% for value, label in default_view_choices %}
+                            <option value="{{ value }}"{% if preferences.default_view == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="default-reminder">
+                    <span>Reminder before due</span>
+                    <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="default-reminder" name="default_reminder_minutes" data-save-url="{% url 'tasks:update-preferences' %}">
+                        {% for value, label in reminder_choices %}
+                            <option value="{{ value }}"{% if preferences.default_reminder_minutes == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
         </section>
 
-        <section class="preferences-section">
-            <div class="section-heading">
-                <h2>Categories</h2>
-                <form id="new-category-form" action="{% url 'tasks:create-category' %}" method="post">
+        <section class="mt-4 rounded-sm border border-paper-line bg-surface p-5 shadow-[3px_3px_0_rgba(23,36,29,0.12)] max-sm:p-3.5">
+            <div class="grid gap-3">
+                <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="auto-archive-after">
+                    <span>Completed tasks archive automatically after</span>
+                    <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="auto-archive-after" name="auto_archive_after" data-save-url="{% url 'tasks:update-preferences' %}">
+                        {% for value, label in auto_archive_choices %}
+                            <option value="{{ value }}"{% if preferences.auto_archive_after == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="flex min-h-10 items-center justify-between gap-4 text-sm" for="show-quick-capture-hint">
+                    <span>Show quick-capture hint</span>
+                    <input class="preference-control h-5 w-5 accent-forest" id="show-quick-capture-hint" name="show_quick_capture_hint" type="checkbox" value="true"{% if show_quick_capture_hint %} checked{% endif %} data-save-url="{% url 'tasks:update-preferences' %}">
+                </label>
+                <label class="flex min-h-10 items-center justify-between gap-4 text-sm" for="show-task-age">
+                    <span>Show task age across tabs</span>
+                    <input class="preference-control h-5 w-5 accent-forest" id="show-task-age" name="show_task_age" type="checkbox" value="true"{% if show_task_age %} checked{% endif %} data-save-url="{% url 'tasks:update-preferences' %}">
+                </label>
+                <label class="flex min-h-10 items-center justify-between gap-4 text-sm" for="filters-expanded-by-default">
+                    <span>Expand filters by default</span>
+                    <input class="preference-control h-5 w-5 accent-forest" id="filters-expanded-by-default" name="filters_expanded_by_default" type="checkbox" value="true"{% if filters_expanded_by_default %} checked{% endif %} data-save-url="{% url 'tasks:update-preferences' %}">
+                </label>
+                <label class="flex min-h-10 items-center justify-between gap-4 text-sm" for="show-archived-tab">
+                    <span>Show Archived tab</span>
+                    <input class="preference-control h-5 w-5 accent-forest" id="show-archived-tab" name="show_archived_tab" type="checkbox" value="true"{% if show_archived_tab %} checked{% endif %} data-save-url="{% url 'tasks:update-preferences' %}">
+                </label>
+                <label class="flex min-h-10 items-center justify-between gap-4 text-sm" for="show-cancelled-tab">
+                    <span>Show Cancelled tab</span>
+                    <input class="preference-control h-5 w-5 accent-forest" id="show-cancelled-tab" name="show_cancelled_tab" type="checkbox" value="true"{% if show_cancelled_tab %} checked{% endif %} data-save-url="{% url 'tasks:update-preferences' %}">
+                </label>
+            </div>
+        </section>
+
+        <section class="mt-5 rounded-sm border border-paper-line bg-surface p-5 shadow-[3px_3px_0_rgba(23,36,29,0.12)] max-sm:p-3.5">
+            <div class="mb-3.5 flex items-center justify-between gap-3 max-sm:flex-col max-sm:items-stretch">
+                <h2 class="m-0 text-sm font-bold">Tags</h2>
+                <form class="flex min-w-0 items-center gap-2 max-sm:w-full" id="new-category-form" action="{% url 'tasks:create-category' %}" method="post">
                     {% csrf_token %}
-                    <label class="visually-hidden" for="new-category-name">New category name</label>
-                    <input id="new-category-name" name="name" maxlength="80" placeholder="New category" required>
-                    <button class="icon-button" type="submit" aria-label="Add category" title="Add category"><i data-lucide="plus"></i></button>
+                    <label class="sr-only" for="new-category-name">New tag name</label>
+                    <input class="min-h-11 min-w-0 flex-1 rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="new-category-name" name="name" maxlength="80" placeholder="New tag" required>
+                    <button class="grid h-11 w-11 flex-none place-items-center rounded-sm bg-task-accent text-accent-ink transition-colors hover:bg-forest hover:text-forest-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" type="submit" aria-label="Add tag" title="Add tag"><i data-lucide="plus"></i></button>
                 </form>
             </div>
-            <div class="category-list" id="category-list">
+            <div class="border-t border-paper-line" id="category-list">
                 {% for category in categories %}
                     {% include 'tasks/category_row.html' %}
                 {% empty %}
-                    <p class="empty-state" id="empty-categories">No categories yet.</p>
+                    <p class="empty-state" id="empty-categories">No tags yet.</p>
                 {% endfor %}
             </div>
         </section>
-        <p class="page-status" id="page-status" aria-live="polite"></p>
+        <section class="mt-5 rounded-sm border border-paper-line bg-surface p-5 shadow-[3px_3px_0_rgba(23,36,29,0.12)] max-sm:p-3.5" id="theme-preferences">
+            <h2 class="mb-3.5 text-sm font-bold">Theme</h2>
+            <div class="grid gap-3">
+                <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="theme">
+                    <span>Appearance</span>
+                    <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="theme" name="theme" data-save-url="{% url 'tasks:update-preferences' %}">
+                        {% for value, label in theme_choices %}
+                            <option value="{{ value }}"{% if preferences.theme == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="background-pattern">
+                    <span>Background pattern</span>
+                    <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="background-pattern" name="background_pattern" data-save-url="{% url 'tasks:update-preferences' %}">
+                        {% for value, label in background_pattern_choices %}
+                            <option value="{{ value }}"{% if preferences.background_pattern == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <p class="m-0 text-xs text-ink-muted">Default color: <code class="font-mono">{{ default_theme_seed }}</code></p>
+                <h3 class="m-0 pt-1 text-xs font-semibold uppercase text-ink-muted">Your Colors</h3>
+                <div class="flex min-w-0 items-center gap-2">
+                    <label class="sr-only" for="active-custom-theme">Active custom theme</label>
+                    <select class="preference-control min-h-10 min-w-0 flex-1 rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="active-custom-theme" name="active_theme" data-save-url="{% url 'tasks:update-preferences' %}">
+                        <option value=""{% if not selected_theme %} selected{% endif %}>Built-in theme ({{ default_theme_seed }})</option>
+                        {% for saved_theme in custom_themes %}
+                            <option value="{{ saved_theme.pk }}" data-seed-color="{{ saved_theme.seed_color }}" data-delete-url="{% url 'tasks:delete-theme' saved_theme.pk %}"{% if selected_theme.pk == saved_theme.pk %} selected{% endif %}>{{ saved_theme.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="grid h-10 w-10 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-rust/10 hover:text-rust focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" id="delete-custom-theme" type="button" aria-label="Delete selected theme" title="Delete selected theme"{% if not selected_theme %} disabled{% endif %}><i data-lucide="trash-2"></i></button>
+                </div>
+                <form class="grid gap-2 pt-2" id="new-theme-form" action="{% url 'tasks:create-theme' %}" method="post">
+                    <div class="flex items-center justify-between gap-4 text-sm">
+                        <span id="new-theme-color-label">Primary color</span>
+                        <span class="flex items-center gap-2">
+                            <input class="h-10 w-12 cursor-pointer rounded-sm border border-paper-line bg-surface p-1" id="new-theme-color-picker" type="color" value="{{ theme_seed_color }}" data-hex-target="new-theme-color-hex" aria-labelledby="new-theme-color-label">
+                            <input class="color-hex min-h-10 w-28 rounded-sm border border-paper-line bg-surface px-2 font-mono text-xs uppercase focus:border-forest focus:outline-none" id="new-theme-color-hex" name="color" type="text" value="{{ theme_seed_color }}" maxlength="7" pattern="#[0-9a-fA-F]{6}" aria-label="New theme primary hex value" required>
+                        </span>
+                    </div>
+                    <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-2">
+                        <label class="grid min-w-0 gap-1 text-xs font-medium text-ink-muted" for="new-theme-name">
+                            <span>Theme name</span>
+                            <input class="min-h-10 min-w-0 rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs text-ink focus:border-forest focus:outline-none" id="new-theme-name" name="name" maxlength="40" required>
+                        </label>
+                        <button class="flex min-h-10 items-center justify-center gap-2 rounded-sm bg-task-accent px-3 text-sm font-semibold text-accent-ink transition-colors hover:bg-forest hover:text-forest-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" type="submit"><i data-lucide="plus"></i><span>Save</span></button>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <p class="hidden min-h-5 text-xs text-ink-muted" id="page-status" aria-live="polite"></p>
     </main>
     <template id="category-row-template">
         {% with category=None %}

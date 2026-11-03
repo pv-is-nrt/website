@@ -1,0 +1,254 @@
+@import "tailwindcss";
+@source "../../templates/tasks";
+@source "./tasks.js";
+@source "./preferences.js";
+
+@theme inline {
+    --color-ink: var(--tasks-ink);
+    --color-ink-muted: var(--tasks-ink-muted);
+    --color-ink-faint: var(--tasks-ink-faint);
+    --color-rust: var(--tasks-rust);
+    --color-task-accent: var(--tasks-chartreuse);
+    --color-accent-ink: var(--tasks-accent-ink);
+    --color-forest: var(--tasks-forest);
+    --color-forest-ink: var(--tasks-forest-ink);
+    --color-paper: var(--tasks-paper);
+    --color-paper-line: var(--tasks-paper-line);
+    --color-paper-faint: var(--tasks-paper-faint);
+    --color-surface: var(--tasks-surface);
+    --color-tab-badge: var(--tasks-tab-badge);
+    --color-capture-tag: var(--tasks-capture-tag);
+    --color-capture-repeat: var(--tasks-capture-repeat);
+}
+
+@theme {
+    --font-sans: "Space Grotesk", sans-serif;
+    --font-mono: "DM Mono", monospace;
+}
+
+@layer base {
+    svg.lucide {
+        width: 1rem;
+        height: 1rem;
+        flex: none;
+        stroke-width: 1.75;
+    }
+}
+
+@layer components {
+    .tag-filter:has(input:checked) {
+        background-color: var(--tag-color) !important;
+        border-color: color-mix(in srgb, var(--tag-color), #17241d 22%) !important;
+        color: #17241d !important;
+    }
+
+    .tag-filter:focus-within {
+        outline: 2px solid var(--tasks-forest);
+        outline-offset: 2px;
+    }
+}
+
+:root {
+    color-scheme: light;
+    --tasks-ink: var(--tasks-light-ink);
+    --tasks-ink-muted: var(--tasks-light-ink-muted);
+    --tasks-ink-faint: var(--tasks-light-ink-faint);
+    --tasks-rust: var(--tasks-light-rust);
+    --tasks-chartreuse: var(--tasks-light-chartreuse);
+    --tasks-accent-ink: var(--tasks-light-accent-ink);
+    --tasks-forest: var(--tasks-light-forest);
+    --tasks-forest-ink: var(--tasks-light-forest-ink);
+    --tasks-paper: var(--tasks-light-paper);
+    --tasks-paper-line: var(--tasks-light-paper-line);
+    --tasks-paper-faint: var(--tasks-light-paper-faint);
+    --tasks-surface: var(--tasks-light-surface);
+    --tasks-tab-badge: color-mix(in srgb, var(--tasks-paper-faint) 65%, var(--tasks-surface));
+    --tasks-capture-tag: var(--tasks-light-capture-tag);
+    --tasks-capture-repeat: var(--tasks-light-capture-repeat);
+    --page-grid-line: var(--tasks-light-page-grid-line);
+    --calendar-selected-text: var(--tasks-light-calendar-selected-text);
+}
+
+body.tasks-page {
+    min-width: 360px;
+    background-color: var(--color-paper);
+    background-image: none;
+}
+
+body.tasks-page[data-pattern="grid"] {
+    background-image:
+        linear-gradient(var(--page-grid-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--page-grid-line) 1px, transparent 1px);
+    background-size: 28px 28px;
+}
+
+body.tasks-page[data-pattern="dots"] {
+    background-image: radial-gradient(var(--page-grid-line) 1.2px, transparent 1.3px);
+    background-size: 20px 20px;
+}
+
+body.tasks-page[data-pattern="checkerboard"] {
+    background-image: conic-gradient(var(--page-grid-line) 25%, transparent 0 50%, var(--page-grid-line) 0 75%, transparent 0);
+    background-size: 32px 32px;
+}
+
+input[type="date"],
+input[type="datetime-local"] {
+    color-scheme: light;
+    accent-color: var(--color-forest);
+}
+
+.tag-chip {
+    background-color: var(--tag-color);
+    border-color: color-mix(in srgb, var(--tag-color), #17241d 22%);
+    color: #17241d;
+}
+
+.task-age {
+    color: var(--color-ink-muted);
+}
+
+.task-age-value {
+    color: color-mix(
+        in srgb,
+        var(--color-forest) calc(100% - var(--age-progress)),
+        var(--color-rust) var(--age-progress)
+    );
+}
+
+.task-row:not(:last-child) {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
+}
+
+.quick-capture-input {
+    color: transparent;
+    caret-color: var(--color-ink);
+    -webkit-text-fill-color: transparent;
+}
+
+.quick-capture-input::selection {
+    color: var(--color-ink);
+    background: color-mix(in srgb, var(--color-forest) 25%, transparent);
+}
+
+.quick-capture-input::placeholder {
+    color: var(--color-ink-muted);
+    -webkit-text-fill-color: var(--color-ink-muted);
+}
+
+.quick-capture-highlight {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    padding: 8px 0;
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 1rem;
+    line-height: normal;
+    white-space: pre;
+    pointer-events: none;
+}
+
+.quick-capture-highlight-text {
+    display: block;
+    width: max-content;
+}
+
+.capture-token-priority {
+    color: var(--color-rust);
+    font-weight: 700;
+}
+
+.capture-token-date {
+    color: var(--color-forest);
+    font-weight: 600;
+}
+
+.capture-token-tag {
+    color: var(--color-capture-tag);
+    font-weight: 600;
+}
+
+.capture-token-repeat {
+    color: var(--color-capture-repeat);
+    font-weight: 600;
+}
+
+@media (min-width: 900px) {
+    .managed-category {
+        grid-template-columns: minmax(80px, 1fr) 700px 40px;
+        column-gap: 4px;
+    }
+
+    .category-color-picker {
+        width: 700px;
+    }
+
+    .color-picker-toggle {
+        display: none;
+    }
+
+    .category-colors {
+        position: static;
+        display: grid !important;
+        width: 700px;
+        grid-template-columns: repeat(16, 40px);
+        gap: 4px;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --tasks-ink: var(--tasks-dark-ink);
+        --tasks-ink-muted: var(--tasks-dark-ink-muted);
+        --tasks-ink-faint: var(--tasks-dark-ink-faint);
+        --tasks-rust: var(--tasks-dark-rust);
+        --tasks-chartreuse: var(--tasks-dark-chartreuse);
+        --tasks-accent-ink: var(--tasks-dark-accent-ink);
+        --tasks-forest: var(--tasks-dark-forest);
+        --tasks-forest-ink: var(--tasks-dark-forest-ink);
+        --tasks-paper: var(--tasks-dark-paper);
+        --tasks-paper-line: var(--tasks-dark-paper-line);
+        --tasks-paper-faint: var(--tasks-dark-paper-faint);
+        --tasks-surface: var(--tasks-dark-surface);
+        --tasks-capture-tag: var(--tasks-dark-capture-tag);
+        --tasks-capture-repeat: var(--tasks-dark-capture-repeat);
+        --page-grid-line: var(--tasks-dark-page-grid-line);
+        --calendar-selected-text: var(--tasks-dark-calendar-selected-text);
+    }
+
+    :root:not([data-theme="light"]) input[type="date"],
+    :root:not([data-theme="light"]) input[type="datetime-local"] {
+        color-scheme: dark;
+    }
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --tasks-ink: var(--tasks-dark-ink);
+    --tasks-ink-muted: var(--tasks-dark-ink-muted);
+    --tasks-ink-faint: var(--tasks-dark-ink-faint);
+    --tasks-rust: var(--tasks-dark-rust);
+    --tasks-chartreuse: var(--tasks-dark-chartreuse);
+    --tasks-accent-ink: var(--tasks-dark-accent-ink);
+    --tasks-forest: var(--tasks-dark-forest);
+    --tasks-forest-ink: var(--tasks-dark-forest-ink);
+    --tasks-paper: var(--tasks-dark-paper);
+    --tasks-paper-line: var(--tasks-dark-paper-line);
+    --tasks-paper-faint: var(--tasks-dark-paper-faint);
+    --tasks-surface: var(--tasks-dark-surface);
+    --tasks-capture-tag: var(--tasks-dark-capture-tag);
+    --tasks-capture-repeat: var(--tasks-dark-capture-repeat);
+    --page-grid-line: var(--tasks-dark-page-grid-line);
+    --calendar-selected-text: var(--tasks-dark-calendar-selected-text);
+}
+
+:root[data-theme="dark"] input[type="date"],
+:root[data-theme="dark"] input[type="datetime-local"] {
+    color-scheme: dark;
+}

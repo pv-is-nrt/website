@@ -11,9 +11,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('title', 'priority', 'due_at', 'reminder_enabled', 'completed', 'updated_at')
-    list_filter = ('completed', 'priority', 'categories')
-    search_fields = ('title', 'categories__name')
+    list_display = ('title', 'parent', 'priority', 'due_at', 'reminder_enabled', 'completed', 'completed_at', 'cancelled_at', 'archived_at', 'updated_at')
+    list_filter = ('completed', 'cancelled_at', 'archived_at', 'priority', 'categories', 'parent')
+    search_fields = ('title', 'notes', 'categories__name')
     filter_horizontal = ('categories',)
 
 

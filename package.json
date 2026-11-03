@@ -1,0 +1,12 @@
+{
+  "name": "website-task-assets",
+  "private": true,
+  "scripts": {
+    "build:tasks-css": "tailwindcss -i ./tasks/static/tasks/tailwind.css -o ./tasks/static/tasks/tasks.css --minify",
+    "watch:tasks-css": "tailwindcss -i ./tasks/static/tasks/tailwind.css -o ./tasks/static/tasks/tasks.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "tailwindcss": "^4.1.0"
+  }
+}
