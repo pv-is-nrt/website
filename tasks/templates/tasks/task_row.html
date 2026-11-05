@@ -7,11 +7,11 @@
             <span class="h-4 w-4 rounded-sm border-[1.5px] border-ink-faint transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:shadow-[inset_0_0_0_3px_var(--color-surface)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest" aria-hidden="true"></span>
         </label>
     {% else %}
-        <span class="grid h-8 w-8 place-items-center text-ink-faint" aria-hidden="true">{% if view_name == 'cancelled' %}<i data-lucide="ban"></i>{% else %}<i data-lucide="archive"></i>{% endif %}</span>
+        <span class="icon-themed icon-terracotta grid h-8 w-8 place-items-center" aria-hidden="true">{% if view_name == 'cancelled' %}<i data-lucide="ban"></i>{% else %}<i data-lucide="archive"></i>{% endif %}</span>
     {% endif %}
     <div class="task-content grid min-w-0 gap-y-1">
         <div class="task-title-line min-w-0">
-            <input class="task-title block h-8 min-w-0 w-full border-0 border-b border-transparent bg-transparent py-0 text-[0.95rem] font-medium leading-7 text-ink outline-none focus:border-forest{% if task.completed or view_name == 'archived' or view_name == 'cancelled' %} text-ink-muted{% endif %}" data-field="title" value="{{ task.title|default:'' }}" maxlength="240" aria-label="Task title">
+            <textarea class="task-title block min-h-8 min-w-0 w-full resize-none overflow-hidden border-0 border-b border-transparent bg-transparent py-1 text-[0.95rem] font-medium leading-6 text-ink outline-none focus:border-forest{% if task.completed or view_name == 'archived' or view_name == 'cancelled' %} text-ink-muted{% endif %}" data-field="title" rows="1" maxlength="240" aria-label="Task title">{{ task.title|default:'' }}</textarea>
         </div>
         {% if show_task_age and view_name != 'cancelled' and view_name != 'archived' %}
             <p class="task-age m-0 min-h-5 text-xs italic">{% if task.completed %}Completed in <span class="task-age-value" style="--age-progress: {{ task.age_progress }}%">{{ task.days_to_complete }} day{% if task.days_to_complete != 1 %}s{% endif %}</span>{% else %}Open for <span class="task-age-value" style="--age-progress: {{ task.age_progress }}%">{{ task.days_open|default:0 }} day{% if task.days_open != 1 %}s{% endif %}</span>{% endif %}</p>
@@ -19,9 +19,9 @@
         {% if view_name != 'cancelled' and view_name != 'archived' %}
         <div class="task-category-chips empty:hidden min-w-0 flex flex-wrap items-center gap-1" aria-label="Task tags">
             {% for category in task.categories.all %}
-                <span class="tag-chip inline-flex min-h-7 items-center gap-[3px] rounded-full border py-0.5 pl-2.5 pr-1 text-xs" style="--tag-color: {{ category.color }}">
+                <span class="tag-chip inline-flex min-h-7 items-center gap-0.5 rounded-full py-0.5 pl-2 pr-0.5 text-xs" style="--tag-color: {{ category.color }}; --tag-dark-color: {{ category.dark_color }}">
                     <span>{{ category.name }}</span>
-                    <button class="category-remove inline-grid h-6 w-6 place-items-center rounded-sm text-inherit opacity-65 transition-colors hover:bg-black/10 hover:opacity-100" type="button" data-category-id="{{ category.pk }}" aria-label="Remove tag {{ category.name }}"><i data-lucide="x"></i></button>
+                    <button class="category-remove inline-grid h-6 w-6 place-items-center rounded-full opacity-65 transition-colors hover:bg-black/10 hover:opacity-100" type="button" data-category-id="{{ category.pk }}" aria-label="Remove tag {{ category.name }}"><i data-lucide="x"></i></button>
                 </span>
             {% endfor %}
         </div>
@@ -29,46 +29,24 @@
         {% with subtasks=task.subtasks.all %}
         <div class="task-edit-actions flex min-h-8 min-w-0 flex-nowrap items-center gap-1">
                 {% if view_name == 'open' or view_name == 'today' or view_name == 'upcoming' %}
-                    <label class="priority-control relative grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-ink focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-forest" title="Priority">
-                        {% if task.priority == 5 %}<i data-lucide="snail" aria-hidden="true"></i>{% elif task.priority == 4 %}<i data-lucide="turtle" aria-hidden="true"></i>{% elif task.priority == 3 %}<i data-lucide="rabbit" aria-hidden="true"></i>{% elif task.priority == 2 %}<i data-lucide="car" aria-hidden="true"></i>{% else %}<i data-lucide="plane-takeoff" aria-hidden="true"></i>{% endif %}
-                        <span class="priority-level absolute bottom-0 right-0 rounded-sm bg-surface px-0.5 font-mono text-[0.52rem] leading-3 text-ink">{% for value, label in priority_choices %}{% if task.priority == value %}{{ label }}{% endif %}{% endfor %}</span>
+                    <label class="priority-control relative grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-forest" title="Priority" data-icon-style="{{ priority_icon_style }}"{% for value, icon_name, light_color, dark_color in priority_icon_palette %}{% if task.priority == value %} style="--priority-light-color: {{ light_color }}; --priority-dark-color: {{ dark_color }}"{% endif %}{% endfor %}>
+                        {% for value, icon_name, light_color, dark_color in priority_icon_palette %}{% if task.priority == value %}<i class="priority-icon" data-lucide="{{ icon_name }}" aria-hidden="true"></i>{% endif %}{% endfor %}
+                        {% if show_priority_numbers %}<span class="priority-level absolute bottom-0 right-0 rounded-sm bg-surface px-0.5 font-mono text-[0.52rem] leading-3 text-ink">{% for value, label in priority_choices %}{% if task.priority == value %}{{ label }}{% endif %}{% endfor %}</span>{% endif %}
                         <select class="priority-select absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0" data-field="priority" aria-label="Priority">
-                            {% for value, label in priority_choices %}
-                                <option value="{{ value }}"{% if task.priority == value %} selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
+                            {% for value, label in priority_choices %}{% for icon_value, icon_name, light_color, dark_color in priority_icon_palette %}{% if value == icon_value %}
+                                <option value="{{ value }}" data-icon="{{ icon_name }}" data-light-color="{{ light_color }}" data-dark-color="{{ dark_color }}"{% if task.priority == value %} selected{% endif %}>{{ label }}</option>
+                            {% endif %}{% endfor %}{% endfor %}
                         </select>
                     </label>
                 {% endif %}
                 {% if view_name == 'open' or view_name == 'today' or view_name == 'upcoming' %}
-                    <div class="relative flex-none" data-due-picker-wrapper>
-                        <button class="icon-button due-button grid h-8 min-w-8 grid-flow-col auto-cols-max place-items-center justify-center gap-1 rounded-sm px-1 text-ink-muted transition-colors hover:bg-paper-faint hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" aria-label="Set due date and time{% if task.due_at %}, {{ task.due_at|date:'M j' }}{% endif %}" aria-haspopup="dialog" aria-expanded="false" title="Set due date and time">
-                            <i data-lucide="calendar-clock"></i><span class="due-label empty:hidden text-[0.65rem]">{% if task.due_at %}{{ task.due_at|date:'M j' }}{% endif %}</span>
-                        </button>
-                        <input class="due-input absolute h-px w-px overflow-hidden opacity-0" type="datetime-local" data-field="due_at" value="{{ task.due_at|date:'Y-m-d\TH:i' }}" aria-label="Due date and time" tabindex="-1">
-                        <div class="due-picker fixed left-0 top-0 z-[60] w-72 max-w-[calc(100vw-32px)] rounded-sm border border-paper-line bg-surface p-3 text-ink shadow-lg" hidden role="dialog" aria-label="Choose due date and time">
-                            <div class="mb-2 flex items-center justify-between gap-2">
-                                <button class="grid h-8 w-8 place-items-center rounded-sm text-ink-muted hover:bg-paper-faint hover:text-ink focus-visible:outline-2 focus-visible:outline-forest" type="button" data-calendar-month="-1" aria-label="Previous month"><i data-lucide="chevron-left"></i></button>
-                                <span class="font-semibold text-sm" data-calendar-month-label aria-live="polite"></span>
-                                <button class="grid h-8 w-8 place-items-center rounded-sm text-ink-muted hover:bg-paper-faint hover:text-ink focus-visible:outline-2 focus-visible:outline-forest" type="button" data-calendar-month="1" aria-label="Next month"><i data-lucide="chevron-right"></i></button>
-                            </div>
-                            <div class="mb-1 grid grid-cols-7 gap-1 text-center font-mono text-[0.62rem] text-ink-muted" aria-hidden="true"><span class="grid h-8 w-8 place-items-center">Su</span><span class="grid h-8 w-8 place-items-center">Mo</span><span class="grid h-8 w-8 place-items-center">Tu</span><span class="grid h-8 w-8 place-items-center">We</span><span class="grid h-8 w-8 place-items-center">Th</span><span class="grid h-8 w-8 place-items-center">Fr</span><span class="grid h-8 w-8 place-items-center">Sa</span></div>
-                            <div class="grid grid-cols-7 gap-1 text-center text-sm" data-calendar-grid role="group" aria-label="Dates in month"></div>
-                            <label class="mt-3 grid grid-cols-[auto_1fr] items-center gap-3 border-t border-paper-line pt-3 text-xs font-medium text-ink-muted">
-                                <span>Time</span>
-                                <input class="due-time min-h-9 rounded-sm border border-paper-line bg-surface px-2 text-sm text-ink focus:border-forest focus:outline-none" type="time" aria-label="Due time" value="09:00">
-                            </label>
-                            <div class="mt-2 flex justify-between">
-                                <button class="due-today min-h-9 rounded-sm px-2 text-xs font-semibold text-forest underline underline-offset-2 hover:bg-paper-faint" type="button">Today</button>
-                                <button class="due-clear min-h-9 rounded-sm px-2 text-xs font-semibold text-ink-muted underline underline-offset-2 hover:bg-paper-faint" type="button">Clear date</button>
-                            </div>
-                        </div>
-                    </div>
+                    {% include 'tasks/date_picker.html' with field='due_at' value=task.due_at wrapper_class='flex-none' button_class='icon-button grid h-8 min-w-8 grid-flow-col auto-cols-max place-items-center justify-center gap-1 rounded-sm px-1 text-ink-muted transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest' button_label='Set due date and time' input_label='Due date and time' dialog_label='Choose due date and time' label_class='empty:hidden text-[0.65rem]' display_format='M j' empty_label='' compact=True due_action=True clearable=True %}
                 {% endif %}
                 {% if view_name == 'open' or view_name == 'today' or view_name == 'upcoming' %}
-                    <button class="icon-button reminder-toggle grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest disabled:cursor-not-allowed disabled:opacity-40{% if task.reminder_enabled %} text-rust{% endif %}" type="button" data-field="reminder_enabled" aria-pressed="{{ task.reminder_enabled|yesno:'true,false' }}" aria-label="Toggle reminder" title="{% if task.due_at %}Toggle reminder{% else %}Set a due date to enable reminders{% endif %}"{% if not task.due_at %} disabled{% endif %}><i data-lucide="bell-ring"></i></button>
+                    <button class="icon-button reminder-toggle grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest disabled:cursor-not-allowed disabled:opacity-40{% if task.reminder_enabled %} icon-themed icon-sky{% endif %}" type="button" data-field="reminder_enabled" aria-pressed="{{ task.reminder_enabled|yesno:'true,false' }}" aria-label="Toggle reminder" title="{% if task.due_at %}Toggle reminder{% else %}Set a due date to enable reminders{% endif %}"{% if not task.due_at %} disabled{% endif %}><i data-lucide="bell-ring"></i></button>
                     <details class="repeat-control relative flex-none">
-                        <summary class="grid h-8 w-8 cursor-pointer list-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest" aria-label="Set repeat interval" title="{% if task.recurrence != 'none' %}Repeats {{ task.get_recurrence_display }}{% else %}Set repeat interval{% endif %}"><i data-lucide="repeat"></i></summary>
-                        <label class="absolute right-0 top-full z-10 mt-1 grid w-44 gap-1 rounded-sm border border-paper-line bg-surface p-2 text-xs font-medium text-ink-muted shadow-lg">
+                        <summary class="grid h-8 w-8 cursor-pointer list-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint{% if task.recurrence != 'none' %} icon-themed icon-mint{% endif %}" aria-label="Set repeat interval" title="{% if task.recurrence != 'none' %}Repeats {{ task.get_recurrence_display }}{% else %}Set repeat interval{% endif %}"><i data-lucide="repeat"></i></summary>
+                        <label class="absolute right-0 top-full z-30 mt-1 grid w-44 gap-1 rounded-sm border border-paper-line bg-surface p-2 text-xs font-medium text-ink-muted shadow-lg">
                             <span>Repeat</span>
                             <select class="min-h-10 rounded-sm border border-paper-line bg-surface px-2 text-sm text-ink focus:border-forest focus:outline-none" data-field="recurrence" aria-label="Repeat task">
                                 {% for value, label in recurrence_choices %}<option value="{{ value }}"{% if task.recurrence == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
@@ -76,55 +54,63 @@
                         </label>
                     </details>
                 {% endif %}
-                <div class="lifecycle-actions flex flex-none items-center gap-0.5">
-                    {% if view_name == 'open' or view_name == 'today' or view_name == 'upcoming' %}
-                        <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-rust focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="cancelled" data-task-value="true" aria-label="Cancel task" title="Cancel task"><i data-lucide="ban"></i></button>
-                    {% elif view_name == 'completed' %}
-                        <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="archived" data-task-value="true" aria-label="Archive task" title="Archive task"><i data-lucide="archive"></i></button>
-                    {% elif view_name == 'cancelled' %}
-                        <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="cancelled" data-task-value="false" aria-label="Restore to Open" title="Restore to Open"><i data-lucide="rotate-ccw"></i></button>
-                        <button class="task-action delete-task grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-rust/10 hover:text-rust focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Permanently delete task" title="Permanently delete task"><i data-lucide="trash-2"></i></button>
-                    {% else %}
-                        <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="archived" data-task-value="false" aria-label="Restore to Completed" title="Restore to Completed"><i data-lucide="rotate-ccw"></i></button>
-                        <button class="task-action delete-task grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-rust/10 hover:text-rust focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Permanently delete task" title="Permanently delete task"><i data-lucide="trash-2"></i></button>
-                    {% endif %}
-                </div>
-                {% if view_name == 'completed' %}
-                    <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="completed" data-task-value="false" aria-label="Reopen task" title="Reopen task"><i data-lucide="rotate-ccw"></i></button>
-                {% endif %}
                 {% if view_name != 'cancelled' and view_name != 'archived' %}<div class="relative flex-none">
                     <button class="category-add grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-ink" type="button" aria-label="Add tag" title="Add tag" aria-expanded="false"><i data-lucide="plus"></i></button>
-                <div class="category-menu absolute top-[calc(100%+3px)] left-0 z-[5] max-h-[220px] min-w-[180px] overflow-y-auto rounded-sm border border-paper-line bg-surface p-1.5 shadow-lg" hidden>
+                <div class="category-menu absolute top-[calc(100%+3px)] left-0 z-30 max-h-[220px] min-w-[180px] overflow-y-auto rounded-sm border border-paper-line bg-surface p-1.5 shadow-lg" hidden>
                     {% for category in categories %}
-                        <label class="flex min-h-10 cursor-pointer items-center gap-2 rounded-sm px-2 text-sm hover:bg-paper-faint"><input type="checkbox" class="category-choice accent-forest" value="{{ category.pk }}" data-name="{{ category.name }}" data-color="{{ category.color }}"{% if category in task.categories.all %} checked{% endif %}><span>{{ category.name }}</span></label>
+                        <label class="flex min-h-10 cursor-pointer items-center gap-2 rounded-sm px-2 text-sm hover:bg-paper-faint"><input type="checkbox" class="category-choice accent-forest" value="{{ category.pk }}" data-name="{{ category.name }}" data-color="{{ category.color }}" data-dark-color="{{ category.dark_color }}"{% if category in task.categories.all %} checked{% endif %}><span>{{ category.name }}</span></label>
                     {% empty %}
                         <span class="block p-1.5 text-xs text-ink-muted">Add tags in Preferences</span>
                     {% endfor %}
                 </div>
                 </div>
-                    <button class="task-details-toggle relative grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted hover:bg-paper-faint hover:text-ink" type="button" aria-label="Edit notes and steps{% if subtasks %}, {{ subtasks|length }} steps{% endif %}" title="Notes and steps" aria-expanded="false"><i data-lucide="notebook-pen"></i>{% if subtasks %}<span class="absolute -right-1 -top-1 min-w-4 rounded-full bg-task-accent px-1 text-center font-mono text-[0.58rem] leading-4 text-accent-ink">{{ subtasks|length }}</span>{% endif %}</button>{% endif %}
+                {% endif %}
+                <button class="task-details-toggle relative grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted hover:bg-paper-faint hover:text-ink" type="button" aria-label="Edit notes and steps{% if task.open_subtask_count %}, {{ task.open_subtask_count }} open step{% if task.open_subtask_count != 1 %}s{% endif %}{% endif %}" title="Notes and steps" aria-expanded="false"><i data-lucide="notebook-pen"></i>{% if task.open_subtask_count %}<span class="subtask-count-badge absolute -right-1 -top-1 min-w-4 rounded-full bg-task-accent px-1 text-center font-mono text-[0.58rem] leading-4 text-accent-ink">{{ task.open_subtask_count }}</span>{% endif %}</button>
+                {% if view_name == 'open' or view_name == 'today' or view_name == 'upcoming' %}
+                    <div class="lifecycle-actions ml-auto flex flex-none items-center gap-0.5">
+                        <button class="task-action icon-themed icon-terracotta grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="cancelled" data-task-value="true" aria-label="Cancel task" title="Cancel task"><i data-lucide="ban"></i></button>
+                    </div>
+                {% elif view_name == 'completed' %}
+                    <div class="lifecycle-actions ml-auto flex flex-none items-center gap-0.5">
+                        <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="completed" data-task-value="false" aria-label="Reopen task" title="Reopen task"><i data-lucide="rotate-ccw"></i></button>
+                        <button class="task-action icon-themed icon-terracotta grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="archived" data-task-value="true" aria-label="Archive task" title="Archive task"><i data-lucide="archive"></i></button>
+                    </div>
+                {% elif view_name == 'cancelled' %}
+                    <div class="lifecycle-actions ml-auto flex flex-none items-center gap-0.5">
+                        <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="cancelled" data-task-value="false" aria-label="Restore to Open" title="Restore to Open"><i data-lucide="rotate-ccw"></i></button>
+                        <button class="task-action delete-task icon-themed icon-terracotta grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Permanently delete task" title="Permanently delete task"><i data-lucide="trash-2"></i></button>
+                    </div>
+                {% else %}
+                    <div class="lifecycle-actions ml-auto flex flex-none items-center gap-0.5">
+                        <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="archived" data-task-value="false" aria-label="Restore to Completed" title="Restore to Completed"><i data-lucide="rotate-ccw"></i></button>
+                        <button class="task-action delete-task icon-themed icon-terracotta grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Permanently delete task" title="Permanently delete task"><i data-lucide="trash-2"></i></button>
+                    </div>
+                {% endif %}
             </div>
-            {% if view_name != 'cancelled' and view_name != 'archived' %}
             <div class="task-details-panel mt-2 grid gap-3 pl-3" hidden>
+                <div class="grid gap-1 text-xs font-medium text-ink-muted">
+                    <span>Created on</span>
+                    {% include 'tasks/date_picker.html' with field='created_at' value=task.created_at wrapper_class='w-full' button_class='flex min-h-10 w-full items-center gap-2 rounded-sm border border-paper-line bg-surface px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none' button_label='Set created date and time' input_label='Created date and time' dialog_label='Choose created date and time' label_class='flex-1 text-left' display_format='M j, Y, g:i A' empty_label='Choose date and time' compact=False due_action=False clearable=False %}
+                </div>
                 {% if view_name == 'completed' or view_name == 'cancelled' or view_name == 'archived' %}
                     <label class="grid gap-1 text-xs font-medium text-ink-muted">
                         <span>Repeat</span>
-                        <select class="min-h-10 w-full rounded-sm border border-paper-line bg-surface px-3 text-sm text-ink focus:border-forest focus:outline-none" data-field="recurrence" aria-label="Repeat task">
+                        <select class="min-h-10 w-full rounded-sm border border-paper-line bg-surface px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none" data-field="recurrence" aria-label="Repeat task">
                             {% for value, label in recurrence_choices %}<option value="{{ value }}"{% if task.recurrence == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
                         </select>
                     </label>
                 {% endif %}
                 {% if view_name == 'completed' or view_name == 'cancelled' or view_name == 'archived' %}
-                    <label class="grid gap-1 text-xs font-medium text-ink-muted">
+                    <div class="grid gap-1 text-xs font-medium text-ink-muted">
                         <span>Due date</span>
-                        <input class="min-h-10 w-full rounded-sm border border-paper-line bg-surface px-3 text-sm text-ink focus:border-forest focus:outline-none" type="datetime-local" data-field="due_at" value="{{ task.due_at|date:'Y-m-d\TH:i' }}" aria-label="Due date and time">
-                    </label>
+                        {% include 'tasks/date_picker.html' with field='due_at' value=task.due_at wrapper_class='w-full' button_class='flex min-h-10 w-full items-center gap-2 rounded-sm border border-paper-line bg-surface px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none' button_label='Set due date and time' input_label='Due date and time' dialog_label='Choose due date and time' label_class='flex-1 text-left' display_format='M j, Y, g:i A' empty_label='Choose date and time' compact=False due_action=False clearable=True %}
+                    </div>
                 {% endif %}
                 {% if task.completed %}
-                    <label class="grid gap-1 text-xs font-medium text-ink-muted">
+                    <div class="grid gap-1 text-xs font-medium text-ink-muted">
                         <span>Completed on</span>
-                        <input class="min-h-10 w-full rounded-sm border border-paper-line bg-surface px-3 text-sm text-ink focus:border-forest focus:outline-none" type="datetime-local" data-field="completed_at" value="{{ task.completed_at|date:'Y-m-d\TH:i' }}" aria-label="Completion date and time">
-                    </label>
+                        {% include 'tasks/date_picker.html' with field='completed_at' value=task.completed_at wrapper_class='w-full' button_class='flex min-h-10 w-full items-center gap-2 rounded-sm border border-paper-line bg-surface px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none' button_label='Set completion date and time' input_label='Completion date and time' dialog_label='Choose completion date and time' label_class='flex-1 text-left' display_format='M j, Y, g:i A' empty_label='Choose date and time' compact=False due_action=False clearable=False %}
+                    </div>
                 {% endif %}
                 <label class="grid gap-1 text-xs font-medium text-ink-muted">
                     <span>Notes</span>
@@ -138,8 +124,8 @@
                                     <input class="task-complete peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0" type="checkbox" data-field="completed"{% if subtask.completed %} checked{% endif %} aria-label="{% if subtask.completed %}Reopen{% else %}Complete{% endif %} {{ subtask.title }}">
                                     <span class="h-4 w-4 rounded-sm border border-ink-faint peer-checked:border-forest peer-checked:bg-forest peer-checked:shadow-[inset_0_0_0_3px_var(--color-surface)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest"></span>
                                 </label>
-                                <input class="subtask-title min-w-0 border-0 border-b border-transparent bg-transparent py-1 text-sm text-ink outline-none focus:border-forest{% if subtask.completed %} text-ink-muted line-through{% endif %}" data-field="title" value="{{ subtask.title }}" maxlength="240" aria-label="Subtask title">
-                                <button class="task-action grid h-11 w-11 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-rust/10 hover:text-rust focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Delete step {{ subtask.title }}" title="Delete step"><i data-lucide="trash-2"></i></button>
+                                <textarea class="subtask-title block min-h-6 min-w-0 resize-none overflow-hidden border-0 border-b border-transparent bg-transparent py-1 text-sm text-ink outline-none focus:border-forest{% if subtask.completed %} text-ink-muted line-through{% endif %}" data-field="title" rows="1" maxlength="240" aria-label="Subtask title">{{ subtask.title }}</textarea>
+                                <button class="task-action icon-themed icon-terracotta grid h-11 w-11 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Delete step {{ subtask.title }}" title="Delete step"><i data-lucide="trash-2"></i></button>
                                 <span class="row-status hidden col-start-2 col-span-2 text-right text-xs text-ink-muted" aria-live="polite"></span>
                             </li>
                         {% endfor %}
@@ -150,10 +136,9 @@
                     <input type="hidden" name="parent_id" value="{{ task.pk }}">
                     <label class="sr-only" for="subtask-title-{{ task.pk }}">New subtask</label>
                     <input class="min-h-10 min-w-0 flex-1 rounded-sm border border-paper-line bg-surface px-3 text-sm focus:border-forest focus:outline-none" id="subtask-title-{{ task.pk }}" name="title" maxlength="240" placeholder="Add a step..." required>
-                    <button class="grid h-10 w-10 flex-none place-items-center rounded-sm text-forest hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" type="submit" aria-label="Add subtask"><i data-lucide="plus"></i></button>
+                    <button class="grid h-10 w-10 flex-none place-items-center rounded-sm text-forest hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" type="submit" aria-label="Add subtask"><i class="icon-themed icon-sage" data-lucide="plus"></i></button>
                 </form>
             </div>
-            {% endif %}
             {% endwith %}
         </div>
     <span class="row-status hidden col-start-2 overflow-hidden text-right text-[0.7rem] text-ink-muted" aria-live="polite"></span>

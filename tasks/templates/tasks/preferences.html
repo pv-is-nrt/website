@@ -1,6 +1,6 @@
 {% load static %}
 <!doctype html>
-<html lang="en" data-theme="{{ preferences.theme }}" style="{% for name, value in theme_palette.items %}--tasks-{{ name }}: {{ value }};{% endfor %}">
+<html lang="en" data-theme="{{ preferences.theme }}" data-icon-style="{{ preferences.priority_icon_style }}" style="{% for name, value in theme_palette.items %}--tasks-{{ name }}: {{ value }};{% endfor %}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,6 +29,18 @@
                         {% endfor %}
                     </select>
                 </label>
+                <label class="flex min-h-10 items-center justify-between gap-4 text-sm" for="show-priority-numbers">
+                    <span>Show priority numbers next to priority icons</span>
+                    <input class="preference-control h-5 w-5 accent-forest" id="show-priority-numbers" name="show_priority_numbers" type="checkbox" value="true"{% if preferences.show_priority_numbers %} checked{% endif %} data-save-url="{% url 'tasks:update-preferences' %}">
+                </label>
+                <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="priority-icon-style">
+                    <span>Priority icon style</span>
+                    <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="priority-icon-style" name="priority_icon_style" data-save-url="{% url 'tasks:update-preferences' %}">
+                        {% for value, label in priority_icon_style_choices %}
+                            <option value="{{ value }}"{% if preferences.priority_icon_style == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
                 <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="default-recurrence">
                     <span>Default repeat</span>
                     <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="default-recurrence" name="default_recurrence" data-save-url="{% url 'tasks:update-preferences' %}">
@@ -53,6 +65,19 @@
                         {% endfor %}
                     </select>
                 </label>
+                <div class="grid gap-3 border-t border-paper-line pt-3">
+                    <h3 class="m-0 text-xs font-semibold uppercase text-ink-muted">Recurring reminder defaults</h3>
+                    {% for label, field, selected_value in recurrence_reminder_preferences %}
+                        <label class="flex items-center justify-between gap-4 text-sm max-sm:flex-col max-sm:items-stretch" for="{{ field }}">
+                            <span>{{ label }}</span>
+                            <select class="preference-control min-h-10 min-w-[145px] rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="{{ field }}" name="{{ field }}" data-save-url="{% url 'tasks:update-preferences' %}">
+                                {% for value, reminder_label in reminder_choices %}
+                                    <option value="{{ value }}"{% if selected_value == value %} selected{% endif %}>{{ reminder_label }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                    {% endfor %}
+                </div>
             </div>
         </section>
 
@@ -131,7 +156,7 @@
                 <div class="flex min-w-0 items-center gap-2">
                     <label class="sr-only" for="active-custom-theme">Active custom theme</label>
                     <select class="preference-control min-h-10 min-w-0 flex-1 rounded-sm border border-paper-line bg-surface px-3 font-mono text-xs focus:border-forest focus:outline-none" id="active-custom-theme" name="active_theme" data-save-url="{% url 'tasks:update-preferences' %}">
-                        <option value=""{% if not selected_theme %} selected{% endif %}>Built-in theme ({{ default_theme_seed }})</option>
+                        <option value=""{% if not selected_theme %} selected{% endif %}>Default</option>
                         {% for saved_theme in custom_themes %}
                             <option value="{{ saved_theme.pk }}" data-seed-color="{{ saved_theme.seed_color }}" data-delete-url="{% url 'tasks:delete-theme' saved_theme.pk %}"{% if selected_theme.pk == saved_theme.pk %} selected{% endif %}>{{ saved_theme.name }}</option>
                         {% endfor %}

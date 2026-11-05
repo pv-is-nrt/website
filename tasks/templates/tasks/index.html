@@ -1,6 +1,6 @@
 {% load static %}
 <!doctype html>
-<html lang="en" data-theme="{{ theme }}" style="{% for name, value in theme_palette.items %}--tasks-{{ name }}: {{ value }};{% endfor %}">
+<html lang="en" data-theme="{{ theme }}" data-icon-style="{{ priority_icon_style }}" style="{% for name, value in theme_palette.items %}--tasks-{{ name }}: {{ value }};{% endfor %}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -33,7 +33,7 @@
             {% for category in categories %}<span data-category-id="{{ category.pk }}" data-category-name="{{ category.name }}"></span>{% endfor %}
         </div>
         <p class="hidden min-h-5 text-xs text-ink-muted" id="page-status" aria-live="polite"></p>
-        <div class="fixed bottom-4 left-1/2 z-50 hidden w-[calc(100%-24px)] max-w-sm -translate-x-1/2 items-center justify-between gap-4 rounded-sm border border-ink bg-surface px-4 py-3 shadow-[3px_3px_0_rgba(23,36,29,0.2)]" id="undo-toast" role="status" aria-live="polite">
+        <div class="fixed bottom-4 left-1/2 z-[60] hidden w-[calc(100%-24px)] max-w-sm -translate-x-1/2 items-center justify-between gap-4 rounded-sm border border-ink bg-surface px-4 py-3 shadow-[3px_3px_0_rgba(23,36,29,0.2)]" id="undo-toast" role="status" aria-live="polite">
             <span class="min-w-0 text-sm" id="undo-message"></span>
             <button class="min-h-10 flex-none rounded-sm px-3 text-sm font-semibold text-forest underline underline-offset-2 hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" id="undo-action" type="button">Undo</button>
         </div>
@@ -50,7 +50,7 @@
                 </nav>
                 <details class="relative flex-none" id="task-more-menu">
                     <summary class="flex min-h-12 cursor-pointer list-none items-center gap-1.5 border-l border-paper-line px-3 text-xs font-semibold text-ink-muted transition-colors hover:bg-paper-faint hover:text-ink max-sm:px-2.5" aria-label="More task views"><i data-lucide="menu"></i><span>More</span></summary>
-                    <div class="absolute right-0 top-full z-20 min-w-48 rounded-sm border border-paper-line bg-surface p-1.5 shadow-lg">
+                    <div class="absolute right-0 top-full z-30 min-w-48 rounded-sm border border-paper-line bg-surface p-1.5 shadow-lg">
                         <a class="flex min-h-11 items-center gap-2 rounded-sm px-3 text-sm text-ink no-underline hover:bg-paper-faint{% if view_name == 'today' %} bg-paper-faint font-semibold{% endif %}" href="{{ today_url }}" hx-get="{{ today_url }}" hx-target="#task-view" hx-select="#task-view" hx-swap="outerHTML" hx-push-url="true"><i data-lucide="sun" class="text-ink-muted"></i><span class="flex-1">Today</span><span class="font-mono text-xs text-ink-muted">{{ today_count }}</span></a>
                         <a class="flex min-h-11 items-center gap-2 rounded-sm px-3 text-sm text-ink no-underline hover:bg-paper-faint{% if view_name == 'upcoming' %} bg-paper-faint font-semibold{% endif %}" href="{{ upcoming_url }}" hx-get="{{ upcoming_url }}" hx-target="#task-view" hx-select="#task-view" hx-swap="outerHTML" hx-push-url="true"><i data-lucide="calendar-days" class="text-ink-muted"></i><span class="flex-1">Upcoming</span><span class="font-mono text-xs text-ink-muted">{{ upcoming_count }}</span></a>
                         {% if show_cancelled_tab or show_archived_tab %}<div class="my-1 border-t border-paper-line"></div>{% endif %}
@@ -60,8 +60,8 @@
                 </details>
             </div>
 
-            <details class="border-b border-paper-line bg-paper-faint"{% if filters_open %} open{% endif %}>
-                <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 text-sm font-medium text-ink-muted transition-colors hover:text-ink max-sm:px-3"><i data-lucide="sliders-horizontal"></i><span>Sort and Filter</span>{% if created_after or created_before or tag_filter_active or sort_by != 'default' %}<span class="rounded-full bg-task-accent px-2 py-0.5 font-mono text-[0.62rem] uppercase text-accent-ink">Active</span>{% endif %}<i data-lucide="chevron-down" class="ml-auto"></i></summary>
+            <details class="border-b border-paper-line bg-paper-faint" id="sort-filter-panel"{% if filters_open %} open{% endif %}>
+                <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 text-sm font-medium text-ink-muted transition-colors hover:text-ink max-sm:px-3"><i data-lucide="sliders-horizontal"></i><span>Sort and Filter</span>{% if created_after or created_before or tag_filter_active or sort_active %}<span class="rounded-full bg-task-accent px-2 py-0.5 font-mono text-[0.62rem] uppercase text-accent-ink">Active</span>{% endif %}<i data-lucide="chevron-down" class="ml-auto"></i></summary>
             <form class="grid grid-cols-2 gap-3 px-5 pb-4 pt-1 max-sm:px-3" action="{% url 'tasks:index' %}" method="get" hx-get="{% url 'tasks:index' %}" hx-trigger="change, submit" hx-target="#task-view" hx-select="#task-view" hx-swap="outerHTML" hx-push-url="true">
                 <input type="hidden" name="view" value="{{ view_name }}">
                 <input type="hidden" name="tag_filter" value="1">
@@ -69,7 +69,7 @@
                     <legend class="mb-2 font-mono text-[0.63rem] font-medium uppercase tracking-wide text-ink-muted">Tags</legend>
                     <div class="flex flex-wrap gap-1.5">
                         {% for category in categories %}
-                            <label class="tag-filter inline-flex min-h-8 cursor-pointer items-center rounded-full border border-paper-line bg-paper-faint px-2.5 text-xs text-ink-muted transition-colors" style="--tag-color: {{ category.color }}">
+                            <label class="tag-filter inline-flex min-h-8 cursor-pointer items-center rounded-full bg-paper-faint px-2.5 text-xs text-ink-muted transition-colors" style="--tag-color: {{ category.color }}; --tag-dark-color: {{ category.dark_color }}">
                                 <input class="sr-only" type="checkbox" name="category" value="{{ category.pk }}"{% if category.pk|stringformat:'s' in selected_categories %} checked{% endif %}>
                                 <span>{{ category.name }}</span>
                             </label>
@@ -107,11 +107,11 @@
                 <div class="col-span-2 grid grid-cols-2 gap-3{% if date_range != 'custom' %} hidden{% endif %}" id="custom-date-range">
                     <label class="grid min-w-0 gap-2 font-mono text-[0.63rem] font-medium uppercase tracking-wide text-ink-muted">
                         <span>Created after</span>
-                        <input class="min-h-10 w-full min-w-0 rounded-sm border border-paper-line bg-surface px-2 py-[5px] font-mono text-xs font-normal text-ink normal-case tracking-normal focus:border-forest focus:outline-none" type="date" name="created_after" value="{{ created_after }}">
+                        <input class="min-h-10 w-full min-w-0 rounded-sm border border-paper-line bg-surface px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none" type="date" name="created_after" value="{{ created_after }}">
                     </label>
                     <label class="grid min-w-0 gap-2 font-mono text-[0.63rem] font-medium uppercase tracking-wide text-ink-muted">
                         <span>Created before</span>
-                        <input class="min-h-10 w-full min-w-0 rounded-sm border border-paper-line bg-surface px-2 py-[5px] font-mono text-xs font-normal text-ink normal-case tracking-normal focus:border-forest focus:outline-none" type="date" name="created_before" value="{{ created_before }}">
+                        <input class="min-h-10 w-full min-w-0 rounded-sm border border-paper-line bg-surface px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none" type="date" name="created_before" value="{{ created_before }}">
                     </label>
                 </div>
                 <a class="col-span-2 min-h-8 content-center text-xs font-medium text-forest underline underline-offset-[3px]" href="{{ clear_url }}" hx-get="{{ clear_url }}" hx-target="#task-view" hx-select="#task-view" hx-swap="outerHTML" hx-push-url="true">Clear filters</a>

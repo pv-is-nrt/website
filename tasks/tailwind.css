@@ -33,13 +33,35 @@
         flex: none;
         stroke-width: 1.75;
     }
+
+    :root[data-icon-style="stroke"] svg.lucide :is(path, circle, rect, line, polyline, polygon, ellipse) {
+        fill: none;
+    }
+
+    :root[data-icon-style="fill"] svg.lucide :is(path, circle, rect, line, polyline, polygon, ellipse) {
+        fill: currentColor;
+    }
 }
 
 @layer components {
+    .tag-chip,
+    .tag-filter {
+        --tag-fill: var(--tag-color);
+        --tag-icon-color: var(--tag-dark-color);
+        --tag-ink: #17241d;
+    }
+
+    .tag-chip .category-remove {
+        color: var(--tag-icon-color);
+    }
+
+    .category-color-picker .color-swatch {
+        background-color: var(--swatch-color);
+    }
+
     .tag-filter:has(input:checked) {
-        background-color: var(--tag-color) !important;
-        border-color: color-mix(in srgb, var(--tag-color), #17241d 22%) !important;
-        color: #17241d !important;
+        background-color: var(--tag-fill) !important;
+        color: var(--tag-ink) !important;
     }
 
     .tag-filter:focus-within {
@@ -99,9 +121,60 @@ input[type="datetime-local"] {
 }
 
 .tag-chip {
-    background-color: var(--tag-color);
-    border-color: color-mix(in srgb, var(--tag-color), #17241d 22%);
-    color: #17241d;
+    background-color: var(--tag-fill);
+    color: var(--tag-ink);
+}
+
+.priority-control {
+    --priority-icon-color: var(--priority-dark-color);
+}
+
+.priority-control[data-icon-style="fill"] {
+    --priority-icon-color: var(--priority-light-color);
+}
+
+.priority-control .priority-icon {
+    color: var(--priority-icon-color);
+    stroke: currentColor;
+    fill: none;
+}
+
+.priority-control[data-icon-style="fill"] .priority-icon :is(path, circle, rect, line, polyline, polygon, ellipse) {
+    fill: var(--priority-icon-color);
+}
+
+.icon-themed {
+    color: var(--icon-dark-color);
+}
+
+.icon-sage {
+    --icon-light-color: #c5dfc5;
+    --icon-dark-color: #296529;
+}
+
+.icon-mint {
+    --icon-light-color: #bfe0d4;
+    --icon-dark-color: #296550;
+}
+
+.icon-sky {
+    --icon-light-color: #c0dfeb;
+    --icon-dark-color: #22586c;
+}
+
+.icon-mustard {
+    --icon-light-color: #e4d3a3;
+    --icon-dark-color: #6e5a20;
+}
+
+.icon-periwinkle {
+    --icon-light-color: #ccd0e8;
+    --icon-dark-color: #293265;
+}
+
+.icon-terracotta {
+    --icon-light-color: #e9c4bd;
+    --icon-dark-color: #6b2f24;
 }
 
 .task-age {
@@ -226,6 +299,29 @@ input[type="datetime-local"] {
     :root:not([data-theme="light"]) input[type="datetime-local"] {
         color-scheme: dark;
     }
+
+    :root:not([data-theme="light"]) .tag-chip,
+    :root:not([data-theme="light"]) .tag-filter {
+        --tag-fill: var(--tag-dark-color);
+        --tag-icon-color: var(--tag-color);
+        --tag-ink: var(--color-ink);
+    }
+
+    :root:not([data-theme="light"]) .category-color-picker .color-swatch {
+        background-color: var(--swatch-dark-color);
+    }
+
+    :root:not([data-theme="light"]) .priority-control {
+        --priority-icon-color: var(--priority-light-color);
+    }
+
+    :root:not([data-theme="light"]) .priority-control[data-icon-style="fill"] {
+        --priority-icon-color: var(--priority-dark-color);
+    }
+
+    :root:not([data-theme="light"]) .icon-themed {
+        color: var(--icon-light-color);
+    }
 }
 
 :root[data-theme="dark"] {
@@ -251,4 +347,27 @@ input[type="datetime-local"] {
 :root[data-theme="dark"] input[type="date"],
 :root[data-theme="dark"] input[type="datetime-local"] {
     color-scheme: dark;
+}
+
+:root[data-theme="dark"] .tag-chip,
+:root[data-theme="dark"] .tag-filter {
+    --tag-fill: var(--tag-dark-color);
+    --tag-icon-color: var(--tag-color);
+    --tag-ink: var(--color-ink);
+}
+
+:root[data-theme="dark"] .category-color-picker .color-swatch {
+    background-color: var(--swatch-dark-color);
+}
+
+:root[data-theme="dark"] .priority-control {
+    --priority-icon-color: var(--priority-light-color);
+}
+
+:root[data-theme="dark"] .priority-control[data-icon-style="fill"] {
+    --priority-icon-color: var(--priority-dark-color);
+}
+
+:root[data-theme="dark"] .icon-themed {
+    color: var(--icon-light-color);
 }

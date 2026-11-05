@@ -80,6 +80,7 @@ document.querySelectorAll('.preference-control').forEach((control) => control.ad
             [input.name]: input.type === 'checkbox' ? String(input.checked) : input.value,
         });
         if (input.name === 'theme') document.documentElement.dataset.theme = input.value;
+        if (input.name === 'priority_icon_style') document.documentElement.dataset.iconStyle = input.value;
         if (input.name === 'background_pattern') document.body.dataset.pattern = input.value;
         if (input.name === 'active_theme') {
             setThemePalette(result.palette);

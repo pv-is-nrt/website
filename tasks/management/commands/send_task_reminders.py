@@ -12,9 +12,16 @@ class Command(BaseCommand):
     help = 'Email reminders for tasks whose reminder time has arrived.'
 
     def handle(self, *args, **options):
-        recipient = getattr(settings, 'TASKS_REMINDER_EMAIL', settings.EMAIL_HOST_USER)
+        default_recipient = getattr(settings, 'TASKS_REMINDER_EMAIL', settings.EMAIL_HOST_USER)
         preferences, _ = TasksPreference.objects.get_or_create(pk=1)
-        reminder_cutoff = timezone.now() + timedelta(minutes=preferences.default_reminder_minutes)
+        now = timezone.now()
+        reminder_cutoff = now + timedelta(minutes=max(
+            preferences.default_reminder_minutes,
+            preferences.daily_reminder_minutes,
+            preferences.weekly_reminder_minutes,
+            preferences.monthly_reminder_minutes,
+            preferences.yearly_reminder_minutes,
+        ))
         due_tasks = Task.objects.filter(
             completed=False,
             reminder_enabled=True,
@@ -24,6 +31,11 @@ class Command(BaseCommand):
         )
         sent = 0
         for task in due_tasks.iterator():
+            recipient = task.reminder_recipient_email or default_recipient
+            recurrence_field = f'{task.recurrence}_reminder_minutes'
+            lead_minutes = getattr(preferences, recurrence_field, preferences.default_reminder_minutes)
+            if task.due_at > now + timedelta(minutes=lead_minutes):
+                continue
             result = send_mail(
                 subject=f'Task reminder: {task.title}',
                 message=f'Your task reminder is due now:\n\n{task.title}',

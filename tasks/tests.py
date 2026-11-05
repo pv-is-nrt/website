@@ -3,17 +3,21 @@ from datetime import datetime, time, timedelta
 from unittest.mock import patch
 from types import SimpleNamespace
 
+from django.core.management import call_command
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
 
-from .models import CATEGORY_COLORS, CATEGORY_PALETTE, Category, Task, TasksPreference, TasksTheme
+from .models import CATEGORY_PALETTE, Category, Task, TasksPreference, TasksTheme
 from .views import (
     archive_expired_completed_tasks,
     create,
+    create_category,
     create_theme,
     delete_theme,
     index,
+    _active_theme,
     update,
+    update_category,
     update_preferences,
 )
 from .theme_palette import DEFAULT_THEME_SEED, _contrast, build_theme_palette
@@ -99,9 +103,36 @@ class TaskWorkflowTests(TestCase):
                     context = index.__wrapped__(request)
                 self.assertFalse(context['show_task_age'])
 
-    def test_category_picker_uses_sixteen_existing_model_colors(self):
+    def test_category_palette_pairs_have_consistent_choices_and_contrast(self):
         self.assertEqual(len(CATEGORY_PALETTE), 16)
-        self.assertTrue(set(dict(CATEGORY_PALETTE)).issubset(dict(CATEGORY_COLORS)))
+        light_colors = {light for light, dark, _ in CATEGORY_PALETTE}
+        dark_colors = {dark for light, dark, _ in CATEGORY_PALETTE}
+        model_colors = {color for color, _ in Category._meta.get_field('color').choices}
+        self.assertEqual(len(light_colors), 16)
+        self.assertEqual(len(dark_colors), 16)
+        self.assertEqual(model_colors, light_colors)
+        for light, dark, name in CATEGORY_PALETTE:
+            with self.subTest(name=name):
+                self.assertGreaterEqual(_contrast('#17241d', light), 4.5)
+                self.assertGreaterEqual(_contrast('#e5eee7', dark), 4.5)
+                self.assertGreaterEqual(_contrast(light, dark), 3)
+                self.assertGreaterEqual(_contrast(dark, '#141c17'), 1.4)
+
+    def test_category_color_api_returns_paired_dark_color(self):
+        category = Category.objects.create(name='Color pair')
+        request = RequestFactory().post('/tasks/api/categories/1/update/', {'color': '#eee8b6'})
+        request.user = SimpleNamespace(is_active=True, is_staff=True)
+        response = update_category.__wrapped__.__wrapped__(request, category.pk)
+        data = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['color'], '#eee8b6')
+        self.assertEqual(data['dark_color'], '#746a1b')
+
+        invalid_request = RequestFactory().post('/tasks/api/categories/1/update/', {'color': '#f2d6c2'})
+        invalid_request.user = request.user
+        invalid = update_category.__wrapped__.__wrapped__(invalid_request, category.pk)
+        self.assertEqual(invalid.status_code, 400)
 
     def test_archive_preferences_have_requested_defaults(self):
         preferences, _ = TasksPreference.objects.get_or_create(pk=1)
@@ -211,10 +242,14 @@ class TaskWorkflowTests(TestCase):
         self.assertTrue(custom_context['filters_open'])
         self.assertEqual(custom_context['created_after'], '')
 
-    def test_index_sorts_tasks_by_title_and_priority(self):
+    def test_index_sorts_tasks_by_created_date_and_priority(self):
         zulu = Task.objects.create(title='Zulu task', priority=Task.Priority.HIGHEST)
         alpha = Task.objects.create(title='Alpha task', priority=Task.Priority.LOWEST)
         middle = Task.objects.create(title='Middle task', priority=Task.Priority.MEDIUM)
+        now = timezone.now()
+        Task.objects.filter(pk=zulu.pk).update(created_at=now - timedelta(days=3))
+        Task.objects.filter(pk=alpha.pk).update(created_at=now - timedelta(days=2))
+        Task.objects.filter(pk=middle.pk).update(created_at=now - timedelta(days=1))
 
         def task_ids(sort_by, direction='asc'):
             request = RequestFactory().get('/tasks/', {
@@ -229,9 +264,35 @@ class TaskWorkflowTests(TestCase):
                 context = index.__wrapped__(request)
             return [task.pk for task in context['tasks']]
 
-        self.assertEqual(task_ids('title'), [alpha.pk, middle.pk, zulu.pk])
-        self.assertEqual(task_ids('title', 'desc'), [zulu.pk, middle.pk, alpha.pk])
+        self.assertEqual(task_ids('created_at'), [zulu.pk, alpha.pk, middle.pk])
+        self.assertEqual(task_ids('created_at', 'desc'), [middle.pk, alpha.pk, zulu.pk])
         self.assertEqual(task_ids('priority'), [zulu.pk, middle.pk, alpha.pk])
+        self.assertEqual(task_ids('duration_open', 'desc'), [zulu.pk, alpha.pk, middle.pk])
+
+    def test_sort_defaults_and_options_are_specific_to_each_view(self):
+        preferences, _ = TasksPreference.objects.get_or_create(pk=1)
+        preferences.show_cancelled_tab = True
+        preferences.save(update_fields=['show_cancelled_tab'])
+        expected = {
+            'open': ('created_at', 'desc', ['Due date', 'Created date', 'Priority', 'Duration open']),
+            'today': ('due_at', 'asc', ['Due date', 'Created date', 'Priority', 'Duration open']),
+            'upcoming': ('due_at', 'asc', ['Due date', 'Created date', 'Priority', 'Duration open']),
+            'completed': ('completed_at', 'desc', ['Completed on', 'Due date', 'Created date', 'Priority', 'Time taken']),
+            'cancelled': ('cancelled_at', 'desc', ['Cancelled on', 'Created date', 'Priority']),
+            'archived': ('archived_at', 'desc', ['Archived on', 'Created date', 'Priority']),
+        }
+        for view_name, (sort_by, direction, labels) in expected.items():
+            with self.subTest(view=view_name):
+                request = RequestFactory().get('/tasks/', {'view': view_name})
+                request.user = SimpleNamespace(is_active=True, is_staff=True)
+                with patch('tasks.views.reverse', return_value='/tasks/'), patch(
+                    'tasks.views.render', side_effect=lambda request, template, context: context,
+                ):
+                    context = index.__wrapped__(request)
+                self.assertEqual(context['sort_by'], sort_by)
+                self.assertEqual(context['sort_direction'], direction)
+                self.assertEqual([label for _, label in context['sort_choices']], labels)
+                self.assertNotIn('Default', labels)
 
     def test_index_filter_can_match_multiple_tags(self):
         home = Category.objects.create(name='Home')
@@ -291,6 +352,22 @@ class TaskWorkflowTests(TestCase):
         ):
             context = index.__wrapped__(request)
         self.assertEqual(context['view_name'], TasksPreference.DefaultView.TODAY)
+
+    def test_subtask_count_includes_only_open_subtasks(self):
+        parent = Task.objects.create(title='Parent task')
+        Task.objects.create(title='Open step 1', parent=parent)
+        Task.objects.create(title='Open step 2', parent=parent)
+        Task.objects.create(title='Completed step', parent=parent, completed=True)
+        request = RequestFactory().get('/tasks/', {'view': 'open'})
+        request.user = SimpleNamespace(is_active=True, is_staff=True)
+        with patch('tasks.views.reverse', return_value='/tasks/'), patch(
+            'tasks.views.render', side_effect=lambda request, template, context: context,
+        ):
+            context = index.__wrapped__(request)
+
+        listed_parent = next(task for task in context['tasks'] if task.pk == parent.pk)
+        self.assertEqual(listed_parent.open_subtask_count, 2)
+        self.assertEqual(list(listed_parent.subtasks.all()).__len__(), 3)
 
     def test_today_and_upcoming_views_use_local_due_dates(self):
         today = timezone.localdate()
@@ -381,6 +458,8 @@ class TaskWorkflowTests(TestCase):
             priority=Task.Priority.HIGH,
             recurrence=Task.Recurrence.DAILY,
             due_at=timezone.now() - timedelta(days=2),
+            reminder_enabled=True,
+            reminder_recipient_email='staff@example.test',
         )
         task.categories.add(category)
         step = Task.objects.create(title='Gather figures', parent=task)
@@ -393,6 +472,9 @@ class TaskWorkflowTests(TestCase):
         self.assertEqual(successor.notes, task.notes)
         self.assertEqual(successor.priority, task.priority)
         self.assertEqual(successor.recurrence, Task.Recurrence.DAILY)
+        self.assertTrue(successor.reminder_enabled)
+        self.assertFalse(successor.reminder_sent)
+        self.assertEqual(successor.reminder_recipient_email, 'staff@example.test')
         self.assertEqual(list(successor.categories.all()), [category])
         self.assertGreater(successor.due_at, task.completed_at)
         copied_step = successor.subtasks.get()
@@ -455,15 +537,84 @@ class TaskWorkflowTests(TestCase):
             timezone.make_aware(datetime(2026, 3, 31, 9)),
         )
 
+    @patch('tasks.management.commands.send_task_reminders.send_mail', return_value=1)
+    def test_reminder_command_uses_recurrence_specific_lead_times(self, send_mail):
+        preferences, _ = TasksPreference.objects.get_or_create(pk=1)
+        preferences.default_reminder_minutes = TasksPreference.ReminderLeadTime.ONE_HOUR
+        preferences.daily_reminder_minutes = TasksPreference.ReminderLeadTime.ONE_HOUR
+        preferences.weekly_reminder_minutes = TasksPreference.ReminderLeadTime.ONE_DAY
+        preferences.monthly_reminder_minutes = TasksPreference.ReminderLeadTime.ONE_WEEK
+        preferences.yearly_reminder_minutes = TasksPreference.ReminderLeadTime.ONE_MONTH
+        preferences.save()
+        now = timezone.now()
+        tasks = [
+            Task.objects.create(title='Daily', recurrence=Task.Recurrence.DAILY, reminder_enabled=True, due_at=now + timedelta(minutes=30)),
+            Task.objects.create(title='Weekly', recurrence=Task.Recurrence.WEEKLY, reminder_enabled=True, due_at=now + timedelta(hours=2)),
+            Task.objects.create(title='Monthly', recurrence=Task.Recurrence.MONTHLY, reminder_enabled=True, due_at=now + timedelta(days=8)),
+            Task.objects.create(title='Yearly', recurrence=Task.Recurrence.YEARLY, reminder_enabled=True, due_at=now + timedelta(days=25)),
+            Task.objects.create(title='One-off soon', reminder_enabled=True, due_at=now + timedelta(minutes=30)),
+            Task.objects.create(title='One-off later', reminder_enabled=True, due_at=now + timedelta(minutes=90)),
+        ]
+        tasks[0].reminder_recipient_email = 'staff@example.test'
+        tasks[0].save(update_fields=['reminder_recipient_email'])
+
+        call_command('send_task_reminders')
+
+        sent_titles = {call.kwargs['subject'].removeprefix('Task reminder: ') for call in send_mail.call_args_list}
+        self.assertEqual(sent_titles, {'Daily', 'Weekly', 'Yearly', 'One-off soon'})
+        daily_email = next(
+            call.kwargs['recipient_list']
+            for call in send_mail.call_args_list
+            if call.kwargs['subject'] == 'Task reminder: Daily'
+        )
+        self.assertEqual(daily_email, ['staff@example.test'])
+        for task in tasks:
+            task.refresh_from_db()
+        self.assertEqual(
+            {task.title for task in tasks if task.reminder_sent},
+            sent_titles,
+        )
+
+    def test_completed_view_sorts_by_time_taken(self):
+        now = timezone.now()
+        long_task = Task.objects.create(title='Long task', completed=True)
+        short_task = Task.objects.create(title='Short task', completed=True)
+        Task.objects.filter(pk=long_task.pk).update(
+            created_at=now - timedelta(days=5),
+            completed_at=now - timedelta(days=2),
+        )
+        Task.objects.filter(pk=short_task.pk).update(
+            created_at=now - timedelta(days=2),
+            completed_at=now - timedelta(days=1),
+        )
+        request = RequestFactory().get('/tasks/', {
+            'view': 'completed',
+            'sort_by': 'time_taken',
+            'sort_direction': 'desc',
+        })
+        request.user = SimpleNamespace(is_active=True, is_staff=True)
+        with patch('tasks.views.reverse', return_value='/tasks/'), patch(
+            'tasks.views.render', side_effect=lambda request, template, context: context,
+        ):
+            context = index.__wrapped__(request)
+
+        self.assertEqual([task.pk for task in context['tasks']], [long_task.pk, short_task.pk])
+
     def test_preferences_api_updates_task_defaults(self):
         request = RequestFactory().post('/tasks/api/preferences/', {
             'default_priority': str(Task.Priority.HIGHEST),
+            'show_priority_numbers': 'false',
+            'priority_icon_style': TasksPreference.PriorityIconStyle.FILL,
             'default_recurrence': Task.Recurrence.MONTHLY,
             'default_view': TasksPreference.DefaultView.TODAY,
             'show_quick_capture_hint': 'false',
             'show_task_age': 'false',
             'filters_expanded_by_default': 'true',
             'default_reminder_minutes': str(TasksPreference.ReminderLeadTime.ONE_DAY),
+            'daily_reminder_minutes': str(TasksPreference.ReminderLeadTime.ONE_HOUR),
+            'weekly_reminder_minutes': str(TasksPreference.ReminderLeadTime.ONE_DAY),
+            'monthly_reminder_minutes': str(TasksPreference.ReminderLeadTime.ONE_WEEK),
+            'yearly_reminder_minutes': str(TasksPreference.ReminderLeadTime.ONE_MONTH),
             'auto_archive_after': TasksPreference.AutoArchiveAfter.THREE_MONTHS,
             'show_archived_tab': 'false',
             'show_cancelled_tab': 'true',
@@ -475,17 +626,28 @@ class TaskWorkflowTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(settings.default_priority, Task.Priority.HIGHEST)
+        self.assertFalse(settings.show_priority_numbers)
+        self.assertEqual(settings.priority_icon_style, TasksPreference.PriorityIconStyle.FILL)
         self.assertEqual(settings.default_recurrence, Task.Recurrence.MONTHLY)
         self.assertEqual(settings.default_view, TasksPreference.DefaultView.TODAY)
         self.assertFalse(settings.show_quick_capture_hint)
         self.assertFalse(settings.show_task_age)
         self.assertTrue(settings.filters_expanded_by_default)
         self.assertEqual(settings.default_reminder_minutes, TasksPreference.ReminderLeadTime.ONE_DAY)
+        self.assertEqual(settings.daily_reminder_minutes, TasksPreference.ReminderLeadTime.ONE_HOUR)
+        self.assertEqual(settings.weekly_reminder_minutes, TasksPreference.ReminderLeadTime.ONE_DAY)
+        self.assertEqual(settings.monthly_reminder_minutes, TasksPreference.ReminderLeadTime.ONE_WEEK)
+        self.assertEqual(settings.yearly_reminder_minutes, TasksPreference.ReminderLeadTime.ONE_MONTH)
         self.assertEqual(settings.auto_archive_after, TasksPreference.AutoArchiveAfter.THREE_MONTHS)
         self.assertFalse(settings.show_archived_tab)
         self.assertTrue(settings.show_cancelled_tab)
         self.assertEqual(settings.theme, TasksPreference.Theme.DARK)
         self.assertEqual(settings.background_pattern, TasksPreference.BackgroundPattern.CHECKERBOARD)
+
+    def test_priority_icon_style_rejects_unknown_value(self):
+        request = RequestFactory().post('/tasks/api/preferences/', {'priority_icon_style': 'outline'})
+        response = update_preferences.__wrapped__.__wrapped__(request)
+        self.assertEqual(response.status_code, 400)
 
     def test_custom_theme_seed_requires_six_digit_hex_value(self):
         request = RequestFactory().post('/tasks/api/themes/create/', {
@@ -542,7 +704,8 @@ class TaskWorkflowTests(TestCase):
         theme = TasksTheme.objects.get(name='Deep Green')
         self.assertEqual(theme.owner_id, '17')
         self.assertEqual(theme.seed_color, '#135724')
-        self.assertEqual(request.session['tasks_active_theme'], theme.pk)
+        self.assertTrue(theme.is_active)
+        self.assertNotIn('tasks_active_theme', request.session)
 
         select_request = RequestFactory().post('/tasks/api/preferences/', {'active_theme': str(theme.pk)})
         select_request.user = SimpleNamespace(pk=18, is_active=True, is_staff=True)
@@ -553,7 +716,15 @@ class TaskWorkflowTests(TestCase):
         select_request.user = owner
         selected = update_preferences.__wrapped__.__wrapped__(select_request)
         self.assertEqual(selected.status_code, 200)
-        self.assertEqual(select_request.session['tasks_active_theme'], theme.pk)
+        self.assertNotIn('tasks_active_theme', select_request.session)
+        persisted_request = RequestFactory().get('/tasks/')
+        persisted_request.user = owner
+        persisted_request.session = {}
+        with patch('tasks.views.reverse', return_value='/tasks/'), patch(
+            'tasks.views.render', side_effect=lambda request, template, context: context,
+        ):
+            persisted_context = index.__wrapped__(persisted_request)
+        self.assertEqual(persisted_context['selected_theme'].pk, theme.pk)
         selected_data = json.loads(selected.content)
         self.assertEqual(selected_data['seed_color'], '#135724')
         self.assertEqual(selected_data['palette']['light-chartreuse'], '#135724')
@@ -574,6 +745,16 @@ class TaskWorkflowTests(TestCase):
         task.refresh_from_db()
         self.assertEqual(task.notes, 'Call after lunch')
         self.assertEqual(self.update_task(task, 'notes', 'x' * 20001).status_code, 400)
+
+    def test_created_date_can_be_updated_and_validated(self):
+        task = Task.objects.create(title='Creation date')
+        created_at = timezone.localtime(timezone.now() - timedelta(days=5)).replace(second=0, microsecond=0)
+        response = self.update_task(task, 'created_at', created_at.strftime('%Y-%m-%dT%H:%M'))
+        task.refresh_from_db()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(task.created_at, created_at)
+        self.assertEqual(self.update_task(task, 'created_at', 'not-a-date').status_code, 400)
 
     def test_terminal_tasks_remain_editable_and_archived_task_can_reopen(self):
         category = Category.objects.create(name='Personal')
@@ -649,7 +830,11 @@ class TaskWorkflowTests(TestCase):
             self.update_task(task, 'due_at', due_at.strftime('%Y-%m-%dT%H:%M')).status_code,
             200,
         )
-        self.assertEqual(self.update_task(task, 'reminder_enabled', 'true').status_code, 200)
+        request = RequestFactory().post('/tasks/api/', {'field': 'reminder_enabled', 'value': 'true'})
+        request.user = SimpleNamespace(email='staff@example.test')
+        self.assertEqual(update.__wrapped__.__wrapped__(request, task.pk).status_code, 200)
+        task.refresh_from_db()
+        self.assertEqual(task.reminder_recipient_email, 'staff@example.test')
         self.assertEqual(self.update_task(task, 'due_at', '').status_code, 200)
         task.refresh_from_db()
         self.assertFalse(task.reminder_enabled)

@@ -6,46 +6,23 @@ from django.db.models.functions import Lower
 from django.utils import timezone
 
 
-CATEGORY_COLORS = (
-    ('#f2d6c2', 'Peach'),
-    ('#f3dfb4', 'Gold'),
-    ('#eee8b6', 'Butter'),
-    ('#e4e8b8', 'Olive'),
-    ('#d6e4b9', 'Moss'),
-    ('#c5dfc5', 'Sage'),
-    ('#bfe0d4', 'Mint'),
-    ('#b9dedc', 'Teal'),
-    ('#c0dfeb', 'Sky'),
-    ('#c7d9eb', 'Blue'),
-    ('#ccd0e8', 'Periwinkle'),
-    ('#d7cae5', 'Lavender'),
-    ('#e3c8e1', 'Lilac'),
-    ('#edc9d4', 'Rose'),
-    ('#e9c4bd', 'Terracotta'),
-    ('#ded0bc', 'Stone'),
-    ('#cad7cc', 'Eucalyptus'),
-    ('#c6d6d9', 'Slate'),
-    ('#e4d3a3', 'Mustard'),
-    ('#dbd8bf', 'Khaki'),
-)
-
 CATEGORY_PALETTE = (
-    ('#eee8b6', 'Butter'),
-    ('#c5dfc5', 'Sage'),
-    ('#bfe0d4', 'Mint'),
-    ('#b9dedc', 'Teal'),
-    ('#c0dfeb', 'Sky'),
-    ('#c7d9eb', 'Blue'),
-    ('#ccd0e8', 'Periwinkle'),
-    ('#d7cae5', 'Lavender'),
-    ('#e3c8e1', 'Lilac'),
-    ('#e9c4bd', 'Terracotta'),
-    ('#ded0bc', 'Stone'),
-    ('#cad7cc', 'Eucalyptus'),
-    ('#c6d6d9', 'Slate'),
-    ('#edc9d4', 'Rose'),
-    ('#e4d3a3', 'Mustard'),
-    ('#dbd8bf', 'Khaki'),
+    ('#eee8b6', '#746a1b', 'Butter'),
+    ('#c5dfc5', '#296529', 'Sage'),
+    ('#bfe0d4', '#296550', 'Mint'),
+    ('#b9dedc', '#296562', 'Teal'),
+    ('#c0dfeb', '#22586c', 'Sky'),
+    ('#c7d9eb', '#264769', 'Blue'),
+    ('#ccd0e8', '#293265', 'Periwinkle'),
+    ('#d7cae5', '#462965', 'Lavender'),
+    ('#e3c8e1', '#652961', 'Lilac'),
+    ('#e9c4bd', '#6b2f24', 'Terracotta'),
+    ('#ded0bc', '#654d29', 'Stone'),
+    ('#cad7cc', '#296533', 'Eucalyptus'),
+    ('#c6d6d9', '#295c65', 'Slate'),
+    ('#edc9d4', '#6b243a', 'Rose'),
+    ('#e4d3a3', '#6e5a20', 'Mustard'),
+    ('#dbd8bf', '#655f29', 'Khaki'),
 )
 
 
@@ -87,6 +64,7 @@ class Task(models.Model):
     due_at = models.DateTimeField(null=True, blank=True)
     reminder_enabled = models.BooleanField(default=False)
     reminder_sent = models.BooleanField(default=False)
+    reminder_recipient_email = models.EmailField(blank=True, default='')
     completed = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
     cancelled_at = models.DateTimeField(null=True, blank=True)
@@ -172,7 +150,11 @@ class Task(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=80, unique=True)
-    color = models.CharField(max_length=7, choices=CATEGORY_COLORS, default='#c5dfc5')
+    color = models.CharField(
+        max_length=7,
+        choices=tuple((light, label) for light, dark, label in CATEGORY_PALETTE),
+        default='#c5dfc5',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -181,6 +163,19 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def dark_color(self):
+        return next((dark for light, dark, _ in CATEGORY_PALETTE if light == self.color), self.color)
+
+
+PRIORITY_ICON_PALETTE = (
+    (Task.Priority.LOWEST, 'plane-takeoff', '#d7cae5', '#462965'),
+    (Task.Priority.LOW, 'car', '#e9c4bd', '#6b2f24'),
+    (Task.Priority.MEDIUM, 'rabbit', '#e4d3a3', '#6e5a20'),
+    (Task.Priority.HIGH, 'turtle', '#b9dedc', '#296562'),
+    (Task.Priority.HIGHEST, 'snail', '#c5dfc5', '#296529'),
+)
 
 
 class TasksPreference(models.Model):
@@ -199,6 +194,7 @@ class TasksPreference(models.Model):
         ONE_DAY = 1440, '1 day'
         TWO_DAYS = 2880, '2 days'
         ONE_WEEK = 10080, '1 week'
+        ONE_MONTH = 43200, '1 month'
 
     class AutoArchiveAfter(models.TextChoices):
         ONE_WEEK = '1w', '1 week'
@@ -219,9 +215,29 @@ class TasksPreference(models.Model):
         DOTS = 'dots', 'Dots'
         CHECKERBOARD = 'checkerboard', 'Checkerboard'
 
+    class PriorityIconStyle(models.TextChoices):
+        STROKE = 'stroke', 'Stroke'
+        FILL = 'fill', 'Fill'
+
     default_reminder_minutes = models.PositiveIntegerField(
         choices=ReminderLeadTime.choices,
         default=ReminderLeadTime.ONE_HOUR,
+    )
+    daily_reminder_minutes = models.PositiveIntegerField(
+        choices=ReminderLeadTime.choices,
+        default=ReminderLeadTime.ONE_HOUR,
+    )
+    weekly_reminder_minutes = models.PositiveIntegerField(
+        choices=ReminderLeadTime.choices,
+        default=ReminderLeadTime.ONE_DAY,
+    )
+    monthly_reminder_minutes = models.PositiveIntegerField(
+        choices=ReminderLeadTime.choices,
+        default=ReminderLeadTime.ONE_WEEK,
+    )
+    yearly_reminder_minutes = models.PositiveIntegerField(
+        choices=ReminderLeadTime.choices,
+        default=ReminderLeadTime.ONE_MONTH,
     )
     default_priority = models.PositiveSmallIntegerField(
         choices=Task.Priority.choices,
@@ -238,6 +254,12 @@ class TasksPreference(models.Model):
         default=DefaultView.OPEN,
     )
     show_quick_capture_hint = models.BooleanField(default=True)
+    show_priority_numbers = models.BooleanField(default=True)
+    priority_icon_style = models.CharField(
+        max_length=6,
+        choices=PriorityIconStyle.choices,
+        default=PriorityIconStyle.STROKE,
+    )
     show_task_age = models.BooleanField(default=True)
     filters_expanded_by_default = models.BooleanField(default=False)
     auto_archive_after = models.CharField(
@@ -262,6 +284,7 @@ class TasksTheme(models.Model):
     owner_id = models.CharField(max_length=150, db_index=True)
     name = models.CharField(max_length=40)
     seed_color = models.CharField(max_length=7)
+    is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
