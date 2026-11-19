@@ -38,7 +38,7 @@ def _get_common_context():
     experiences = Experience.objects.order_by('-start_date') # reverse order
     publications = Publication.objects.select_related('venue').order_by('-status', '-date') # reverse order
     presentations = Presentation.objects.order_by('-date') # reverse order
-    proposals = Proposal.objects.order_by('-year') # reverse order
+    proposals = Proposal.objects.order_by('-year', '-pk') # reverse order
     skills_categories = SkillCategory.objects.order_by('order', 'id')
     leaderships = Leadership.objects.order_by('-start_date') # reverse order
     honor_and_awards = HonorAndAward.objects.order_by('-start_date') # reverse order
@@ -243,27 +243,6 @@ def _get_cv_review_groups(reviews):
         if kind_reviews:
             groups.append({'label': label, 'reviews': kind_reviews})
     return groups
-
-
-def _get_cv_proposal_groups(proposals):
-    status_labels = dict(Proposal.STATUS_CHOICES)
-    grouped_proposals = {}
-    for proposal in proposals:
-        grouped_proposals.setdefault(proposal.status, []).append(proposal)
-
-    ordered_statuses = [status for status, _ in Proposal.STATUS_CHOICES]
-    ordered_statuses.extend(
-        status for status in grouped_proposals if status not in status_labels
-    )
-    return [
-        {
-            'status': status,
-            'label': status_labels.get(status, status),
-            'proposals': grouped_proposals[status],
-        }
-        for status in ordered_statuses
-        if status in grouped_proposals
-    ]
 
 
 #    Index page
@@ -800,7 +779,6 @@ def cv(request):
     core.add_user_info_to_database(Analytic(), request, '/cv')
 
     context = _get_common_context()
-    context['proposal_groups'] = _get_cv_proposal_groups(context['proposals'])
     context['cv_teachings'] = _get_cv_teachings()
     context['review_groups'] = _get_cv_review_groups(context['reviews'])
     context['google_scholar'] = GoogleScholar.objects.filter(pk=1).first()
@@ -818,7 +796,6 @@ def cv_chen(request):
     core.add_user_info_to_database(Analytic(), request, '/cv-chen')
 
     context = _get_common_context()
-    context['proposal_groups'] = _get_cv_proposal_groups(context['proposals'])
     context['cv_teachings'] = _get_cv_teachings()
     context['review_groups'] = _get_cv_review_groups(context['reviews'])
     context['google_scholar'] = GoogleScholar.objects.filter(pk=1).first()

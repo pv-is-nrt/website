@@ -118,16 +118,13 @@
     # --------------------------------------------------------------------->
     <h2>Research Funding and Grants</h2>
     <p>Contributed to the planning, writing, editing and/or review of the following research funding proposals.</p>
-    {% for group in proposal_groups %}
-    <h3>{{ group.label }}</h3>
     <ol>
-    {% for proposal in group.proposals %}
+    {% for proposal in proposals %}
         <li>
-            {{ proposal.title|safe }}, <i>{{ proposal.agency }}</i>, PI: {{ proposal.pi }}{% if proposal.award_id %}, award no. {{ proposal.award_id }}{% endif %}{% if proposal.amount %}, amount ${{ proposal.amount|floatformat:"-2" }}{% endif %}{% if proposal.duration %} ({{ proposal.duration }}){% endif %}{% if proposal.link %} <a href="{{ proposal.link }}" target="_blank">(link)</a>{% endif %}, <b>{{ proposal.year }}</b>
+            {% if proposal.status == "awarded" %}<b>Awarded</b> {% endif %}{{ proposal.title|safe }}, <i>{{ proposal.agency }}</i>, PI: {{ proposal.pi }}{% if proposal.award_id %}, award no. {{ proposal.award_id }}{% endif %}{% if proposal.amount %}, amount {{ proposal.amount }}{% endif %}{% if proposal.duration %} ({{ proposal.duration }}){% endif %}{% if proposal.link %} <a href="{{ proposal.link }}" target="_blank">(link)</a>{% endif %}, <b>{{ proposal.year }}</b>
         </li>
     {% endfor %}
     </ol>
-    {% endfor %}
 
 
     <!-- Teaching
