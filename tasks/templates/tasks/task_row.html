@@ -7,7 +7,7 @@
             <span class="h-4 w-4 rounded-sm border-[1.5px] border-ink-faint transition-colors peer-checked:border-forest peer-checked:bg-forest peer-checked:shadow-[inset_0_0_0_3px_var(--color-surface)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest" aria-hidden="true"></span>
         </label>
     {% else %}
-        <span class="icon-themed icon-terracotta grid h-8 w-8 place-items-center" aria-hidden="true">{% if view_name == 'cancelled' %}<i data-lucide="ban"></i>{% else %}<i data-lucide="archive"></i>{% endif %}</span>
+        <span class="icon-themed icon-p5 grid h-8 w-8 place-items-center" aria-hidden="true">{% if view_name == 'cancelled' %}<i data-lucide="ban"></i>{% else %}<i data-lucide="archive"></i>{% endif %}</span>
     {% endif %}
     <div class="task-content grid min-w-0 gap-y-1">
         <div class="task-title-line min-w-0">
@@ -29,11 +29,11 @@
         {% with subtasks=task.subtasks.all %}
         <div class="task-edit-actions flex min-h-8 min-w-0 flex-nowrap items-center gap-1">
                 {% if view_name == 'open' or view_name == 'today' or view_name == 'upcoming' %}
-                    <label class="priority-control relative grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-forest" title="Priority" data-icon-style="{{ priority_icon_style }}"{% for value, icon_name, light_color, dark_color in priority_icon_palette %}{% if task.priority == value %} style="--priority-light-color: {{ light_color }}; --priority-dark-color: {{ dark_color }}"{% endif %}{% endfor %}>
-                        {% for value, icon_name, light_color, dark_color in priority_icon_palette %}{% if task.priority == value %}<i class="priority-icon" data-lucide="{{ icon_name }}" aria-hidden="true"></i>{% endif %}{% endfor %}
+                        <label class="priority-control relative grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-forest" title="Priority"{% for name, value, icon_name, light_color, dark_color in line_icon_palette %}{% if task.priority == value %} style="--priority-light-color: {{ light_color }}; --priority-dark-color: {{ dark_color }}"{% endif %}{% endfor %}>
+                        {% for name, value, icon_name, light_color, dark_color in line_icon_palette %}{% if task.priority == value %}<i class="priority-icon" data-lucide="{{ icon_name }}" aria-hidden="true"></i>{% endif %}{% endfor %}
                         {% if show_priority_numbers %}<span class="priority-level absolute bottom-0 right-0 rounded-sm bg-surface px-0.5 font-mono text-[0.52rem] leading-3 text-ink">{% for value, label in priority_choices %}{% if task.priority == value %}{{ label }}{% endif %}{% endfor %}</span>{% endif %}
                         <select class="priority-select absolute inset-0 h-full w-full cursor-pointer appearance-none opacity-0" data-field="priority" aria-label="Priority">
-                            {% for value, label in priority_choices %}{% for icon_value, icon_name, light_color, dark_color in priority_icon_palette %}{% if value == icon_value %}
+                            {% for value, label in priority_choices %}{% for name, icon_value, icon_name, light_color, dark_color in line_icon_palette %}{% if value == icon_value %}
                                 <option value="{{ value }}" data-icon="{{ icon_name }}" data-light-color="{{ light_color }}" data-dark-color="{{ dark_color }}"{% if task.priority == value %} selected{% endif %}>{{ label }}</option>
                             {% endif %}{% endfor %}{% endfor %}
                         </select>
@@ -43,9 +43,9 @@
                     {% include 'tasks/date_picker.html' with field='due_at' value=task.due_at wrapper_class='flex-none' button_class='icon-button grid h-8 min-w-8 grid-flow-col auto-cols-max place-items-center justify-center gap-1 rounded-sm px-1 text-ink-muted transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest' button_label='Set due date and time' input_label='Due date and time' dialog_label='Choose due date and time' label_class='empty:hidden text-[0.65rem]' display_format='M j' empty_label='' compact=True due_action=True clearable=True %}
                 {% endif %}
                 {% if view_name == 'open' or view_name == 'today' or view_name == 'upcoming' %}
-                    <button class="icon-button reminder-toggle grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest disabled:cursor-not-allowed disabled:opacity-40{% if task.reminder_enabled %} icon-themed icon-sky{% endif %}" type="button" data-field="reminder_enabled" aria-pressed="{{ task.reminder_enabled|yesno:'true,false' }}" aria-label="Toggle reminder" title="{% if task.due_at %}Toggle reminder{% else %}Set a due date to enable reminders{% endif %}"{% if not task.due_at %} disabled{% endif %}><i data-lucide="bell-ring"></i></button>
+                    <button class="icon-button reminder-toggle grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest disabled:cursor-not-allowed disabled:opacity-40{% if task.reminder_enabled %} icon-themed icon-p4{% endif %}" type="button" data-field="reminder_enabled" aria-pressed="{{ task.reminder_enabled|yesno:'true,false' }}" aria-label="Toggle reminder" title="{% if task.due_at %}Toggle reminder{% else %}Set a due date to enable reminders{% endif %}"{% if not task.due_at %} disabled{% endif %}><i data-lucide="bell-ring"></i></button>
                     <details class="repeat-control relative flex-none">
-                        <summary class="grid h-8 w-8 cursor-pointer list-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint{% if task.recurrence != 'none' %} icon-themed icon-mint{% endif %}" aria-label="Set repeat interval" title="{% if task.recurrence != 'none' %}Repeats {{ task.get_recurrence_display }}{% else %}Set repeat interval{% endif %}"><i data-lucide="repeat"></i></summary>
+                        <summary class="grid h-8 w-8 cursor-pointer list-none place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint{% if task.recurrence != 'none' %} icon-themed icon-p1{% endif %}" aria-label="Set repeat interval" title="{% if task.recurrence != 'none' %}Repeats {{ task.get_recurrence_display }}{% else %}Set repeat interval{% endif %}"><i data-lucide="repeat"></i></summary>
                         <label class="absolute right-0 top-full z-30 mt-1 grid w-44 gap-1 rounded-sm border border-paper-line bg-surface p-2 text-xs font-medium text-ink-muted shadow-lg">
                             <span>Repeat</span>
                             <select class="min-h-10 rounded-sm border border-paper-line bg-surface px-2 text-sm text-ink focus:border-forest focus:outline-none" data-field="recurrence" aria-label="Repeat task">
@@ -54,9 +54,10 @@
                         </label>
                     </details>
                 {% endif %}
-                {% if view_name != 'cancelled' and view_name != 'archived' %}<div class="relative flex-none">
+                <button class="task-details-toggle relative grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted hover:bg-paper-faint hover:text-ink{% if task.notes or subtasks %} icon-themed icon-p2{% endif %}" type="button" aria-label="Edit notes and steps{% if task.open_subtask_count %}, {{ task.open_subtask_count }} open step{% if task.open_subtask_count != 1 %}s{% endif %}{% endif %}" title="Notes and steps" aria-expanded="false"><i data-lucide="notebook-pen"></i>{% if task.open_subtask_count %}<span class="subtask-count-badge absolute -right-1 -top-1 min-w-4 rounded-full bg-task-accent px-1 text-center font-mono text-[0.58rem] leading-4 text-accent-ink">{{ task.open_subtask_count }}</span>{% endif %}</button>
+                {% if view_name != 'cancelled' and view_name != 'archived' %}<div class="relative z-40 flex-none">
                     <button class="category-add grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-ink" type="button" aria-label="Add tag" title="Add tag" aria-expanded="false"><i data-lucide="plus"></i></button>
-                <div class="category-menu absolute top-[calc(100%+3px)] left-0 z-30 max-h-[220px] min-w-[180px] overflow-y-auto rounded-sm border border-paper-line bg-surface p-1.5 shadow-lg" hidden>
+                <div class="category-menu absolute top-[calc(100%+3px)] left-0 z-50 max-h-[220px] min-w-[180px] overflow-y-auto rounded-sm border border-paper-line bg-surface p-1.5 shadow-lg" hidden>
                     {% for category in categories %}
                         <label class="flex min-h-10 cursor-pointer items-center gap-2 rounded-sm px-2 text-sm hover:bg-paper-faint"><input type="checkbox" class="category-choice accent-forest" value="{{ category.pk }}" data-name="{{ category.name }}" data-color="{{ category.color }}" data-dark-color="{{ category.dark_color }}"{% if category in task.categories.all %} checked{% endif %}><span>{{ category.name }}</span></label>
                     {% empty %}
@@ -65,25 +66,24 @@
                 </div>
                 </div>
                 {% endif %}
-                <button class="task-details-toggle relative grid h-8 w-8 flex-none place-items-center rounded-sm text-ink-muted hover:bg-paper-faint hover:text-ink" type="button" aria-label="Edit notes and steps{% if task.open_subtask_count %}, {{ task.open_subtask_count }} open step{% if task.open_subtask_count != 1 %}s{% endif %}{% endif %}" title="Notes and steps" aria-expanded="false"><i data-lucide="notebook-pen"></i>{% if task.open_subtask_count %}<span class="subtask-count-badge absolute -right-1 -top-1 min-w-4 rounded-full bg-task-accent px-1 text-center font-mono text-[0.58rem] leading-4 text-accent-ink">{{ task.open_subtask_count }}</span>{% endif %}</button>
                 {% if view_name == 'open' or view_name == 'today' or view_name == 'upcoming' %}
                     <div class="lifecycle-actions ml-auto flex flex-none items-center gap-0.5">
-                        <button class="task-action icon-themed icon-terracotta grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="cancelled" data-task-value="true" aria-label="Cancel task" title="Cancel task"><i data-lucide="ban"></i></button>
+                        <button class="task-action icon-themed icon-p5 grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="cancelled" data-task-value="true" aria-label="Cancel task" title="Cancel task"><i data-lucide="ban"></i></button>
                     </div>
                 {% elif view_name == 'completed' %}
                     <div class="lifecycle-actions ml-auto flex flex-none items-center gap-0.5">
                         <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="completed" data-task-value="false" aria-label="Reopen task" title="Reopen task"><i data-lucide="rotate-ccw"></i></button>
-                        <button class="task-action icon-themed icon-terracotta grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="archived" data-task-value="true" aria-label="Archive task" title="Archive task"><i data-lucide="archive"></i></button>
+                        <button class="task-action icon-themed icon-p5 grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="archived" data-task-value="true" aria-label="Archive task" title="Archive task"><i data-lucide="archive"></i></button>
                     </div>
                 {% elif view_name == 'cancelled' %}
                     <div class="lifecycle-actions ml-auto flex flex-none items-center gap-0.5">
                         <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="cancelled" data-task-value="false" aria-label="Restore to Open" title="Restore to Open"><i data-lucide="rotate-ccw"></i></button>
-                        <button class="task-action delete-task icon-themed icon-terracotta grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Permanently delete task" title="Permanently delete task"><i data-lucide="trash-2"></i></button>
+                        <button class="task-action delete-task icon-themed icon-p5 grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Permanently delete task" title="Permanently delete task"><i data-lucide="trash-2"></i></button>
                     </div>
                 {% else %}
                     <div class="lifecycle-actions ml-auto flex flex-none items-center gap-0.5">
                         <button class="task-action grid h-8 w-8 place-items-center rounded-sm text-ink-muted transition-colors hover:bg-paper-faint hover:text-forest focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="archived" data-task-value="false" aria-label="Restore to Completed" title="Restore to Completed"><i data-lucide="rotate-ccw"></i></button>
-                        <button class="task-action delete-task icon-themed icon-terracotta grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Permanently delete task" title="Permanently delete task"><i data-lucide="trash-2"></i></button>
+                        <button class="task-action delete-task icon-themed icon-p5 grid h-8 w-8 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Permanently delete task" title="Permanently delete task"><i data-lucide="trash-2"></i></button>
                     </div>
                 {% endif %}
             </div>
@@ -116,28 +116,28 @@
                     <span>Notes</span>
                     <textarea class="task-notes-input min-h-20 w-full resize-y rounded-sm border border-paper-line bg-surface px-3 py-2 text-sm text-ink focus:border-forest focus:outline-none" data-field="notes" maxlength="20000" placeholder="Add context, links, or details...">{{ task.notes }}</textarea>
                 </label>
-                {% if subtasks %}
-                    <ul class="grid gap-1" aria-label="Subtasks">
-                        {% for subtask in subtasks %}
-                            <li class="subtask-row grid min-h-11 grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-1" data-task-id="{{ subtask.pk }}" data-update-url="{% url 'tasks:update' subtask.pk %}">
-                                <label class="relative grid h-11 w-11 place-items-center" title="{% if subtask.completed %}Reopen subtask{% else %}Complete subtask{% endif %}">
-                                    <input class="task-complete peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0" type="checkbox" data-field="completed"{% if subtask.completed %} checked{% endif %} aria-label="{% if subtask.completed %}Reopen{% else %}Complete{% endif %} {{ subtask.title }}">
-                                    <span class="h-4 w-4 rounded-sm border border-ink-faint peer-checked:border-forest peer-checked:bg-forest peer-checked:shadow-[inset_0_0_0_3px_var(--color-surface)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest"></span>
-                                </label>
-                                <textarea class="subtask-title block min-h-6 min-w-0 resize-none overflow-hidden border-0 border-b border-transparent bg-transparent py-1 text-sm text-ink outline-none focus:border-forest{% if subtask.completed %} text-ink-muted line-through{% endif %}" data-field="title" rows="1" maxlength="240" aria-label="Subtask title">{{ subtask.title }}</textarea>
-                                <button class="task-action icon-themed icon-terracotta grid h-11 w-11 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Delete step {{ subtask.title }}" title="Delete step"><i data-lucide="trash-2"></i></button>
-                                <span class="row-status hidden col-start-2 col-span-2 text-right text-xs text-ink-muted" aria-live="polite"></span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
                 <form class="subtask-create-form flex items-center gap-2" action="{% url 'tasks:create' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="parent_id" value="{{ task.pk }}">
                     <label class="sr-only" for="subtask-title-{{ task.pk }}">New subtask</label>
                     <input class="min-h-10 min-w-0 flex-1 rounded-sm border border-paper-line bg-surface px-3 text-sm focus:border-forest focus:outline-none" id="subtask-title-{{ task.pk }}" name="title" maxlength="240" placeholder="Add a step..." required>
-                    <button class="grid h-10 w-10 flex-none place-items-center rounded-sm text-forest hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" type="submit" aria-label="Add subtask"><i class="icon-themed icon-sage" data-lucide="plus"></i></button>
+                    <button class="grid h-10 w-10 flex-none place-items-center rounded-sm text-forest hover:bg-paper-faint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest" type="submit" aria-label="Add subtask"><i class="icon-themed icon-p1" data-lucide="plus"></i></button>
                 </form>
+                {% if subtasks %}
+                    <ul class="grid gap-1" aria-label="Subtasks">
+                        {% for subtask in subtasks %}
+                            <li class="subtask-row grid min-h-11 grid-cols-[44px_minmax(0,1fr)_44px] items-start gap-1" data-task-id="{{ subtask.pk }}" data-update-url="{% url 'tasks:update' subtask.pk %}">
+                                <label class="relative grid h-6 w-11 justify-items-center pt-1" title="{% if subtask.completed %}Reopen subtask{% else %}Complete subtask{% endif %}">
+                                    <input class="task-complete peer absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0" type="checkbox" data-field="completed"{% if subtask.completed %} checked{% endif %} aria-label="{% if subtask.completed %}Reopen{% else %}Complete{% endif %} {{ subtask.title }}">
+                                    <span class="h-4 w-4 rounded-sm border border-ink-faint peer-checked:border-forest peer-checked:bg-forest peer-checked:shadow-[inset_0_0_0_3px_var(--color-surface)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-forest"></span>
+                                </label>
+                                <textarea class="subtask-title block min-h-6 min-w-0 resize-none overflow-x-auto overflow-y-hidden border-0 border-b border-transparent bg-transparent py-1 text-sm text-ink outline-none focus:border-forest{% if subtask.completed %} text-ink-muted line-through{% endif %}" data-field="title" rows="1" maxlength="240" aria-label="Subtask title">{{ subtask.title }}</textarea>
+                                <button class="task-action icon-themed icon-p5 grid h-11 w-11 place-items-center rounded-sm transition-colors hover:bg-rust/10 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-forest" type="button" data-task-action="delete" data-task-value="true" aria-label="Delete step {{ subtask.title }}" title="Delete step"><i data-lucide="trash-2"></i></button>
+                                <span class="row-status hidden col-start-2 col-span-2 text-right text-xs text-ink-muted" aria-live="polite"></span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
             {% endwith %}
         </div>

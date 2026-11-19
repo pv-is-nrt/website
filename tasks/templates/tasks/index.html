@@ -1,11 +1,17 @@
 {% load static %}
 <!doctype html>
-<html lang="en" data-theme="{{ theme }}" data-icon-style="{{ priority_icon_style }}" style="{% for name, value in theme_palette.items %}--tasks-{{ name }}: {{ value }};{% endfor %}">
+<html lang="en" data-theme="{{ theme }}" style="{% for name, value, icon_name, light_color, dark_color in line_icon_palette %}--line-icon-{{ name }}-light: {{ light_color }}; --line-icon-{{ name }}-dark: {{ dark_color }};{% endfor %}{% for name, value in theme_palette.items %}--tasks-{{ name }}: {{ value }};{% endfor %}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#05283f">
     <title>Tasks</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'tasks/favicon/favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'tasks/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'tasks/favicon/favicon-16x16.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'tasks/favicon/apple-touch-icon.png' %}">
+    <link rel="manifest" href="{% static 'tasks/favicon/site.webmanifest' %}">
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'tasks/tasks.css' %}">
     <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.min.js" defer></script>
@@ -61,7 +67,7 @@
             </div>
 
             <details class="border-b border-paper-line bg-paper-faint" id="sort-filter-panel"{% if filters_open %} open{% endif %}>
-                <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 text-sm font-medium text-ink-muted transition-colors hover:text-ink max-sm:px-3"><i data-lucide="sliders-horizontal"></i><span>Sort and Filter</span>{% if created_after or created_before or tag_filter_active or sort_active %}<span class="rounded-full bg-task-accent px-2 py-0.5 font-mono text-[0.62rem] uppercase text-accent-ink">Active</span>{% endif %}<i data-lucide="chevron-down" class="ml-auto"></i></summary>
+                <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-4 text-sm font-medium text-ink-muted transition-colors hover:text-ink max-sm:px-3"><i data-lucide="sliders-horizontal"></i><span>Sort and Filter</span><i data-lucide="chevron-down" class="ml-auto"></i></summary>
             <form class="grid grid-cols-2 gap-3 px-5 pb-4 pt-1 max-sm:px-3" action="{% url 'tasks:index' %}" method="get" hx-get="{% url 'tasks:index' %}" hx-trigger="change, submit" hx-target="#task-view" hx-select="#task-view" hx-swap="outerHTML" hx-push-url="true">
                 <input type="hidden" name="view" value="{{ view_name }}">
                 <input type="hidden" name="tag_filter" value="1">

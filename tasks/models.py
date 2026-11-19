@@ -169,12 +169,12 @@ class Category(models.Model):
         return next((dark for light, dark, _ in CATEGORY_PALETTE if light == self.color), self.color)
 
 
-PRIORITY_ICON_PALETTE = (
-    (Task.Priority.LOWEST, 'plane-takeoff', '#d7cae5', '#462965'),
-    (Task.Priority.LOW, 'car', '#e9c4bd', '#6b2f24'),
-    (Task.Priority.MEDIUM, 'rabbit', '#e4d3a3', '#6e5a20'),
-    (Task.Priority.HIGH, 'turtle', '#b9dedc', '#296562'),
-    (Task.Priority.HIGHEST, 'snail', '#c5dfc5', '#296529'),
+LINE_ICON_PALETTE = (
+    ('p1', Task.Priority.HIGHEST, 'snail', '#88cc66', '#66aa44'),
+    ('p2', Task.Priority.HIGH, 'turtle', '#6688dd', '#4466dd'),
+    ('p3', Task.Priority.MEDIUM, 'rabbit', '#ccbb66', '#aa8844'),
+    ('p4', Task.Priority.LOW, 'car', '#cc66bb', '#aa4488'),
+    ('p5', Task.Priority.LOWEST, 'plane-takeoff', '#cc6666', '#aa4444'),
 )
 
 
@@ -215,10 +215,6 @@ class TasksPreference(models.Model):
         DOTS = 'dots', 'Dots'
         CHECKERBOARD = 'checkerboard', 'Checkerboard'
 
-    class PriorityIconStyle(models.TextChoices):
-        STROKE = 'stroke', 'Stroke'
-        FILL = 'fill', 'Fill'
-
     default_reminder_minutes = models.PositiveIntegerField(
         choices=ReminderLeadTime.choices,
         default=ReminderLeadTime.ONE_HOUR,
@@ -243,23 +239,14 @@ class TasksPreference(models.Model):
         choices=Task.Priority.choices,
         default=Task.Priority.MEDIUM,
     )
-    default_recurrence = models.CharField(
-        max_length=8,
-        choices=Task.Recurrence.choices,
-        default=Task.Recurrence.NONE,
-    )
     default_view = models.CharField(
         max_length=8,
         choices=DefaultView.choices,
         default=DefaultView.OPEN,
     )
+    sort_preferences = models.JSONField(default=dict, blank=True)
     show_quick_capture_hint = models.BooleanField(default=True)
     show_priority_numbers = models.BooleanField(default=True)
-    priority_icon_style = models.CharField(
-        max_length=6,
-        choices=PriorityIconStyle.choices,
-        default=PriorityIconStyle.STROKE,
-    )
     show_task_age = models.BooleanField(default=True)
     filters_expanded_by_default = models.BooleanField(default=False)
     auto_archive_after = models.CharField(

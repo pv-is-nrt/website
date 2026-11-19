@@ -31,6 +31,18 @@ function updateOpenSubtaskBadge(taskRow) {
     }
 }
 
+function updateTaskDetailsIcon(taskRow) {
+    const toggle = taskRow?.querySelector('.task-details-toggle');
+    if (!toggle) return;
+
+    const hasContents = Boolean(
+        taskRow.querySelector('.task-notes-input')?.value
+        || taskRow.querySelector('.subtask-row')
+    );
+    toggle.classList.toggle('icon-themed', hasContents);
+    toggle.classList.toggle('icon-p2', hasContents);
+}
+
 async function postForm(url, values) {
     const body = new URLSearchParams({ csrfmiddlewaretoken: csrfToken });
     for (const [key, value] of Object.entries(values)) {
@@ -42,7 +54,20 @@ async function postForm(url, values) {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body,
     });
-    const result = await response.json();
+    const responseText = await response.text();
+    const isJson = response.headers.get('content-type')?.includes('application/json');
+    let result = null;
+    if (isJson) {
+        try {
+            result = JSON.parse(responseText);
+        } catch {
+            throw new Error('The server returned invalid JSON. Reload and try again.');
+        }
+    }
+    if (!result && response.redirected) {
+        throw new Error('Your session may have expired. Reload the page and try again.');
+    }
+    if (!result) throw new Error('The server returned an unexpected response. Reload and try again.');
     if (!response.ok) throw new Error(result.error || 'Could not save this change.');
     return result;
 }
@@ -99,6 +124,7 @@ async function saveField(row, field, value, input) {
                 subtaskRow.remove();
                 if (parentTask) {
                     updateOpenSubtaskBadge(parentTask);
+                    updateTaskDetailsIcon(parentTask);
                 }
                 const remaining = parentTask?.querySelectorAll('.subtask-row') || [];
                 if (parentTask && remaining.length === 0) {
@@ -120,7 +146,7 @@ async function saveField(row, field, value, input) {
             const enabled = input.getAttribute('aria-pressed') !== 'true';
             input.setAttribute('aria-pressed', String(enabled));
             input.classList.toggle('icon-themed', enabled);
-            input.classList.toggle('icon-sky', enabled);
+            input.classList.toggle('icon-p4', enabled);
         }
     }
 }
@@ -219,7 +245,7 @@ function parseQuickCapture(rawValue) {
         const resolved = resolveCaptureDate(raw, today);
         if (resolved) {
             const pad = (part) => String(part).padStart(2, '0');
-            dueAt = `${resolved.getUTCFullYear()}-${pad(resolved.getUTCMonth() + 1)}-${pad(resolved.getUTCDate())}T09:00`;
+            dueAt = `${resolved.getUTCFullYear()}-${pad(resolved.getUTCMonth() + 1)}-${pad(resolved.getUTCDate())}T17:00`;
             title = title.replace(dateRegex, ' ');
         }
     }
@@ -301,7 +327,17 @@ function resizeTaskTitle(title) {
     title.style.height = `${title.scrollHeight}px`;
 }
 
-document.querySelectorAll('.task-title').forEach(resizeTaskTitle);
+function resizeTaskTextareas(root = document) {
+    const selectors = '.task-title, .subtask-title, .task-notes-input';
+    if (root.matches?.(selectors) && root.getClientRects().length) resizeTaskTitle(root);
+    root.querySelectorAll?.(selectors).forEach((title) => {
+        if (title.getClientRects().length) resizeTaskTitle(title);
+    });
+}
+
+resizeTaskTextareas();
+document.fonts?.ready.then(() => resizeTaskTextareas());
+window.addEventListener('resize', () => resizeTaskTextareas());
 
 try {
     const taskId = window.sessionStorage.getItem(reopenDetailsStorageKey);
@@ -312,7 +348,7 @@ try {
     if (panel && toggle) {
         panel.hidden = false;
         toggle.setAttribute('aria-expanded', 'true');
-        toggle.classList.add('icon-themed', 'icon-periwinkle');
+        updateTaskDetailsIcon(row);
     }
 } catch {}
 
@@ -348,7 +384,7 @@ function updateDatePickerLabel(input) {
     if (!input.value) {
         label.textContent = wrapper.dataset.emptyLabel;
         if (wrapper.dataset.dueAction === 'true') {
-            button.classList.remove('icon-themed', 'icon-mustard');
+            button.classList.remove('icon-themed', 'icon-p3');
         }
         return;
     }
@@ -357,7 +393,7 @@ function updateDatePickerLabel(input) {
         : { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' };
     label.textContent = new Intl.DateTimeFormat(undefined, format).format(new Date(input.value));
     if (wrapper.dataset.dueAction === 'true') {
-        button.classList.add('icon-themed', 'icon-mustard');
+        button.classList.add('icon-themed', 'icon-p3');
     }
 }
 
@@ -376,7 +412,8 @@ function renderDateCalendar(picker) {
     const todayValue = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
 
     picker.querySelector('[data-calendar-month-label]').textContent = monthLabel;
-    picker.querySelector('.date-picker-time').value = picker.dataset.time || '09:00';
+    const defaultTime = picker.closest('[data-date-picker-wrapper]').dataset.defaultTime || '09:00';
+    picker.querySelector('.date-picker-time').value = picker.dataset.time || defaultTime;
     grid.replaceChildren();
 
     for (let index = 0; index < firstWeekday; index += 1) {
@@ -467,16 +504,26 @@ document.addEventListener('submit', async (event) => {
 
 document.addEventListener('input', (event) => {
     const input = event.target;
+    if (input.matches('.task-notes-input')) {
+        updateTaskDetailsIcon(input.closest('.task-row'));
+        return;
+    }
     if (!input.matches('.task-title, .subtask-title')) return;
     if (input.matches('.task-title')) resizeTaskTitle(input);
     clearTimeout(titleTimers.get(input));
-    titleTimers.set(input, setTimeout(() => saveField(input.closest('.task-row, .subtask-row'), 'title', input.value, input), 500));
+    titleTimers.set(input, setTimeout(() => {
+        titleTimers.delete(input);
+        saveField(input.closest('.task-row, .subtask-row'), 'title', input.value, input);
+    }, 500));
 });
 
 document.addEventListener('focusout', (event) => {
     const input = event.target;
     if (!input.matches('.task-title, .subtask-title')) return;
-    clearTimeout(titleTimers.get(input));
+    const timer = titleTimers.get(input);
+    if (timer === undefined) return;
+    clearTimeout(timer);
+    titleTimers.delete(input);
     saveField(input.closest('.task-row, .subtask-row'), 'title', input.value, input);
 });
 
@@ -492,8 +539,8 @@ document.addEventListener('click', (event) => {
         const panel = detailsToggle.closest('.task-content').querySelector('.task-details-panel');
         panel.hidden = !panel.hidden;
         detailsToggle.setAttribute('aria-expanded', String(!panel.hidden));
-        detailsToggle.classList.toggle('icon-themed', !panel.hidden);
-        detailsToggle.classList.toggle('icon-periwinkle', !panel.hidden);
+        updateTaskDetailsIcon(detailsToggle.closest('.task-row'));
+        if (!panel.hidden) requestAnimationFrame(() => resizeTaskTextareas(panel));
         return;
     }
 
@@ -530,19 +577,22 @@ document.addEventListener('click', (event) => {
         document.querySelectorAll('.category-menu').forEach((item) => { item.hidden = true; });
         document.querySelectorAll('.category-add').forEach((item) => {
             item.setAttribute('aria-expanded', 'false');
-            item.classList.remove('icon-themed', 'icon-sage');
+            item.classList.remove('icon-themed', 'icon-p1');
+            item.parentElement.classList.remove('z-50');
         });
         menu.hidden = !opening;
         categoryAdd.setAttribute('aria-expanded', String(opening));
         categoryAdd.classList.toggle('icon-themed', opening);
-        categoryAdd.classList.toggle('icon-sage', opening);
+        categoryAdd.classList.toggle('icon-p1', opening);
+        categoryAdd.parentElement.classList.toggle('z-50', opening);
         return;
     }
     if (event.target.closest('.category-menu')) return;
     document.querySelectorAll('.category-menu').forEach((menu) => { menu.hidden = true; });
     document.querySelectorAll('.category-add').forEach((item) => {
         item.setAttribute('aria-expanded', 'false');
-        item.classList.remove('icon-themed', 'icon-sage');
+        item.classList.remove('icon-themed', 'icon-p1');
+        item.parentElement.classList.remove('z-50');
     });
 
     document.querySelectorAll('.date-time-picker:not([hidden])').forEach((picker) => {
@@ -567,7 +617,7 @@ document.addEventListener('click', (event) => {
             const today = new Date();
             const dateValue = input.value.slice(0, 10) || `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
             picker.dataset.month = dateValue.slice(0, 7);
-            picker.dataset.time = input.value.split('T')[1] || '09:00';
+            picker.dataset.time = input.value.split('T')[1] || wrapper.dataset.defaultTime || '09:00';
             renderDateCalendar(picker);
             positionDatePicker(picker, datePickerButton);
             picker.querySelector('.calendar-day[aria-pressed="true"]')?.focus();
@@ -589,7 +639,8 @@ document.addEventListener('click', (event) => {
     if (calendarDay) {
         const picker = calendarDay.closest('.date-time-picker');
         const input = picker.closest('[data-date-picker-wrapper]').querySelector('.date-picker-input');
-        savePickerDate(input, `${calendarDay.dataset.date}T${picker.dataset.time || '09:00'}`);
+        const defaultTime = picker.closest('[data-date-picker-wrapper]').dataset.defaultTime || '09:00';
+        savePickerDate(input, `${calendarDay.dataset.date}T${picker.dataset.time || defaultTime}`);
         picker.dataset.month = calendarDay.dataset.date.slice(0, 7);
         renderDateCalendar(picker);
         picker.querySelector('.calendar-day[aria-pressed="true"]')?.focus();
@@ -602,7 +653,8 @@ document.addEventListener('click', (event) => {
         const input = picker.closest('[data-date-picker-wrapper]').querySelector('.date-picker-input');
         const today = new Date();
         const todayValue = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        savePickerDate(input, `${todayValue}T${picker.dataset.time || '09:00'}`);
+        const defaultTime = picker.closest('[data-date-picker-wrapper]').dataset.defaultTime || '09:00';
+        savePickerDate(input, `${todayValue}T${picker.dataset.time || defaultTime}`);
         picker.dataset.month = todayValue.slice(0, 7);
         renderDateCalendar(picker);
         picker.querySelector('.calendar-day[aria-pressed="true"]')?.focus();
@@ -625,7 +677,7 @@ document.addEventListener('click', (event) => {
         const enabled = reminderButton.getAttribute('aria-pressed') !== 'true';
         reminderButton.setAttribute('aria-pressed', String(enabled));
         reminderButton.classList.toggle('icon-themed', enabled);
-        reminderButton.classList.toggle('icon-sky', enabled);
+        reminderButton.classList.toggle('icon-p4', enabled);
         saveField(reminderButton.closest('.task-row'), 'reminder_enabled', String(enabled), reminderButton);
     }
 });
@@ -680,7 +732,7 @@ document.addEventListener('change', (event) => {
                 reminder.disabled = !input.value;
                 if (!input.value) {
                     reminder.setAttribute('aria-pressed', 'false');
-                    reminder.classList.remove('icon-themed', 'icon-sky');
+                    reminder.classList.remove('icon-themed', 'icon-p4');
                 }
             }
         }
@@ -711,15 +763,12 @@ document.addEventListener('change', (event) => {
             const repeats = input.value !== 'none';
             repeatSummary.title = repeats ? `Repeats ${input.selectedOptions[0].textContent}` : 'Set repeat interval';
             repeatSummary.classList.toggle('icon-themed', repeats);
-            repeatSummary.classList.toggle('icon-mint', repeats);
+            repeatSummary.classList.toggle('icon-p1', repeats);
         }
         saveField(row, 'recurrence', input.value, input);
     } else if (input.matches('.task-notes-input')) {
         resizeTaskTitle(input);
         saveField(row, 'notes', input.value, input);
-    } else if (input.matches('.subtask-title')) {
-        resizeTaskTitle(input);
-        saveField(row, 'title', input.value, input);
     }
 });
 
@@ -753,10 +802,10 @@ if (undoToast && undoButton) {
 }
 
 window.lucide?.createIcons();
-document.body.addEventListener('htmx:afterSwap', () => window.lucide?.createIcons());
-
-// Auto-size detail textareas before registering the HTMX state handlers below.
-document.querySelectorAll('.subtask-title, .task-notes-input').forEach(resizeTaskTitle);
+document.body.addEventListener('htmx:afterSwap', () => {
+    window.lucide?.createIcons();
+    resizeTaskTextareas();
+});
 
 // Preserve "Sort and Filter" open state across HTMX swaps
 document.body.addEventListener('htmx:beforeRequest', (e) => {

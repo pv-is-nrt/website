@@ -4,10 +4,11 @@ from unittest.mock import patch
 from types import SimpleNamespace
 
 from django.core.management import call_command
+from django.template.loader import render_to_string
 from django.test import RequestFactory, TestCase
 from django.utils import timezone
 
-from .models import CATEGORY_PALETTE, Category, Task, TasksPreference, TasksTheme
+from .models import CATEGORY_PALETTE, LINE_ICON_PALETTE, Category, Task, TasksPreference, TasksTheme
 from .views import (
     archive_expired_completed_tasks,
     create,
@@ -50,6 +51,42 @@ class TaskWorkflowTests(TestCase):
         ):
             context = index.__wrapped__(request)
         return list(context['tasks'])
+
+    def test_update_missing_task_returns_json_error(self):
+        request = RequestFactory().post('/tasks/api/999999/update/', {
+            'field': 'title',
+            'value': 'Stale subtask',
+        })
+        request.user = SimpleNamespace(is_active=True, is_staff=True)
+        response = update.__wrapped__.__wrapped__(request, 999999)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(
+            json.loads(response.content)['error'],
+            'This task no longer exists. Reload the page and try again.',
+        )
+
+    def test_subtask_title_update_returns_json(self):
+        parent = Task.objects.create(title='Parent task')
+        subtask = Task.objects.create(title='Before edit', parent=parent)
+        request = RequestFactory().post('/tasks/api/{}/update/'.format(subtask.pk), {
+            'field': 'title',
+            'value': 'After edit',
+        })
+        request.user = SimpleNamespace(is_active=True, is_staff=True)
+        response = update.__wrapped__.__wrapped__(request, subtask.pk)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response['Content-Type'].startswith('application/json'))
+        self.assertTrue(json.loads(response.content)['ok'])
+        subtask.refresh_from_db()
+        self.assertEqual(subtask.title, 'After edit')
+
+    def test_due_date_picker_defaults_to_five_pm(self):
+        markup = render_to_string('tasks/date_picker.html', {'field': 'due_at'})
+
+        self.assertIn('data-default-time="17:00"', markup)
+        self.assertIn('value="17:00"', markup)
 
     def test_duration_uses_local_calendar_days(self):
         today = timezone.localdate()
@@ -117,6 +154,21 @@ class TaskWorkflowTests(TestCase):
                 self.assertGreaterEqual(_contrast('#e5eee7', dark), 4.5)
                 self.assertGreaterEqual(_contrast(light, dark), 3)
                 self.assertGreaterEqual(_contrast(dark, '#141c17'), 1.4)
+
+    def test_line_icon_palette_orders_priorities_and_meets_theme_contrast(self):
+        priorities = [priority for _, priority, _, _, _ in LINE_ICON_PALETTE]
+        self.assertEqual(priorities, [
+            Task.Priority.HIGHEST,
+            Task.Priority.HIGH,
+            Task.Priority.MEDIUM,
+            Task.Priority.LOW,
+            Task.Priority.LOWEST,
+        ])
+
+        for name, _, _, light, dark in LINE_ICON_PALETTE:
+            with self.subTest(name=name):
+                self.assertGreaterEqual(_contrast('#141c17', light), 3)
+                self.assertGreaterEqual(_contrast('#e5eee7', dark), 3)
 
     def test_category_color_api_returns_paired_dark_color(self):
         category = Category.objects.create(name='Color pair')
@@ -294,6 +346,57 @@ class TaskWorkflowTests(TestCase):
                 self.assertEqual([label for _, label in context['sort_choices']], labels)
                 self.assertNotIn('Default', labels)
 
+    def test_sort_choices_are_saved_and_restored_per_view(self):
+        preferences, _ = TasksPreference.objects.get_or_create(pk=1)
+        request = RequestFactory().get('/tasks/', {
+            'view': 'open',
+            'sort_by': 'priority',
+            'sort_direction': 'asc',
+        })
+        request.user = SimpleNamespace(is_active=True, is_staff=True)
+        with patch('tasks.views.reverse', return_value='/tasks/'), patch(
+            'tasks.views.render', side_effect=lambda request, template, context: context,
+        ):
+            selected_context = index.__wrapped__(request)
+
+        self.assertEqual(selected_context['sort_by'], 'priority')
+        self.assertEqual(selected_context['sort_direction'], 'asc')
+        preferences.refresh_from_db()
+        self.assertEqual(preferences.sort_preferences['open'], {
+            'sort_by': 'priority',
+            'sort_direction': 'asc',
+        })
+
+        request = RequestFactory().get('/tasks/', {'view': 'open'})
+        request.user = SimpleNamespace(is_active=True, is_staff=True)
+        with patch('tasks.views.reverse', return_value='/tasks/'), patch(
+            'tasks.views.render', side_effect=lambda request, template, context: context,
+        ):
+            restored_context = index.__wrapped__(request)
+
+        self.assertEqual(restored_context['sort_by'], 'priority')
+        self.assertEqual(restored_context['sort_direction'], 'asc')
+        self.assertEqual(TasksPreference.objects.get(pk=1).sort_preferences['open'], {
+            'sort_by': 'priority',
+            'sort_direction': 'asc',
+        })
+
+        request = RequestFactory().get('/tasks/', {
+            'view': 'completed',
+            'sort_by': 'priority',
+            'sort_direction': 'desc',
+        })
+        request.user = SimpleNamespace(is_active=True, is_staff=True)
+        with patch('tasks.views.reverse', return_value='/tasks/'), patch(
+            'tasks.views.render', side_effect=lambda request, template, context: context,
+        ):
+            index.__wrapped__(request)
+        preferences.refresh_from_db()
+        self.assertEqual(preferences.sort_preferences, {
+            'open': {'sort_by': 'priority', 'sort_direction': 'asc'},
+            'completed': {'sort_by': 'priority', 'sort_direction': 'desc'},
+        })
+
     def test_index_filter_can_match_multiple_tags(self):
         home = Category.objects.create(name='Home')
         work = Category.objects.create(name='Work')
@@ -439,12 +542,18 @@ class TaskWorkflowTests(TestCase):
     def test_quick_create_uses_preferences_and_keeps_subtasks_non_recurring(self):
         preferences, _ = TasksPreference.objects.get_or_create(pk=1)
         preferences.default_priority = Task.Priority.HIGHEST
-        preferences.default_recurrence = Task.Recurrence.WEEKLY
-        preferences.save(update_fields=['default_priority', 'default_recurrence'])
+        preferences.save(update_fields=['default_priority'])
         response = self.create_task({'title': 'Weekly review'})
         task = Task.objects.get(pk=json.loads(response.content)['id'])
         self.assertEqual(task.priority, Task.Priority.HIGHEST)
-        self.assertEqual(task.recurrence, Task.Recurrence.WEEKLY)
+        self.assertEqual(task.recurrence, Task.Recurrence.NONE)
+
+        recurring_response = self.create_task({
+            'title': 'Monthly review',
+            'recurrence': Task.Recurrence.MONTHLY,
+        })
+        recurring_task = Task.objects.get(pk=json.loads(recurring_response.content)['id'])
+        self.assertEqual(recurring_task.recurrence, Task.Recurrence.MONTHLY)
 
         child_response = self.create_task({'title': 'Review notes', 'parent_id': str(task.pk)})
         child = Task.objects.get(pk=json.loads(child_response.content)['id'])
@@ -604,8 +713,6 @@ class TaskWorkflowTests(TestCase):
         request = RequestFactory().post('/tasks/api/preferences/', {
             'default_priority': str(Task.Priority.HIGHEST),
             'show_priority_numbers': 'false',
-            'priority_icon_style': TasksPreference.PriorityIconStyle.FILL,
-            'default_recurrence': Task.Recurrence.MONTHLY,
             'default_view': TasksPreference.DefaultView.TODAY,
             'show_quick_capture_hint': 'false',
             'show_task_age': 'false',
@@ -627,8 +734,6 @@ class TaskWorkflowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(settings.default_priority, Task.Priority.HIGHEST)
         self.assertFalse(settings.show_priority_numbers)
-        self.assertEqual(settings.priority_icon_style, TasksPreference.PriorityIconStyle.FILL)
-        self.assertEqual(settings.default_recurrence, Task.Recurrence.MONTHLY)
         self.assertEqual(settings.default_view, TasksPreference.DefaultView.TODAY)
         self.assertFalse(settings.show_quick_capture_hint)
         self.assertFalse(settings.show_task_age)
@@ -643,11 +748,6 @@ class TaskWorkflowTests(TestCase):
         self.assertTrue(settings.show_cancelled_tab)
         self.assertEqual(settings.theme, TasksPreference.Theme.DARK)
         self.assertEqual(settings.background_pattern, TasksPreference.BackgroundPattern.CHECKERBOARD)
-
-    def test_priority_icon_style_rejects_unknown_value(self):
-        request = RequestFactory().post('/tasks/api/preferences/', {'priority_icon_style': 'outline'})
-        response = update_preferences.__wrapped__.__wrapped__(request)
-        self.assertEqual(response.status_code, 400)
 
     def test_custom_theme_seed_requires_six_digit_hex_value(self):
         request = RequestFactory().post('/tasks/api/themes/create/', {

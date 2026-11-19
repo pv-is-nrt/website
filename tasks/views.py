@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .models import CATEGORY_PALETTE, PRIORITY_ICON_PALETTE, Category, Task, TasksPreference, TasksTheme
+from .models import CATEGORY_PALETTE, LINE_ICON_PALETTE, Category, Task, TasksPreference, TasksTheme
 from .theme_palette import DEFAULT_THEME_SEED, build_theme_palette
 
 
@@ -128,12 +128,36 @@ def index(request):
     sort_choices = sort_choices_by_view[view_name]
     default_sort_by, default_sort_direction = sort_defaults[view_name]
     valid_sort_by = {value for value, _ in sort_choices}
+    sort_preferences = preferences.sort_preferences
+    saved_sort = sort_preferences.get(view_name, {}) if isinstance(sort_preferences, dict) else {}
     requested_sort_by = request.GET.get('sort_by', '').strip()
-    sort_by = requested_sort_by if requested_sort_by in valid_sort_by else default_sort_by
+    saved_sort_by = saved_sort.get('sort_by') if isinstance(saved_sort, dict) else None
+    sort_by = (
+        requested_sort_by if requested_sort_by in valid_sort_by
+        else saved_sort_by if saved_sort_by in valid_sort_by
+        else default_sort_by
+    )
     sort_direction_choices = (('asc', 'Ascending'), ('desc', 'Descending'))
-    sort_direction = request.GET.get('sort_direction', default_sort_direction).strip()
-    if sort_direction not in {value for value, _ in sort_direction_choices}:
-        sort_direction = default_sort_direction
+    valid_directions = {value for value, _ in sort_direction_choices}
+    requested_direction = request.GET.get('sort_direction', '').strip()
+    saved_direction = saved_sort.get('sort_direction') if isinstance(saved_sort, dict) else None
+    sort_direction = (
+        requested_direction if requested_direction in valid_directions
+        else saved_direction if saved_direction in valid_directions
+        else default_sort_direction
+    )
+    if (
+        requested_sort_by in valid_sort_by
+        or requested_direction in valid_directions
+    ):
+        sort_preferences = dict(sort_preferences) if isinstance(sort_preferences, dict) else {}
+        sort_preferences[view_name] = {
+            'sort_by': sort_by,
+            'sort_direction': sort_direction,
+        }
+        if sort_preferences != preferences.sort_preferences:
+            preferences.sort_preferences = sort_preferences
+            preferences.save(update_fields=['sort_preferences'])
     sort_active = sort_by != default_sort_by or sort_direction != default_sort_direction
     date_range = request.GET.get('date_range', '').strip()
     valid_date_ranges = {value for value, _ in date_range_choices}
@@ -304,12 +328,9 @@ def index(request):
         'tag_filter_active': tag_filter_active,
         'filters_open': preferences.filters_expanded_by_default or bool(
             created_after or created_before or tag_filter_active or date_range == 'custom'
-            or sort_active
         ),
-        'sort_active': sort_active,
         'show_quick_capture_hint': preferences.show_quick_capture_hint,
         'show_priority_numbers': preferences.show_priority_numbers,
-        'priority_icon_style': preferences.priority_icon_style,
         'show_task_age': preferences.show_task_age,
         'show_archived_tab': preferences.show_archived_tab,
         'show_cancelled_tab': preferences.show_cancelled_tab,
@@ -330,7 +351,7 @@ def index(request):
             (value, 'P{}'.format(6 - value))
             for value, _ in reversed(Task.Priority.choices)
         ],
-        'priority_icon_palette': PRIORITY_ICON_PALETTE,
+        'line_icon_palette': LINE_ICON_PALETTE,
         'recurrence_choices': Task.Recurrence.choices,
         'categories': Category.objects.all(),
     })
@@ -349,6 +370,7 @@ def preferences(request):
     return render(request, 'tasks/preferences.html', {
         'categories': Category.objects.all(),
         'category_palette': CATEGORY_PALETTE,
+        'line_icon_palette': LINE_ICON_PALETTE,
         'category_default_color': category_default_color,
         'category_default_dark_color': category_default_dark_color,
         'preferences': settings,
@@ -363,7 +385,6 @@ def preferences(request):
             (value, 'P{}'.format(6 - value))
             for value, _ in reversed(Task.Priority.choices)
         ],
-        'priority_icon_style_choices': TasksPreference.PriorityIconStyle.choices,
         'recurrence_choices': Task.Recurrence.choices,
         'default_view_choices': TasksPreference.DefaultView.choices,
         'show_quick_capture_hint': settings.show_quick_capture_hint,
@@ -375,7 +396,6 @@ def preferences(request):
         'theme_choices': TasksPreference.Theme.choices,
         'custom_themes': _user_themes(request),
         'selected_theme': active_theme,
-        'default_theme_seed': DEFAULT_THEME_SEED,
         'theme_seed_color': theme_seed,
         'theme_palette': build_theme_palette(theme_seed),
         'background_pattern_choices': TasksPreference.BackgroundPattern.choices,
@@ -407,7 +427,7 @@ def create(request):
     if priority not in Task.Priority.values:
         return JsonResponse({'error': 'Choose a valid priority.'}, status=400)
 
-    recurrence_default = Task.Recurrence.NONE if parent else preferences.default_recurrence
+    recurrence_default = Task.Recurrence.NONE
     recurrence = request.POST.get('recurrence', '').strip() or recurrence_default
     if recurrence not in Task.Recurrence.values:
         return JsonResponse({'error': 'Choose a valid recurrence.'}, status=400)
@@ -483,7 +503,9 @@ def create_recurrence_successor(task):
 @staff_member_required
 @require_POST
 def update(request, task_id):
-    task = get_object_or_404(Task, pk=task_id)
+    task = Task.objects.filter(pk=task_id).first()
+    if task is None:
+        return JsonResponse({'error': 'This task no longer exists. Reload the page and try again.'}, status=404)
     field = request.POST.get('field')
     value = request.POST.get('value', '')
 
@@ -683,20 +705,6 @@ def update_preferences(request):
             return JsonResponse({'error': 'Choose a valid default priority.'}, status=400)
         settings.default_priority = int(value)
         fields_to_update.append('default_priority')
-
-    if 'priority_icon_style' in request.POST:
-        value = request.POST.get('priority_icon_style', '')
-        if value not in TasksPreference.PriorityIconStyle.values:
-            return JsonResponse({'error': 'Choose a valid priority icon style.'}, status=400)
-        settings.priority_icon_style = value
-        fields_to_update.append('priority_icon_style')
-
-    if 'default_recurrence' in request.POST:
-        value = request.POST.get('default_recurrence', '')
-        if value not in Task.Recurrence.values:
-            return JsonResponse({'error': 'Choose a valid default recurrence.'}, status=400)
-        settings.default_recurrence = value
-        fields_to_update.append('default_recurrence')
 
     if 'default_view' in request.POST:
         value = request.POST.get('default_view', '')
