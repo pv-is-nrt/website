@@ -111,7 +111,7 @@ class PresentationAdmin(admin.ModelAdmin):
     )
 
 class ProposalAdmin(admin.ModelAdmin):
-    list_display = ('year', 'title', 'status', 'pi')
+    list_display = ('year', 'title', 'status', 'amount', 'duration', 'pi')
     search_fields = ['title', 'pi', 'agency']
 
 class SkillCategoryAdmin(admin.ModelAdmin):

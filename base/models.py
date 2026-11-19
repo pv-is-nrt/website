@@ -360,13 +360,22 @@ class Presentation(models.Model):
 # ---------------------------------------------------------------------------- #
 
 class Proposal(models.Model):
+    STATUS_CHOICES = [
+        ('funded', 'Funded'),
+        ('pending', 'Pending'),
+        ('not funded', 'Not funded'),
+    ]
 
     # define the fields
     title = models.CharField(max_length=500)
     pi = models.CharField(max_length=500)
     agency = models.CharField(max_length=200)
-    status = models.CharField(max_length=200, choices=[("awarded", "awarded"), ("pending", "pending")])
+    status = models.CharField(max_length=200, choices=STATUS_CHOICES)
     year = models.PositiveSmallIntegerField()
+    link = models.URLField(blank=True)
+    award_id = models.CharField(max_length=100, blank=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, verbose_name='Amount (USD)')
+    duration = models.CharField(max_length=100, blank=True, help_text='For example, 3 years')
     extra_info = models.CharField(max_length=200, blank=True)
     comment = models.CharField(max_length=200, blank=True)
 

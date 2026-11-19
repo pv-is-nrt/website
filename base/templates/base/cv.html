@@ -83,7 +83,7 @@
     <ol reversed>
         {% for publication in preprints %}
         <li>
-            {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" or author == "Prateek Verma*" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
         </li>
         {% endfor %}
     </ol>
@@ -93,7 +93,7 @@
     <ol reversed>
         {% for publication in group.list %}
         <li>
-            {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
+            {% for author in publication.authors_list_short %}{% if author == "P Verma" or author == "Prateek Verma" or author == "Prateek Verma*" %}<b>{{ author }}</b>{% else %}{{ author }}{% endif %}{% if author != publication.authors_list_short|last %}, {% endif %}{% endfor %}; {{ publication.title|safe }}; <i>{{ publication.venue.name|default:publication.publisher }}</i>{% if publication.venue and publication.venue.cv_metrics %} ({% for metric in publication.venue.cv_metrics %}{% if metric.metric_type == "impact_factor" %}<span class="smaller">impact factor = {{ metric.display_value }}</span>{% else %}{{ metric.get_metric_type_display }}: {{ metric.display_value }}{% endif %}{% if metric.metric_type == "acceptance_rate" %}%{% endif %}{% if not forloop.last %}; {% endif %}{% endfor %}){% endif %}{% if publication.volume %}; Vol. {{ publication.volume }}{% endif %}{% if publication.issue %}, No. {{ publication.issue }}{% endif %}; <b>{{ publication.date|date:"Y" }}</b>{% if publication.comment %}; ({{ publication.comment }}){% endif %}{% if publication.link %} <a href="{{ publication.link }}" target="blank">(link)</a>{% endif %}
         </li>
         {% endfor %}
     </ol>
@@ -104,7 +104,7 @@
     <!-- Presentations
     # --------------------------------------------------------------------->
     <h2>Conference Presentations</h2>
-    <p>Speakers are shown in bold. Only presentations without an associated publication are listed here.</p>
+    <p>Speakers are shown in bold. Some peer-reviewed conference presentations also appear in the publications section above.</p>
     <ol reversed>
         {% for presentation in presentations %}
         <li>
@@ -118,13 +118,16 @@
     # --------------------------------------------------------------------->
     <h2>Research Funding and Grants</h2>
     <p>Contributed to the planning, writing, editing and/or review of the following research funding proposals.</p>
+    {% for group in proposal_groups %}
+    <h3>{{ group.label }}</h3>
     <ol>
-    {% for proposal in proposals %}
+    {% for proposal in group.proposals %}
         <li>
-            {{ proposal.title|safe }}, {{ proposal.agency }}, PI: {{ proposal.pi }}, <b>{{ proposal.year }}</b>{% if proposal.status == "awarded" %}. {{ proposal.status|capfirst }}.{% endif %}
+            {{ proposal.title|safe }}, <i>{{ proposal.agency }}</i>, PI: {{ proposal.pi }}{% if proposal.award_id %}, award no. {{ proposal.award_id }}{% endif %}{% if proposal.amount %}, amount ${{ proposal.amount|floatformat:"-2" }}{% endif %}{% if proposal.duration %} ({{ proposal.duration }}){% endif %}{% if proposal.link %} <a href="{{ proposal.link }}" target="_blank">(link)</a>{% endif %}, <b>{{ proposal.year }}</b>
         </li>
     {% endfor %}
     </ol>
+    {% endfor %}
 
 
     <!-- Teaching
