@@ -121,7 +121,7 @@
     <ol>
     {% for proposal in proposals %}
         <li>
-            {% if proposal.status == "awarded" %}<b>Awarded</b> {% endif %}{{ proposal.title|safe }}, <i>{{ proposal.agency }}</i>, PI: {{ proposal.pi }}{% if proposal.award_id %}, award no. {{ proposal.award_id }}{% endif %}{% if proposal.amount %}, amount {{ proposal.amount }}{% endif %}{% if proposal.duration %} ({{ proposal.duration }}){% endif %}{% if proposal.link %} <a href="{{ proposal.link }}" target="_blank">(link)</a>{% endif %}, <b>{{ proposal.year }}</b>
+            {% if proposal.status == "awarded" %}<b>Awarded.</b> {% endif %}{{ proposal.title|safe }}, <i>{{ proposal.agency }}</i>, PI: {{ proposal.pi }}{% if proposal.award_id %}, award no. {{ proposal.award_id }}{% endif %}{% if proposal.amount %}, {{ proposal.amount }}{% endif %}{% if proposal.duration %} ({{ proposal.duration }}){% endif %}{% if proposal.link %} <a href="{{ proposal.link }}" target="_blank">(link)</a>{% endif %}, <b>{{ proposal.year }}</b>
         </li>
     {% endfor %}
     </ol>
