@@ -158,19 +158,10 @@
         }
     });
 
-    button.addEventListener('click', () => {
-        if (button.getAttribute('aria-disabled') !== 'true') form.requestSubmit();
-    });
-    button.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        event.preventDefault();
-        if (button.getAttribute('aria-disabled') !== 'true') form.requestSubmit();
-    });
-
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        button.setAttribute('aria-disabled', 'true');
+        button.disabled = true;
         progressContainer.hidden = false;
         setProgress(0, records.length);
         current.hidden = false;
@@ -217,6 +208,6 @@
         }
 
         setProgress(records.length, records.length);
-        button.setAttribute('aria-disabled', 'false');
+        button.disabled = false;
     });
 })();

@@ -3,6 +3,7 @@
 
 {% block additional_head_content %}
 	<link rel="stylesheet" type="text/css" href="{% static 'base/index.css' %}">
+	<link rel="stylesheet" type="text/css" href="{% static 'base/professional.css' %}">
 {% endblock %}
 
 
@@ -13,7 +14,7 @@
 
 {% block except-nav %}
 
-	<!-- Planning sections on home page: statement, education, select projects, experience, skillsets, research (publications, presentations), awards and honors, extracurriculars -->
+	<!-- Homepage sections: statement, education, experience, awards, and skills. -->
 
 	<!-- HEADER
 	# --------------------------------------------------------------------->
@@ -60,25 +61,44 @@
 	</section>
 
 
-	<!-- FEATURED
+	<!-- EXPERIENCE
 	# --------------------------------------------------------------------->
 
-	<section class="featured" id="featured">
-		<h2>Featured</h2>
-		<div class="spacer30"></div>
+	<section class="experience" id="experience">
+		<h2>Work experience</h2>
 		<div class="grid-container">
-			{% for post in posts_featured %}
-			<div class="centered card-very-thin padded">
-				<img src="{{ post.image_1.url }}" alt="featured photo for {{ post.title }}" class="logo150">
-				<div class="spacer30"></div>
-				<h6>{{ post.title|truncatechars:100|ljust:"100" }}</h6>
-				<div class="spacer20"></div>
-				<p class="smaller-text left color-subtle">{{ post.body|safe|truncatewords_html:20 }}<a href="{% url 'blog:post' post.id %}#header" class="color-link">read more</a></p>
+			{% for experience in experiences %}
+			<div class="padded clickable card-very-thin" onClick="showdiv('experience-description-{{ forloop.counter }}');">
+				<h4 class="color-accent">{{ experience.position }}</h4>
+				<h6> at {{ experience.organization.full_name }}</h6>
+				<hr class="narrow">
+				<p class="color-subtle smaller-text">
+					{{ experience.start_date|date:"Y" }}{% if experience.end_date|date:"Y" != experience.start_date|date:"Y" %} &ndash; {{ experience.end_date|date:"Y"|default:"present" }}{% endif %}
+					{% if experience.supervisor %} / {{ experience.supervisor }} {% if 'and' in experience.supervisor %}groups{% else %}group{% endif %}{% endif %}
+				</p>
+				<div class="experience-description hidden-at-first double-spaced" id="experience-description-{{ forloop.counter }}">
+					<div class="spacer20"></div>
+					<p>{{ experience.description|safe }}</p>
+				</div>
 			</div>
 			{% endfor %}
 		</div>
 	</section>
 
+	<!-- HONORS AND AWARDS
+	# --------------------------------------------------------------------->
+
+	<section class="awards" id="awards">
+		<h2>Honors and awards</h2>
+		<div>
+		{% for awards in honor_and_awards %}
+			<p class="smaller-text">
+				<span>{{ awards.title }}</span> / <span class="uppercase color-accent">{{ awards.organization.short_name }}</span> / <span class="bold color-subtle">{{ awards.start_date|date:"Y" }}{% if awards.end_date %} &ndash; {{ awards.end_date|date:"Y" }}{% endif %}</span>
+			</p>
+			<hr class="narrow">
+		{% endfor %}
+		</div>
+	</section>
 
 	<!-- SKILLSETS
 	# --------------------------------------------------------------------->

@@ -1,8 +1,28 @@
 from datetime import date as datetime_date
 
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models
- 
+from django.core.files.storage import FileSystemStorage
+from django.utils.deconstruct import deconstructible
+
+
+@deconstructible
+class OverwriteStorage(FileSystemStorage):
+    def get_available_name(self, name, max_length=None):
+        if self.exists(name):
+            self.delete(name)
+        return name
+
+
+def resume_pdf_upload_to(instance, filename):
+    return 'professional-documents/Prateek_Verma_Resume.pdf'
+
+
+def cv_pdf_upload_to(instance, filename):
+    return 'professional-documents/Prateek_Verma_CV.pdf'
+
+
 #    Organizations
 # ---------------------------------------------------------------------------- #
 
@@ -93,6 +113,20 @@ class BasicInformation(models.Model):
     youtube_url = models.URLField(blank=True)
     medium_url = models.URLField(blank=True)
     towardsdatascience_url = models.URLField(blank=True)
+    resume_pdf = models.FileField(
+        'Upload resume PDF file',
+        upload_to=resume_pdf_upload_to,
+        blank=True,
+        validators=[FileExtensionValidator(['pdf'])],
+        storage=OverwriteStorage(),
+    )
+    cv_pdf = models.FileField(
+        'Upload CV PDF file',
+        upload_to=cv_pdf_upload_to,
+        blank=True,
+        validators=[FileExtensionValidator(['pdf'])],
+        storage=OverwriteStorage(),
+    )
     
     # return a string representation of the object
     def __str__(self):
@@ -269,7 +303,7 @@ class Publication(models.Model):
     crossref_updated_on = models.DateField(default=datetime_date(2026, 9, 30))
     # set on the preprint; the final publication reaches it through `preprint`
     published_version = models.OneToOneField('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='preprint', limit_choices_to=~models.Q(publication_types__name='preprint'))
-    status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published"), ("in progress", "in progress")], default="published", blank=True)
+    status = models.CharField(max_length=200, choices=[("under review / submitted", "under review / submitted"), ("submitting next", "submitting next"), ("published", "published")], default="published", blank=True)
     comment = models.CharField(max_length=200, blank=True)
     tags = models.ManyToManyField(PublicationTag, blank=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -39,6 +39,44 @@ body {
     border-radius: var(--small-radius);
 }
 
+.upload-form-row {
+    display: grid;
+    grid-template-columns: minmax(0, 16rem) 8rem;
+    align-items: center;
+    gap: var(--tiny-gap);
+}
+
+.upload-form-row label {
+    grid-column: 1 / -1;
+    white-space: nowrap;
+}
+
+.upload-form-row input[type="file"] {
+    display: inline-block;
+    width: 16rem;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    line-height: normal;
+    background: transparent;
+    justify-self: start;
+}
+
+button.admin-button.admin-button2 {
+    appearance: none;
+    border: 0;
+    font-family: inherit;
+    line-height: inherit;
+}
+
+.upload-form-row > button {
+    width: 100%;
+    text-align: center;
+}
+
 .crossref-record {
     display: flex;
     flex-wrap: wrap;

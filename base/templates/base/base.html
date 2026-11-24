@@ -46,18 +46,17 @@
                 </li>
                 {% block nav_links_li %}
                 <li>
-                    <a href="#featured">Featured</a>
-                </li>
-                <li>
                     <a href="{% url 'base:professional' %}#header">Professional</a>
-                </li>
-                <li>
-                    <a href="{% url 'blog:index' %}#header">Blog</a>
                 </li>
                 <li>
                     <a href="{% url 'base:contact' %}#header">Contact</a>
                 </li>
                 {% endblock %}
+                {% if request.user.is_authenticated and request.user.is_staff %}
+                <li>
+                    <a href="{% url 'admin-dashboard' %}">Admin</a>
+                </li>
+                {% endif %}
             </ul>
             <div class="nav-social-bar">
                 <a href="{{ basic_info.instagram_url }}" target="blank"><i class="fa-brands fa-instagram"></i></a>

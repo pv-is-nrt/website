@@ -16,16 +16,65 @@
     </header>
 
     <nav aria-label="Site and administration links" class="admin-navbar">
+        <p>
         <a class="admin-button admin-button1" href="{% url 'base:index' %}">Homepage</a>
-        <a class="admin-button admin-button1" href="{% url 'tasks:index' %}">Tasks</a>
-        <a class="admin-button admin-button1" href="{% url 'admin:index' %}">Django Admin</a>
+        <a class="admin-button admin-button1" href="{% url 'tasks:index' %}">Tasks App</a>
+        <a class="admin-button admin-button1" href="{% url 'blog:index' %}">Blog App</a>
+        <a class="admin-button admin-button2" href="{% url 'admin:index' %}">Django Admin</a>
+        </p>
     </nav>
 
+    <section aria-labelledby="uploads-heading">
+        
+        <h1 id="uploads-heading">Uploads</h1>
+        
+        {% if messages %}
+        <div aria-live="polite">
+            {% for message in messages %}
+            <p class="server-message-minimal">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="padded card-very-thin">
+            <form class="upload-form" action="{% url 'admin-dashboard' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="upload_resume">
+                <div class="upload-form-row">
+                    <label for="{{ resume_upload_form.resume_pdf.id_for_label }}">Upload resume</label>
+                    {{ resume_upload_form.resume_pdf }}
+                    <button type="submit" class="admin-button admin-button2 inline">Upload</button>
+                </div>
+                {{ resume_upload_form.resume_pdf.errors }}
+            </form>
+            <div class="spacer20"></div>
+            <form class="upload-form" action="{% url 'admin-dashboard' %}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="upload_cv">
+                <div class="upload-form-row">
+                    <label for="{{ cv_upload_form.cv_pdf.id_for_label }}">Upload CV</label>
+                    {{ cv_upload_form.cv_pdf }}
+                    <button type="submit" class="admin-button admin-button2 inline">Upload</button>
+                </div>
+                {{ cv_upload_form.cv_pdf.errors }}
+            </form>
+        </div>
+    </section>
+
+    <section aria-labelledby="special-pages-heading">
+        <h1 id="special-pages-heading">Special pages</h1>
+        <ul class="padded card-very-thin">
+            {% for page in special_pages %}
+            <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </section>
+
     <section aria-labelledby="scholar-heading">
-        <h2 id="scholar-heading">Google Scholar</h2>
+        <h1 id="scholar-heading">Google Scholar</h1>
         <form id="citation-update-form" action="{% url 'admin-scholar-citations-update' %}" method="post">
             {% csrf_token %}
-            <div class="admin-button admin-button2 inline" id="citation-update-button" role="button" tabindex="0">Synchronize</div>
+            <button type="submit" class="admin-button admin-button2 inline" id="citation-update-button">Synchronize</button>
         </form>
         <div class="spacer20"></div>
         <div id="citation-progress-container" class="progress-item progress-bar-container" role="progressbar" aria-label="Google Scholar synchronization" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
@@ -51,11 +100,11 @@
             </table>
         </div>
         {{ citation_records|json_script:"citation-records" }}
-        <script src="{% static 'base/scholar-citations.js' %}" defer></script>
+        <script src="{% static 'base/scholar-citations.js' %}?v=2" defer></script>
     </section>
 
     <section aria-labelledby="crossref-heading">
-        <h2 id="crossref-heading">Crossref</h2>
+        <h1 id="crossref-heading">Crossref</h1>
         <p>Review DOI metadata for {{ crossref_records|length }} publications and choose which publication records to update.</p>
         <hr>
         {% for item in crossref_records %}
@@ -78,5 +127,6 @@
         <hr>
         {% endfor %}
     </section>
+
 </body>
 </html>

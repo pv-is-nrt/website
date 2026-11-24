@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db import transaction
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.urls import reverse
@@ -12,7 +13,6 @@ from datetime import date, timedelta
 import json
 from .models import BasicInformation, Education, Experience, GoogleScholar, Venue, VenueMetric, Publication, PublicationType, Presentation, Proposal, SkillCategory, Leadership, HonorAndAward, Advising, Mentoring, Teaching, Message, WorkHighlight, Reference, Review, Analytic
 # import models from other apps
-from blog.models import Post
 # Email
 from django.core.mail import send_mail
 
@@ -25,6 +25,16 @@ from .scholar_citations import (
     lookup_profile_data,
     normalize_title,
     scholar_user_id,
+)
+from .forms import ProfessionalDocumentsUploadForm
+
+
+# Keep intentionally unlinked pages in one registry; URL names keep these links aligned with routes.
+SPECIAL_PAGES = (
+    ('CV (HTML)', 'base:cv'),
+    ('Resume (HTML)', 'base:resume'),
+    ('Chen CV (HTML)', 'base:cv_chen'),
+    ('Chen stuff', 'base:chen_stuff'),
 )
 
 #    Helper function to get common context (fetches fresh data per request)
@@ -48,10 +58,6 @@ def _get_common_context():
     work_highlights = WorkHighlight.objects.order_by('-start_year')
     references = Reference.objects.filter(is_favorite=True).order_by('start_year')
     reviews = Review.objects.select_related('venue').prefetch_related('venue__metrics').order_by('venue__name')
-    
-    # imports from other apps
-    # import a maximum of six featured posts from the blog app ordered by most recent first
-    posts_featured = Post.objects.filter(featured=True).order_by('-publication_date')[:6]
     
     # Common but calculated things
     publications_published = Publication.objects.filter(status='published').order_by('-date')
@@ -121,8 +127,6 @@ def _get_common_context():
         # Reviews
         'reviews': reviews,
         'reviews_featured': reviews_featured,
-        # Blog posts
-        'posts_featured': posts_featured,
     }
 
 
@@ -391,6 +395,9 @@ def _apply_crossref_preview(request):
 
 @staff_member_required(login_url='/admin/models/login/')
 def admin_dashboard(request):
+    basic_info = BasicInformation.objects.get(pk=1)
+    resume_upload_form = ProfessionalDocumentsUploadForm(instance=basic_info)
+    cv_upload_form = ProfessionalDocumentsUploadForm(instance=basic_info)
     citation_records = list(Publication.objects.order_by('date', 'pk').values('id', 'title', 'citations', 'citations_updated_on', 'date', 'publisher', 'venue__name'))
     google_scholar = GoogleScholar.objects.filter(pk=1).first()
     crossref_records = _crossref_records()
@@ -401,7 +408,28 @@ def admin_dashboard(request):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'preview':
+        if action in ('upload_resume', 'upload_cv'):
+            field_name = 'resume_pdf' if action == 'upload_resume' else 'cv_pdf'
+            document_name = 'Resume' if action == 'upload_resume' else 'CV'
+            upload_form = ProfessionalDocumentsUploadForm(
+                request.POST,
+                request.FILES,
+                instance=basic_info,
+            )
+            valid = upload_form.is_valid()
+            if not request.FILES.get(field_name):
+                upload_form.add_error(field_name, 'Select a PDF file to upload.')
+                valid = False
+            if valid:
+                upload_form.save()
+                messages.success(request, '{} PDF uploaded successfully.'.format(document_name))
+                return redirect('admin-dashboard')
+            messages.error(request, '{} PDF upload failed. Select a valid PDF file.'.format(document_name))
+            if action == 'upload_resume':
+                resume_upload_form = upload_form
+            else:
+                cv_upload_form = upload_form
+        elif action == 'preview':
             record_key = request.POST.get('record_key')
             mailto = getattr(settings, 'EMAIL_HOST_USER', '')
             crossref_preview = _build_crossref_preview(
@@ -441,6 +469,13 @@ def admin_dashboard(request):
             return redirect('admin-dashboard')
 
     return render(request, 'base/admin_dashboard.html', {
+        'basic_info': basic_info,
+        'resume_upload_form': resume_upload_form,
+        'cv_upload_form': cv_upload_form,
+        'special_pages': [
+            {'title': title, 'url': reverse(url_name)}
+            for title, url_name in SPECIAL_PAGES
+        ],
         'citation_records': citation_records,
         'google_scholar': google_scholar,
         'crossref_records': crossref_records,
@@ -637,35 +672,61 @@ def professional(request):
     # -------------------------------------------#
     core.add_user_info_to_database(Analytic(), request, '/professional')
 
-    # get the complete file path of CV and resume
-    cv_path = settings.BASE_DIR / 'base/static/base/docs/Prateek Verma - CV.pdf'
-    resume_path = settings.BASE_DIR / 'base/static/base/docs/Prateek Verma - Resume.pdf'
-
     # get the modified date of the CV and resume files
-    cv_mod = core.get_last_modified_date(cv_path)
-    resume_mod = core.get_last_modified_date(resume_path)
+    context = _get_common_context()
+    basic_info = context['basic_info']
+    cv_mod = (
+        basic_info.cv_pdf.storage.get_modified_time(basic_info.cv_pdf.name).strftime('%b %d, %Y')
+        if basic_info.cv_pdf
+        else None
+    )
+    resume_mod = (
+        basic_info.resume_pdf.storage.get_modified_time(basic_info.resume_pdf.name).strftime('%b %d, %Y')
+        if basic_info.resume_pdf
+        else None
+    )
 
     # Gather information from the database here
 
     # create a context here
-    context = _get_common_context()
     # Add professional page specific values
     context['first_name'] = context['basic_info'].first_name
     context['last_name'] = context['basic_info'].last_name
     context['cv_mod'] = cv_mod
     context['resume_mod'] = resume_mod
+    context['google_scholar'] = GoogleScholar.objects.filter(pk=1).first()
+    context['publications_published_count'] = context['publications_published'].count()
+    context['conference_presentations_count'] = context['presentations'].count()
+    context['first_author_papers_count'] = context['publications_first_author'].count()
+    context['upcoming_publications_count'] = (
+        context['publications'].count() - context['publications_published_count']
+    )
+    context['upcoming_publication_status'] = (
+        context['publications']
+        .exclude(status='published')
+        .values_list('status', flat=True)
+        .first()
+    )
 
     # return the rendered page here
     return render(request, 'base/professional.html', context)
 
 
-def publications(request):
+def _get_publications_context():
     context = _get_common_context()
     context['publications'] = Publication.objects.select_related('venue').order_by('-date', 'title')
     context['presentations'] = Presentation.objects.order_by('-date', 'title')
     context['first_name'] = context['basic_info'].first_name
     context['last_name'] = context['basic_info'].last_name
-    return render(request, 'base/publications.html', context)
+    return context
+
+
+def abstracts(request):
+    return render(request, 'base/abstracts.html', _get_publications_context())
+
+
+def chen_stuff(request):
+    return render(request, 'base/chen-stuff.html', _get_publications_context())
 
 
 #    Contact page

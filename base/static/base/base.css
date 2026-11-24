@@ -22,8 +22,8 @@ Roboto Serif: 100, 400, 700, 900
   --bg-color-subtle: #ccc;
   --bg-color-very-subtle: #d8d7d4; /* was #ddd */
   --color-accent: #963;
-  --color-accent2: #364;
-  --color-accent3: #568;
+  --color-accent2: #396;
+  --color-accent3: #659;
   --color-link: #963;
   --shadow-very-dark: rgba(0, 0, 0, 0.3);
   --shadow-dark: rgba(0, 0, 0, 0.2);
@@ -127,7 +127,7 @@ li {
 h1 {
   font-size: 2.4em;
   line-height: 1.6em; /* multi-line styling has been handled in mobile.css */
-  font-weight: 700;
+  font-weight: 600; /* Not sure if this works any different from 700 */
   margin-top: 60px;
   margin-bottom: 30px;
 }
@@ -147,11 +147,11 @@ h3 {
   margin-bottom: 15px;
 }
 h4 {
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 1em;
-  line-height: 1.5em; /* larger because it's uppercase */
-  font-weight: bold;
+  text-transform: none;
+  letter-spacing: 0.0em;
+  font-size: 1.4em;
+  line-height: 1.75em; /* larger because it's uppercase */
+  font-weight: 500;
   margin-top: 20px;
   margin-bottom: 10px;
 }
@@ -599,6 +599,7 @@ nav .nav-social-bar i {
   line-height: 2em; /* in case they move to a new line */
 }
 i {
+  font-size: 1.5em;
   color: var(--color-subtle);
 }
 i.fa-instagram:hover {

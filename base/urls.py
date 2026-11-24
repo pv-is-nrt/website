@@ -11,10 +11,10 @@ app_name = 'base'
 urlpatterns = [
     path('', views.index, name='index'),
     path('professional/', views.professional, name='professional'),
-    path('publications/', views.publications, name='publications'),
+    path('abstracts/', views.abstracts, name='abstracts'),
+    path('chen-stuff/', views.chen_stuff, name='chen_stuff'),
     path('contact/', views.contact, name='contact'),
     path('cv/', views.cv, name='cv'),
     path('cv-chen/', views.cv_chen, name='cv_chen'),
     path('resume/', views.resume, name='resume'),
-    path('resume-old/', views.resume_old, name='resume_old'),
 ]
