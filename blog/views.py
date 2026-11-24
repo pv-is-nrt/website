@@ -15,14 +15,11 @@ category_list = Category.objects.filter(hidden=False).order_by('display_order')
 published_posts = Post.objects.filter(publication_date__lte=datetime.now()).order_by('-publication_date')
 recent_posts = published_posts[:10]
 
-# imports from other apps
-basic_info = BasicInformation.objects.get(pk=1)
-
-
 #    BLOG: Index page
 # ---------------------------------------------------------------------------- #
 
 def index(request):
+    basic_info = BasicInformation.objects.get(pk=1)
 
     # Add user visit to database
     # -------------------------------------------#
@@ -44,6 +41,7 @@ def index(request):
 # ---------------------------------------------------------------------------- #
 
 def post(request, post_id):
+    basic_info = BasicInformation.objects.get(pk=1)
 
     # Add user visit to database
     # -------------------------------------------#
@@ -69,6 +67,7 @@ def post(request, post_id):
 # ---------------------------------------------------------------------------- #
 
 def category(request, category_id):
+        basic_info = BasicInformation.objects.get(pk=1)
     
         # Add user visit to database
         # -------------------------------------------#
@@ -96,6 +95,7 @@ def category(request, category_id):
 # ---------------------------------------------------------------------------- #
 
 def tag(request, tag_id):
+        basic_info = BasicInformation.objects.get(pk=1)
     
         # Add user visit to database
         # -------------------------------------------#
