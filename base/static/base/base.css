@@ -598,10 +598,6 @@ nav .nav-social-bar i {
   font-size: 1.2em;
   line-height: 2em; /* in case they move to a new line */
 }
-i {
-  font-size: 1.5em;
-  color: var(--color-subtle);
-}
 i.fa-instagram:hover {
   color: var(--color-instagram);
 }

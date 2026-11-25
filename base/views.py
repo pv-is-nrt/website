@@ -1,6 +1,7 @@
 # django related imports
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.contrib import messages
@@ -60,10 +61,13 @@ def _get_common_context():
     reviews = Review.objects.select_related('venue').prefetch_related('venue__metrics').order_by('venue__name')
     
     # Common but calculated things
-    publications_published = Publication.objects.filter(status='published').order_by('-date')
+    publications_published = Publication.objects.filter(status='published').exclude(
+        publication_types__name='preprint'
+    ).distinct().order_by('-date')
     publications_featured = Publication.objects.select_related('venue').prefetch_related('venue__metrics').filter(featured=True).order_by('-date')
-    # query database to find publications where author starts with P Verma or Prateek Verma (case insensitive)
-    publications_first_author = Publication.objects.filter(authors__startswith='Prateek Verma').order_by('-date') | Publication.objects.filter(authors__startswith='P Verma').order_by('-date')
+    publications_first_author = Publication.objects.filter(
+        Q(authors__istartswith='Prateek Verma') | Q(authors__istartswith='P Verma')
+    ).order_by('-date')
     publications_published_or_submitted = Publication.objects.filter(status='published').order_by('-date') | Publication.objects.filter(status='under review / submitted').order_by('-date')
     
     presentations_featured = Presentation.objects.filter(featured=True).order_by('-date')
@@ -697,12 +701,18 @@ def professional(request):
     context['google_scholar'] = GoogleScholar.objects.filter(pk=1).first()
     context['publications_published_count'] = context['publications_published'].count()
     context['conference_presentations_count'] = context['presentations'].count()
-    context['first_author_papers_count'] = context['publications_first_author'].count()
-    context['upcoming_publications_count'] = (
-        context['publications'].count() - context['publications_published_count']
-    )
+    context['preprints_count'] = context['publications'].filter(
+        publication_types__name='preprint'
+    ).distinct().count()
+    context['first_author_publications_count'] = context['publications_first_author'].count()
+    non_preprint_publications = context['publications'].exclude(
+        publication_types__name='preprint'
+    ).distinct()
+    context['upcoming_publications_count'] = non_preprint_publications.exclude(
+        status='published'
+    ).count()
     context['upcoming_publication_status'] = (
-        context['publications']
+        non_preprint_publications
         .exclude(status='published')
         .values_list('status', flat=True)
         .first()

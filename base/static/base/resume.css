@@ -20,6 +20,15 @@ body {
     line-height: 1.3em; /* lesser than resume.css */
 }
 
+@media screen {
+    body {
+        margin: 0.5in auto;
+        font-size: 12pt;
+        width: 80%;
+        max-width: 1200px;
+    }
+}
+
 header {
     padding: 0 0.1in var(--m-gap);
     margin: 0 -0.1in var(--l-gap);

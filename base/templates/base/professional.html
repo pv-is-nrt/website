@@ -63,21 +63,29 @@
 	<section class="cv-resume grid-container">
 		<div>
 			<h4 class="color-accent">Resume</h4>
+			<hr class="narrow">
 			{% if basic_info.resume_pdf %}
-			<p><span class="material-icons color-accent space-narrow-span-left">picture_as_pdf</span><a href="{{ basic_info.resume_pdf.url }}" class="space-narrow-span-left dotted mono" target="_blank">Download Resume (PDF file)</a></p>
+			<p class="mono"><span class="material-icons color-accent space-narrow-span-left">picture_as_pdf</span><a href="{{ basic_info.resume_pdf.url }}" class="space-narrow-span-left dotted" target="_blank">Download Resume</a> (pdf)</p>
 			<p class="color-subtle smaller-text">updated on {{ resume_mod }}</p>
 			{% else %}
 			<p class="color-subtle smaller-text">File not found.</p>
 			{% endif %}
+			<div class="spacer10"></div>
+			<p><span class="material-icons color-accent space-narrow-span-left">open_in_new</span><a href="{% url 'base:resume' %}" class="space-narrow-span-left dotted mono" target="_blank" rel="noopener noreferrer">View as HTML</a></p>
+			<p class="color-subtle smaller-text">always up-to-date</p>
 		</div>
 		<div>
 			<h4 class="color-accent">Curriculum Vitae</h4>
+			<hr class="narrow">
 			{% if basic_info.cv_pdf %}
-			<p><span class="material-icons color-accent space-narrow-span-left">picture_as_pdf</span><a href="{{ basic_info.cv_pdf.url }}" class="space-narrow-span-left dotted mono" target="_blank">Download CV (PDF file)</a></p>
+			<p class="mono"><span class="material-icons color-accent space-narrow-span-left">picture_as_pdf</span><a href="{{ basic_info.cv_pdf.url }}" class="space-narrow-span-left dotted" target="_blank">Download CV</a> (pdf)</p>
 			<p class="color-subtle smaller-text">updated on {{ cv_mod }}</p>
 			{% else %}
 			<p class="color-subtle smaller-text">File not found.</p>
 			{% endif %}
+			<div class="spacer10"></div>
+			<p><span class="material-icons color-accent space-narrow-span-left">open_in_new</span><a href="{% url 'base:cv' %}" class="space-narrow-span-left dotted mono" target="_blank" rel="noopener noreferrer">View as HTML</a></p>
+			<p class="color-subtle smaller-text">always up-to-date</p>
 		</div>
 	</section>
 
@@ -94,24 +102,24 @@
 				<h4>Links to research profiles</h4>
 				<hr>
 				<a href="{{ basic_info.scholar_url }}" target="blank">
-					<i class="fa-brands fa-google space-span-left color-accent3"></i>Google Scholar
+					<i class="fa-brands fa-google space-span-left color-accent3 larger-text"></i>Google Scholar
 				</a>
 				<hr class="narrow">
 				<a href="{{ basic_info.github_url }}" target="blank">
-					<i class="fa-brands fa-github space-span-left color-accent3"></i>Github
+					<i class="fa-brands fa-github space-span-left color-accent3 larger-text"></i>Github
 				</a>
 				<hr class="narrow">
 				<a href="{{ basic_info.researchgate_url }}" target="blank">
-					<i class="fa-brands fa-researchgate space-span-left color-accent3"></i>ResearchGate
+					<i class="fa-brands fa-researchgate space-span-left color-accent3 larger-text"></i>ResearchGate
 				</a>
 				<hr class="narrow">
 				<a href="{{ basic_info.orcid_url }}" target="blank">
-					<i class="fa-brands fa-orcid space-span-left color-accent3"></i>ORCID
+					<i class="fa-brands fa-orcid space-span-left color-accent3 larger-text"></i>ORCID
 				</a>
 				<hr class="narrow">
 				<!-- TODO: change publons to web of science in database -->
 				<a href="{{ basic_info.publons_url }}" target="blank">
-					<i class="fa-solid fa-flask space-span-left color-accent3"></i>Web of Science
+					<i class="fa-solid fa-flask space-span-left color-accent3 larger-text"></i>Web of Science
 				</a>
 			</div>
 			<div class="padded card-very-thin double-spaced">
@@ -119,16 +127,18 @@
 				<hr>
 				<h5>Google Scholar</h5>
 				<hr class="narrow">
+				<p class="smaller-text color-subtle">Last updated: {{ google_scholar.updated_at|date:"M j, Y" }}</p>
 				<p><span class="fancy-text space-narrow-span-left">{{ google_scholar.citations }}</span> Citations</p>
 				<p><span class="fancy-text space-narrow-span-left">{{ google_scholar.h_index }}</span> h-index</p>
 				<p><span class="fancy-text space-narrow-span-left">{{ google_scholar.i10_index }}</span> i10-index</p>
 				<hr>
 				<h5>Publications</h5>
 				<hr class="narrow">
-				<p><a href="#publication-status-published"><span class="fancy-text space-narrow-span-left">{{ publications_published_count }}</span></a> papers published</p>
+				<p><a href="#publication-status-published"><span class="fancy-text space-narrow-span-left">{{ publications_published_count }}</span></a> peer-reviewed papers published</p>
+				<p><a href="#publications"><span class="fancy-text space-narrow-span-left">{{ first_author_publications_count }}</span></a> first-author papers</p>
 				<p><a href="#presentations"><span class="fancy-text space-narrow-span-left">{{ conference_presentations_count }}</span></a> conference presentations</p>
-				<p><a href="#publications"><span class="fancy-text space-narrow-span-left">{{ first_author_papers_count }}</span></a> first-author papers</p>
-				<p>{% if upcoming_publication_status %}<a href="#publication-status-{{ upcoming_publication_status|slugify }}">{% endif %}<span class="fancy-text space-narrow-span-left">{{ upcoming_publications_count }}</span>{% if upcoming_publication_status %}</a>{% endif %} papers coming up soon</p>
+				<p><a href="{% url 'base:abstracts' %}#header"><span class="fancy-text space-narrow-span-left">{{ preprints_count }}</span></a> preprints</p>
+				<p>{% if upcoming_publication_status %}<a href="#publication-status-{{ upcoming_publication_status|slugify }}">{% endif %}<span class="fancy-text space-narrow-span-left">{{ upcoming_publications_count }}</span>{% if upcoming_publication_status %}</a>{% endif %} coming up soon</p>
 			</div>
 		</section>
 
